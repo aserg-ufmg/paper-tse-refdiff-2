@@ -3,6 +3,12 @@
 \usepackage[utf8]{inputenc}
 
 
+\usepackage{booktabs}
+\usepackage[usenames]{color}
+\definecolor{darkgray}{RGB}{90,90,90}
+\definecolor{lightgray}{RGB}{210,210,210}
+\newcommand\xbar[1]{#1 {\color{darkgray} \rule{\dimexpr #1pt * 16}{5.5pt}}{\color{lightgray} \rule{\dimexpr 16pt - (#1pt * 16)}{5.5pt}}}
+
 % Some very useful LaTeX packages include:
 % (uncomment the ones you want to load)
 
@@ -595,6 +601,10 @@ Subsubsection text here.
 % Note that, LaTeX2e, unlike IEEE journals/conferences, places
 % footnotes above bottom floats. This can be corrected via the
 % \fnbelowfloat command of the stfloats package.
+
+
+
+\input{evaluation.tex}
 
 
 

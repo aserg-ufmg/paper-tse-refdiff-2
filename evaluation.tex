@@ -1,0 +1,85 @@
+\section{Evaluation}
+
+
+\subsection{Precision}
+\label{SecPrecisionProcedure}
+
+The procedure to compute the precision of our approach consists of the following steps:
+
+\begin{enumerate}  
+\item We selected the 20 most popular repositories of a target programming language. For this, we queried the GitHub API for repositories, sorting by stars count---which is an indicator of popularity---and filtering by the programming language.
+The resulting list of repositories was manually inspected to discard the ones that were not actual software projects, e.g.: tutorials or code samples.
+For each selected repository, we created a fork of it to preserve its version history from future changes pushed to the original project.
+
+\item We ran RefDiff in the version history of each repository and recorded the refactorings found.
+The version history was inspected by navigating the commit graph backwards, starting from the most recent commit in the master branch.
+For each commit, we compared its source code with its predecessor using RefDiff.
+It is worth noting that merge commits, which have two predecessors, were ignored.
+The rationale for such decision is that comparing a merge commit with their predecessors would result in duplicated reports of refactorings applied in the commits prior to the merge operation.
+Moreover, to avoid over-representing projects with longer histories, we established a limit of 500 commits per repository.
+
+\item Given the list of refactorings instances found, we randomly selected 10 instances of each refactoring type to assess whether they correspond to actual refactorings (true positives), or incorrect reports (false positives).
+To confirm each refactoring instance, one of the authors inspected the diff of the code changes in the corresponding commit.
+When applying the random selection, we enforced the constraint that we should not select two refactoring instances performed in the same commit.
+This way, we avoided selecting very similar refactoring instances which were performed in batch, i.e., multiple classes or functions moved together.
+\end{enumerate}
+
+After performing the three steps described above, we were able to compute the precision as $P = \mathit{TP} / (\mathit{TP} + \mathit{FP})$, where $\mathit{TP}$ is the number of true positives and $\mathit{FP}$ is the number of false positives.
+
+
+
+\subsection{Recall}
+
+The procedure to compute the recall of our approach consists of the following steps:
+
+\begin{enumerate}  
+\item We queried the GitHub API to find refactorings documented in commits from the 20 repositories selected in the first step of the precision evaluation procedure (Section~\ref{SecPrecisionProcedure}). Such queries consist in searching for keywords denoting a particular type of refactoring in the commit message. For example, when looking for \emph{Rename Function} refactoring instances, we built a query that looks for commits which contain the keywords \texttt{rename} and \texttt{function} in their commit messages.
+
+\item Given the results of a query, we manually inspected the commit message and the diff of the source code to confirm the applied refactoring. We repeated this procedure until we found 10 instances of each refactoring type or there were no more results to inspect. Each confirmed refactoring was recorded in a normalized textual format compatible with the output of RefDiff. It is worth noting that, during this procedure, most of the results were discarded because the commit message did not actually documented a refactoring. Besides, the diff of some of the commits were so large that could not be displayed in the user interface. In summary, we only registered the refactoring instances that we could confirm both in the commit message and in the code diff.
+
+\item We ran RefDiff in the commits that contained refactorings found in the previous step to assess whether they are reported (true positives) or missed (false negatives). 
+
+\end{enumerate}
+
+After performing the three steps described above, we were able to compute the recall as $R = \mathit{TP} / (\mathit{TP} + \mathit{FN})$, where $\mathit{TP}$ is the number of true positives and $\mathit{FN}$ is the number of false negatives.
+
+\begin{table}[htbp]
+\renewcommand{\arraystretch}{1.2}
+\caption{JavaScript precision results}
+\label{TabResultJsPrecison}
+\centering
+\begin{tabular}{@{}lrrrll@{}}
+\toprule
+Refactoring Type & TP & FP & Precision\\
+\midrule
+Move File & 10 & 0 & \xbar{1.00} \\
+Move Class & 2 & 0 & \xbar{1.00} \\
+Move Function & 9 & 1 & \xbar{0.90} \\
+Rename File & 10 & 0 & \xbar{1.00} \\
+Rename Class & 5 & 0 & \xbar{1.00} \\
+Rename Function & 8 & 2 & \xbar{0.80} \\
+Move and Rename File & 10 & 0 & \xbar{1.00} \\
+Move and Rename Function & 8 & 2 & \xbar{0.80} \\
+Extract Function & 9 & 1 & \xbar{0.90} \\
+Inline Function & 8 & 2 & \xbar{0.80} \\
+\addlinespace
+Total & 79 & 8 & \xbar{0.91} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\renewcommand{\arraystretch}{1.2}
+\caption{JavaScript recall results}
+\label{TabResultJsRecall}
+\centering
+\begin{tabular}{@{}lrrrll@{}}
+\toprule
+Refactoring Type & TP & FN & Recall\\
+\midrule
+Move File & 10 & 0 & \xbar{1.00} \\
+\addlinespace
+Total & 79 & 8 & \xbar{0.91} \\
+\bottomrule
+\end{tabular}
+\end{table}
