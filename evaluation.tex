@@ -1,7 +1,9 @@
 \section{Evaluation}
 
+\subsection{Evaluation Procedure}
 
-\subsection{Precision}
+
+\subsubsection{Precision}
 \label{SecPrecisionProcedure}
 
 The procedure to compute the precision of our approach consists of the following steps:
@@ -28,7 +30,7 @@ After performing the three steps described above, we were able to compute the pr
 
 
 
-\subsection{Recall}
+\subsubsection{Recall}
 
 The procedure to compute the recall of our approach consists of the following steps:
 
@@ -42,6 +44,31 @@ The procedure to compute the recall of our approach consists of the following st
 \end{enumerate}
 
 After performing the three steps described above, we were able to compute the recall as $R = \mathit{TP} / (\mathit{TP} + \mathit{FN})$, where $\mathit{TP}$ is the number of true positives and $\mathit{FN}$ is the number of false negatives.
+
+
+\subsection{JavaScript evaluation results}
+
+The following GitHub repositories were selected to run evaluation procedure:
+\textsc{facebook/\-react}, 
+\textsc{vuejs/\-vue}, 
+\textsc{d3/\-d3}, 
+\textsc{face\-book/\-react-native}, 
+\textsc{angular/\-angular.js}, 
+\textsc{face\-book/\-create-react-app}, 
+\textsc{jquery/\-jquery}, 
+\textsc{atom/\-atom}, 
+\textsc{axios/\-axios}, 
+\textsc{mrdoob/\-three.js}, 
+\textsc{socketio/\-socket.io}, 
+\textsc{reduxjs/\-redux}, 
+\textsc{webpack/\-webpack}, 
+\textsc{Semantic-Org/\-Semantic-UI}, 
+\textsc{hakimel/\-reveal.js}, 
+\textsc{meteor/\-meteor}, 
+\textsc{expressjs/\-express}, 
+\textsc{mui-org/\-material-ui}, 
+\textsc{chartjs/\-Chart.js}
+
 
 \begin{table}[htbp]
 \renewcommand{\arraystretch}{1.2}
@@ -78,8 +105,91 @@ Total & 79 & 8 & \xbar{0.91} \\
 Refactoring Type & TP & FN & Recall\\
 \midrule
 Move File & 10 & 0 & \xbar{1.00} \\
+Move Function & 10 & 0 & \xbar{1.00} \\
+Rename File & 8 & 2 & \xbar{0.80} \\
+Rename Function & 9 & 1 & \xbar{0.90} \\
+Move and Rename File & 3 & 0 & \xbar{1.00} \\
+Move and Rename Function & 6 & 1 & \xbar{0.86} \\
+Extract Function & 9 & 1 & \xbar{0.90} \\
+Inline Function & 2 & 3 & \xbar{0.40} \\
 \addlinespace
-Total & 79 & 8 & \xbar{0.91} \\
+Total & 57 & 8 & \xbar{0.88} \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+
+\subsection{C evaluation results}
+
+The following GitHub repositories were selected to run evaluation procedure:
+\textsc{torvalds/\-linux}, 
+\textsc{firehol/\-netdata}, 
+\textsc{antirez/\-redis}, 
+\textsc{git/\-git}, 
+\textsc{Bilibili/\-ijkplayer}, 
+\textsc{php/\-php-src}, 
+\textsc{wg/\-wrk}, 
+\textsc{ggreer/\-the\_silver\_searcher}, 
+\textsc{kripken/\-emscripten}, 
+\textsc{vim/\-vim}, 
+\textsc{stedolan/\-jq}, 
+\textsc{FFmpeg/\-FFmpeg}, 
+\textsc{tmux/\-tmux}, 
+\textsc{vurtun/\-nuklear}, 
+\textsc{obsproject/\-obs-studio}, 
+\textsc{libuv/\-libuv}, 
+\textsc{swoole/\-swoole-src}, 
+\textsc{curl/\-curl}, 
+\textsc{irungentoo/\-toxcore}, 
+\textsc{pjreddie/\-darknet} 
+
+
+\begin{table}[htbp]
+\renewcommand{\arraystretch}{1.2}
+\caption{C precision results}
+\label{TabResultCPrecison}
+\centering
+\begin{tabular}{@{}lrrrll@{}}
+\toprule
+Refactoring Type & TP & FP & Precision\\
+\midrule
+Move File & 10 & 0 & \xbar{1.00} \\
+Move Function & 8 & 2 & \xbar{0.80} \\
+Rename File & 10 & 0 & \xbar{1.00} \\
+Rename Function & 9 & 1 & \xbar{0.90} \\
+Move and Rename Function & 8 & 2 & \xbar{0.80} \\
+Change Signature & 10 & 0 & \xbar{1.00} \\
+Extract Function & 10 & 0 & \xbar{1.00} \\
+Inline Function & 5 & 5 & \xbar{0.50} \\
+\addlinespace
+Total & 70 & 10 & \xbar{0.88} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{table}[htbp]
+\renewcommand{\arraystretch}{1.2}
+\caption{C recall results}
+\label{TabResultCRecall}
+\centering
+\begin{tabular}{@{}lrrrll@{}}
+\toprule
+Refactoring Type & TP & FN & Recall\\
+\midrule
+Change Signature & 9 & 1 & \xbar{0.90} \\
+Extract Function & 7 & 3 & \xbar{0.70} \\
+Inline Function & 9 & 1 & \xbar{0.90} \\
+Move File & 10 & 0 & \xbar{1.00} \\
+Move Function & 8 & 2 & \xbar{0.80} \\
+Move and Rename File & 10 & 0 & \xbar{1.00} \\
+Move and Rename Function & 9 & 1 & \xbar{0.90} \\
+Rename File & 10 & 0 & \xbar{1.00} \\
+Rename Function & 10 & 0 & \xbar{1.00} \\
+\addlinespace
+Total & 82 & 8 & \xbar{0.91} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
