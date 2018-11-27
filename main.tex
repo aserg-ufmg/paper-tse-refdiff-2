@@ -5,9 +5,21 @@
 
 \usepackage{booktabs}
 \usepackage[usenames]{color}
+\usepackage{blindtext}
 \definecolor{darkgray}{RGB}{90,90,90}
 \definecolor{lightgray}{RGB}{210,210,210}
 \newcommand\xbar[1]{#1 {\color{darkgray} \rule{\dimexpr #1pt * 16}{5.5pt}}{\color{lightgray} \rule{\dimexpr 16pt - (#1pt * 16)}{5.5pt}}}
+
+\definecolor{codegray}{gray}{0.9}
+\newcommand{\code}[1]{\colorbox{codegray}{\texttt{#1}}}
+\newcommand{\codeinl}[1]{%
+  \begingroup
+  \setlength{\fboxsep}{2pt}%
+  \mbox{\vphantom{#1}\smash{\colorbox{codegray}{\texttt{#1}}}}%
+  \endgroup
+}
+
+\newcommand{\todo}[1]{\textcolor{red}{TODO: #1}}
 
 % Some very useful LaTeX packages include:
 % (uncomment the ones you want to load)
@@ -77,7 +89,7 @@
 % *** GRAPHICS RELATED PACKAGES ***
 %
 \ifCLASSINFOpdf
-  % \usepackage[pdftex]{graphicx}
+  \usepackage[pdftex]{graphicx}
   % declare the path(s) where your graphic files are
   % \graphicspath{{../pdf/}{../jpeg/}}
   % and their extensions so you won't have to specify these with
@@ -87,7 +99,7 @@
   % or other class option (dvipsone, dvipdf, if not using dvips). graphicx
   % will default to the driver specified in the system graphics.cfg if no
   % driver is specified.
-  % \usepackage[dvips]{graphicx}
+  \usepackage[dvips]{graphicx}
   % declare the path(s) where your graphic files are
   % \graphicspath{{../eps/}}
   % and their extensions so you won't have to specify these with
@@ -121,7 +133,7 @@
 
 % *** MATH PACKAGES ***
 %
-%\usepackage{amsmath}
+\usepackage{amsmath}
 % A popular package from the American Mathematical Society that provides
 % many useful and powerful commands for dealing with mathematics.
 %
@@ -133,7 +145,36 @@
 % version and documentation can be obtained at:
 % http://www.ctan.org/pkg/amsmath
 
+\usepackage{amssymb}
 
+\DeclareMathOperator{\rdname}{name}
+\DeclareMathOperator{\rdparent}{\pi}
+\DeclareMathOperator{\rdsig}{ident}
+\DeclareMathOperator{\rdsub}{subtype}
+\DeclareMathOperator{\rdtype}{type}
+\DeclareMathOperator{\rdsim}{sim}
+\DeclareMathOperator{\rdsimx}{sim_{p}}
+\DeclareMathOperator{\rduses}{uses}
+
+
+
+\usepackage{listings}
+\usepackage{lipsum}
+\usepackage{courier}
+\definecolor{javablue}{rgb}{0.25,0,1} % for strings
+\definecolor{javagreen}{rgb}{0.25,0.5,0.35} % comments
+\definecolor{javapurple}{rgb}{0.5,0,0.35} % keywords
+\definecolor{javadocblue}{rgb}{0.25,0.35,0.75} % javadoc
+\lstset{
+language=Java,
+basicstyle=\footnotesize\ttfamily,
+breaklines=true,
+keywordstyle=\color{javapurple}\bfseries,
+stringstyle=\color{javablue},
+commentstyle=\color{javagreen},
+morecomment=[s][\color{javadocblue}]{/**}{*/},
+tabsize=2,
+frame=single}
 
 
 
@@ -159,7 +200,7 @@
 
 % *** ALIGNMENT PACKAGES ***
 %
-%\usepackage{array}
+\usepackage{array}
 % Frank Mittelbach's and David Carlisle's array.sty patches and improves
 % the standard LaTeX2e array and tabular environments to provide better
 % appearance and additional user controls. As the default LaTeX2e table
@@ -459,52 +500,11 @@ Computer Society, IEEE, IEEEtran, journal, \LaTeX, paper, template.
 
 
 
-\IEEEraisesectionheading{\section{Introduction}\label{sec:introduction}}
-% Computer Society journal (but not conference!) papers do something unusual
-% with the very first section heading (almost always called "Introduction").
-% They place it ABOVE the main text! IEEEtran.cls does not automatically do
-% this for you, but you can achieve this effect with the provided
-% \IEEEraisesectionheading{} command. Note the need to keep any \label that
-% is to refer to the section immediately after \section in the above as
-% \IEEEraisesectionheading puts \section within a raised box.
 
 
-
-
-% The very first letter is a 2 line initial drop letter followed
-% by the rest of the first word in caps (small caps for compsoc).
-% 
-% form to use if the first word consists of a single letter:
-% \IEEEPARstart{A}{demo} file is ....
-% 
-% form to use if you need the single drop letter followed by
-% normal text (unknown if ever used by the IEEE):
-% \IEEEPARstart{A}{}demo file is ....
-% 
-% Some journals put the first two words in caps:
-% \IEEEPARstart{T}{his demo} file is ....
-% 
-% Here we have the typical use of a "T" for an initial drop letter
-% and "HIS" in caps to complete the first word.
-\IEEEPARstart{T}{his} demo file is intended to serve as a ``starter file''
-for IEEE Computer Society journal papers produced under \LaTeX\ using
-IEEEtran.cls version 1.8b and later.
-% You must have at least 2 lines in the paragraph with the drop letter
-% (should never be an issue)
-I wish you the best of success.
-
-\hfill mds
- 
-\hfill August 26, 2015
-
-\subsection{Subsection Heading Here}
-Subsection text here.
 
 % needed in second column of first page if using \IEEEpubid
 %\IEEEpubidadjcol
-
-\subsubsection{Subsubsection Heading Here}
-Subsubsection text here.
 
 
 % An example of a floating figure using the graphicx package.
@@ -603,10 +603,10 @@ Subsubsection text here.
 % \fnbelowfloat command of the stfloats package.
 
 
-
-\input{evaluation.tex}
-
-
+\input{s1-introduction.tex}
+\input{s2-background.tex}
+\input{s3-approach.tex}
+\input{s4-evaluation.tex}
 
 
 \section{Conclusion}
@@ -677,20 +677,14 @@ The authors would like to thank...
 % http://mirror.ctan.org/biblio/bibtex/contrib/doc/
 % The IEEEtran BibTeX style support page is at:
 % http://www.michaelshell.org/tex/ieeetran/bibtex/
-%\bibliographystyle{IEEEtran}
+\bibliographystyle{IEEEtran}
 % argument is your BibTeX string definitions and bibliography database(s)
 %\bibliography{IEEEabrv,../bib/paper}
 %
 % <OR> manually copy in the resultant .bbl file
 % set second argument of \begin to the number of references
 % (used to reserve space for the reference number labels box)
-\begin{thebibliography}{1}
-
-\bibitem{IEEEhowto:kopka}
-H.~Kopka and P.~W. Daly, \emph{A Guide to \LaTeX}, 3rd~ed.\hskip 1em plus
-  0.5em minus 0.4em\relax Harlow, England: Addison-Wesley, 1999.
-
-\end{thebibliography}
+\bibliography{IEEEabrv,references}
 
 % biography section
 % 
