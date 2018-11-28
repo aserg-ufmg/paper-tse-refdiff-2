@@ -1,38 +1,68 @@
 \section{Proposed Approach}
 
-Our approach takes as input the source code of two revisions of a system and outputs a set of relationships between code elements (classes, functions, etc.) before and after the change. Such relationships may denote a high-level refactoring operation (move, rename, extract, etc.) or an exact correspondence between the code elements.
-For example, suppose that a certain method $m_1$ in revision $v_1$ corresponds to a method $m_2$ in revision $v_2$, but its name has been changed between revisions. 
-This would correspond relationship of the type \emph{Rename Method} between $m_1$ and $m_2$ and, consequently, to a \emph{Rename Method} refactoring.
-
-Specifically, our approach consists in two phases: Source Code Analysis and Relationship Analysis.
-In the first phase, Source Code Analysis, we build two models that represents the source code of the given revisions $v_1$ and $v_2$.
-Such models have the form of a tree, in which each node corresponds to a code element.
+Our approach consists in two phases: Source Code Analysis and Relationship Analysis.
+In the first phase, Source Code Analysis, we take as input two revisions of a system, $v_1$ and $v_2$, and build two models that represent their source code.
+Both models have the form of a tree, in which each node corresponds to a code element (classes, functions, etc.).
 In the second phase, Relationship Analysis, we compute the set $R_{1,2}$, which contains triples of the form $(n_1, n_2, t)$, where $n_1$ is a code element from revision $v_1$, $n_2$ is a code element from revision $v_2$ and $t$ is a relationship type.
-In the next sections we describe in details both phases.
+Such relationships may denote a high-level refactoring operation (move, rename, extract, etc.) or an exact correspondence between the code elements.
+For example, consider the diff between two revisions of a system depicted in Figure~\ref{FigDiff1}.
+Among other changes, the class \codeinl{Calculator}, declared in revision~1, is renamed to \codeinl{FpCalculator} in revision~2. This would correspond to a relationship of the type \emph{Rename} between them.
+In the next sections we describe in details each phase of our approach.
 
+\begin{figure*}[htb]
+\centering
+\includegraphics[width=0.9\textwidth]{img/diff1.pdf}
+\caption{Illustrative diff between two revisions of a system}
+\label{FigDiff1}
+\end{figure*}
 
 
 \subsection{Phase 1: Source Code Analysis}
 
-The goal of this phase is compute a language-independent model that represents the source code of the system, which we denote from now on as \emph{Code Structure Tree} (CST). The CST is a tree-like structure that resembles an \emph{Abstract Syntax Tree} (AST), however, in this representation we are interested in high level code elements, that encompass a code region and may be referred in other parts of the system. 
-For example, in the Java language we consider classes, interfaces and methods as code elements of interest. In contrast, local variables are not considered a high level code element and are not represented. Figure~\ref{FigJavaToCst} exemplifies the transformation of a Java program with two sources files into a corresponding CST.
-In this example, the class \codeinl{Main} is declared with a single method in the first file, while the second file defines the class \codeinl{Calculator}, which contains three methods.
-The two classes and the four methods of the system become nodes in the CST depicted on the right side of the figure, preserving the same nesting structure of the source code.
+The goal of this phase is compute a language-independent model that represents the source code of the system, which we denote from now on as \emph{Code Structure Tree} (CST). The CST is a tree-like structure that resembles an \emph{Abstract Syntax Tree} (AST), however, in this representation we are interested in coarse-grained code elements, that encompass a code region and may be referred by an identifier in other parts of the system.
 
+To construct the CST, we need to parse the source code, generate the AST for the target programming language, and extract the necessary information.
+Thus, the decision of which types of AST nodes becomes CST nodes depends on language.
+For example, in Java we represent classes, enums, interfaces, and methods as CST nodes.
+In contrast, local variables are not represented.
+Nevertheless, it is important to note that the granularity of the CST nodes determines the granularity of the relationships we are able to find, e.g., we can only find relationships between methods if we represent methods in the CST.
+Table~\ref{TabCstNodes} lists the types of AST nodes that are represented in the CST for each programming language we support.
 
-\begin{figure*}[htb]
+\begin{table}[htbp]
+\renewcommand{\arraystretch}{1.2}
+\caption{AST nodes that are represented in the CST}
+\label{TabCstNodes}
 \centering
-\includegraphics[width=1.0\textwidth]{img/javaToCst.pdf}
-\caption{Transformation of the source code to CST}
-\label{FigJavaToCst}
-\end{figure*}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Language & Node types \\
+\midrule
+Java & class, enum, interface, and method \\
+C & file and function \\
+JavaScript & file, class, and function \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-Along with each node of the CST, we store the following information:
+\begin{figure}[htb]
+\centering
+\includegraphics[width=1.0\linewidth]{img/cstDiff1.pdf}
+\caption{CST of both revisions of the example system from Figure~\ref{FigDiff1}}
+\label{FigJavaToCst}
+\end{figure}
+
+Figure~\ref{FigJavaToCst} exemplifies the transformation of the example system from Figure~\ref{FigDiff1} into a corresponding CST.
+In revision~1, the class \codeinl{Main} is declared with a single method \codeinl{main} and the class \codeinl{Calculator} contains two methods: \codeinl{sum} and \codeinl{min}.
+Note that all those classes and methods become nodes in the CST for revision~1, preserving the same nesting structure of the source code. Analogously, the figure also depicts the CST for revision 2, which contains seven nodes in total (two classes and five methods).
+
+Besides the representation of the code elements, the CST also holds a simplified call graph and  a type hierarchy graph of the nodes within the CST, that is, there are edges to represent whether a certain node $n_1$ calls $n_2$, or $n_1$ is a subtype of $n_2$. The first information is necessary to find \emph{Extract} and \emph{Inline} relationships between code elements, while the second is used to find inheritance related relationships such as \emph{Pull Up} and \emph{Push Down}.
+
+Moreover, along with each node of the CST, we store the following information:
 \begin{description}
     \item[Identifier] \hfill \\
     An identifier of the code element in its declared scope. 
     The identifier is usually the name of the code element, but it may also contain additional information to avoid ambiguities.
-    For example, the identifier of the class \codeinl{Calculator} from Figure~\ref{FigJavaToCst} is simply its name, but the identifier of the method \codeinl{add} is \codeinl{add(int,int)} because there could be an overloaded method with a different signature.
+    For example, the identifier of the class \codeinl{Calculator} from Figure~\ref{FigJavaToCst} is simply its name, but the identifier of the method \codeinl{sum} is \codeinl{sum(double,double)} because there could be an overloaded method with a different signature.
     
     \item[Namespace] \hfill \\
     An optional prefix that, along with the identifier, globally identifies the code element. 
@@ -45,20 +75,23 @@ Along with each node of the CST, we store the following information:
     An optional list of the name of the parameters, in the case the node corresponds to a method or function.
     
     \item[Tokenized source code]  \hfill \\
-    The source code of code element in the form of a list of tokens. 
+    The source code of the code element in the form of a list of tokens. 
     This information is necessary to compute the similarity between code elements, as explained in Section~\ref{SecCodeSim}.
+    
+    \item[Tokenized source code of the body]  \hfill \\
+    The source code of the body of the code element in the form of a list of tokens. 
+    This information is optional, as not every node possess a body (e.g., abstract members).
+    This information is also necessary to compute the similarity between code elements in the special cases of \textit{Extract} and \textit{Inline} relationships, as explained in Section~\ref{SecSimX}.
     
 \end{description}
 
-In our approach, we generate the CST only for source files that have been added, removed, or modified between revisions. 
+It is worth noting that we generate the CST only for source files that have been added, removed, or modified between revisions. 
 Such information can be efficiently obtained from version control systems, without the need to read the content of all files within the repository.
 This way, we avoid a costly operation that might compromise the scalability of our approach, as large repositories contains thousands of source files, but only a small fraction of them change between subsequent revisions.
 
-Besides the representation of the code elements, the CST also holds a simplified call graph and the type hierarchy of the nodes within the graph, that is, whether a certain node $n_1$ calls $n_2$, or $n_1$ is a subtype of $n_2$. The first information is necessary to find \emph{Extract} and \emph{Inline} relationships between code elements, while the second is used to find inheritance related relationships such as \emph{Pull Up} and \emph{Push Down}.
-
-
-It is worth noting that the construction of the CST is a language-specific process, as we need to parse the source code, generate the AST for the target programming language, and extract the necessary information. However, from this point on, the approach is language-independent and relies only on the information encoded in the CST.
-This way, one is able to extend our approach to work with different programming languages only by implementing the \emph{Source Code Analysis} module. To demonstrate that capability, we provide implementations for three programming languages: Java, C, and JavaScript.
+Although the construction of the CST is a language-specific process, from this point on, the approach is language-independent and relies only on the information encoded in the CST.
+This way, one is able to extend our approach to work with different programming languages only by implementing the \emph{Source Code Analysis} module.
+To demonstrate that capability, we provide implementations for three programming languages: Java, C, and JavaScript.
 
 
 \subsection{Phase 2: Relationship Analysis}
@@ -76,16 +109,16 @@ Relationship type & Conditions \\
 \midrule
 & \multicolumn{2}{l}{$(n_1, n_2) \in N^- \times N^+$, such that:}\\
 Same & & $\rdsig(n_1) = \rdsig(n_2) \land \rdparent(n_1)' = \rdparent(n_2) \land \rdtype(n_1) = \rdtype(n_2)$ \\
-Convert type & & $\rdsig(n_1) = \rdsig(n_2) \land \rdparent(n_1)' = \rdparent(n_2) \land \rdtype(n_1) \neq \rdtype(n_2)$ \\
-Pull Up & & $\rdsig(n_1) = \rdsig(n_2) \land \rdparent(n_1)' \neq \rdparent(n_2) \land \rdsub(\rdparent(n_1)', \rdparent(n_2))$ \\
-Push Down & & $\rdsig(n_1) = \rdsig(n_2) \land \rdparent(n_1)' \neq \rdparent(n_2) \land \rdsub(\rdparent(n_2), \rdparent(n_1)')$ \\
-Change signature & & $\rdname(n_1) = \rdname(n_2) \land \rdsig(n_1) \neq \rdsig(n_2) \land \rdparent(n_1)' = \rdparent(n_2) \land \rdsim(n_1, n_2) > \tau$ \\
+Convert Type & & $\rdsig(n_1) = \rdsig(n_2) \land \rdparent(n_1)' = \rdparent(n_2) \land \rdtype(n_1) \neq \rdtype(n_2)$ \\
+Pull Up & & $\rdsig(n_1) = \rdsig(n_2) \land \rdsub(\rdparent(n_1)', \rdparent(n_2))$ \\
+Push Down & & $\rdsig(n_1) = \rdsig(n_2) \land \rdsub(\rdparent(n_2), \rdparent(n_1)')$ \\
+Change Signature & & $\rdname(n_1) = \rdname(n_2) \land \rdsig(n_1) \neq \rdsig(n_2) \land \rdparent(n_1)' = \rdparent(n_2) \land \rdsim(n_1, n_2) > \tau$ \\
 Move & & $\rdname(n_1) = \rdname(n_2) \land \rdparent(n_1)' \neq \rdparent(n_2) \land \rdsim(n_1, n_2) > \tau$ \\
 Rename & & $\rdname(n_1) \neq \rdname(n_2) \land \rdparent(n_1)' = \rdparent(n_2) \land \rdsim(n_1, n_2) > \tau$ \\
 Move and Rename & & $\rdname(n_1) \neq \rdname(n_2) \land \rdparent(n_1)' \neq \rdparent(n_2) \land \rdsim(n_1, n_2) > \tau$ \\
 \addlinespace
 & \multicolumn{2}{l}{$(n_1, n_2) \in N_1^= \times N^+$, such that:}\\
-Extract Supertype & & $\exists (n_3, n_4, \mathit{PullUp}) \in R_{1,2}\,|\,n_1 = \rdparent(n_3) \land n_2 = \rdparent(n_4)$ \\
+Extract Supertype & & $\exists (n_3, n_4, \mathit{PullUp}) \in R_{1,2}\, (n_1 = \rdparent(n_3) \land n_2 = \rdparent(n_4))$ \\
 Extract & & $\rduses(n_1', n_2) \land \rdparent(n_1)' = \rdparent(n_2) \land \rdsimx(n_2, n_1) > \tau$ \\
 Extract and Move & & $\rduses(n_1', n_2) \land \rdparent(n_1)' \neq \rdparent(n_2) \land \rdsimx(n_2, n_1) > \tau$ \\
 \addlinespace
@@ -123,20 +156,12 @@ $\rdsimx(n_1, n_2)$ & extract similarity between $n_1$ and $n_2$\\
 \end{table*}
 
 
-%\begin{itemize}
-%\item $N^-$ is the set of nodes from $N_1$ that were deleted.
-%\item $N^+$ is the set of nodes from $N_2$ that were added.
-%\item $N_1^=$ is the set nodes from $N_1$ that matches with another node from $N_2$, i.e., a node $n_1$ is in $N_1^=$ if exists a triple $(n_1, n_2, t) \in R_{1,2}$ such that $t$ is a matching relationship.
-%\item $N_2^=$ is the set nodes from $N_2$ that matches with another node from $N_1$ (analogously to $N_1^=$).
-%\end{itemize}
-
-
 
 This phase takes as input the CST's of revisions $v_1$ and $v_2$ and outputs the set of relationships $R_{1,2}$. Let $N_1$ and $N_2$ be the sets of code elements from the CST's of $v_1$ and $v_2$ respectively, each relationship $r \in R_{1,2}$ is a triple $(n_1, n_2, t)$, where $n_1 \in N_1$, $n_2 \in N_2$, and $t$ is a relationship type. The types of relationships are listed in the first column of Table~\ref{TabRelationshipTypes}, and can be subdivided into two groups:
 \begin{enumerate}
-\item \textbf{Matching relationships}, which include \textit{Same}, \textit{Convert type}, \textit{Pull Up}, \textit{Push Down}, \textit{Change signature}, \textit{Move}, \textit{Rename}, and \textit{Move and Rename}.
+\item \textbf{Matching relationships}, which include \textit{Same}, \textit{Convert Type}, \textit{Pull Up}, \textit{Push Down}, \textit{Change Signature}, \textit{Move}, \textit{Rename}, and \textit{Move and Rename}.
 Those relationships indicates that the node $n_1$ corresponds to $n_2$ in the subsequent revision.
-We say that a node $n_1$ matches with $n_2$ if exists a relationship $(n_1, n_2, t) \in R_{1,2}$ where $t$ is a matching relationship.
+We say that a node $n_1$ matches with $n_2$ if exists a relationship $(n_1, n_2, t) \in R_{1,2}$ such that $t$ is a matching relationship.
 
 \item \textbf{Non-matching relationships}, which include \textit{Extract Supertype}, \textit{Extract}, \textit{Extract and Move}, and \textit{Inline}.
 Those relationships don't indicate a matching, but rather that either node $n_1$ is decomposed to create $n_2$, or node $n_1$ is incorporated into $n_2$.
@@ -147,7 +172,7 @@ Those relationships don't indicate a matching, but rather that either node $n_1$
 
 Our approach employs an iterative procedure to find the relationships.
 Let $N^-$ be the set of deleted nodes between revisions and $N^+$ be the set of added nodes between revisions.
-Initially, we define $R_{1,2} \gets \emptyset$, $N^- \gets N_1$, and $N^+ \gets N_2$, that is, before finding any relationship, we presume that all code elements from $v_1$ were deleted and  all code elements from $v_2$ were created.
+Initially, we define $R_{1,2} \gets \emptyset$, $N^- \gets N_1$, and $N^+ \gets N_2$, that is, before finding any relationship, we presume that all code elements from $v_1$ were deleted and  all code elements from $v_2$ were add.
 Then, in each step, we look for pairs $(n_1, n_2)$ that match the criteria for a specific relationship type described in Table~\ref{TabRelationshipTypes}, and add the corresponding relationships to $R_{1,2}$.
 Additionally, we remove $n_1$ from $N^-$ and $n_2$ from $N^+$, in the case of a matching relationship.
 By the end of this procedure, $R_{1,2}$ contains all relationships found, $N^-$ contains the removed nodes, and $N^+$ contains the added nodes.
@@ -155,12 +180,12 @@ Specifically, we follow the steps below to look for relationships:
 \begin{enumerate}
 
 \item We look for \textit{Same} and \textit{Convert type} relationships in a top-down order. The conditions for those relationships (see Table~\ref{TabRelationshipTypes}) relies on matching by the identifier and parent node, i.e., code elements with the same identifier and parent node are assumed to be the same.
-This way, many code elements are usually matched at this step, reducing the number of elements from $N^-$ and $N^+$ for the following steps.
+This way, many code elements are usually matched at this step, reducing the number of possibilities that need to be checked in the next steps.
 
 \item We look for \textit{Change signature}, \textit{Move}, \textit{Rename}, and \textit{Move and Rename} relationships.
 The conditions to find those relationships relies on a code similarity metric, which is described in details in Section~\ref{SecCodeSim}.
 In this step, we limit our search to top-level nodes.
-The rationale is that matching a child node before matching its parent may lead to incorrect relationship types. For example, suppose that a class \codeinl{X} with a method \codeinl{m} is renamed to \codeinl{Y} in the subsequent revision, but method \codeinl{m} is unchanged. If we match method \codeinl{m} before matching class \codeinl{X}, we would incorrectly assume that \codeinl{m} moved from class \codeinl{X} to class \codeinl{Y}, but actually \codeinl{X} was renamed and \codeinl{m} is the same.
+The rationale for this decision is explained in Section~\ref{SecDependentConflictingRel}.
 
 \item We look for \textit{Pull Up} and \textit{Push Down} relationships.
 
@@ -176,6 +201,15 @@ The rationale is that matching a child node before matching its parent may lead 
 
 
 \subsubsection{Dependent and conflicting relationship conditions}
+\label{SecDependentConflictingRel}
+
+In some cases, correctly finding a relationship depends on finding a prior relationship.
+Specifically, the conditions from Table~\ref{TabRelationshipTypes} that contains the expression $\rdparent(n_1)'$, which denotes the matching element of the parent of $n_1$, may yield different results depending on the current elements of $R$.
+For example, consider 
+
+
+
+The rationale is that matching a child node before matching its parent may lead to incorrect relationship types. For example, suppose that a class \codeinl{X} with a method \codeinl{m} is renamed to \codeinl{Y} in the subsequent revision, but method \codeinl{m} is unchanged. If we match method \codeinl{m} before matching class \codeinl{X}, we would incorrectly assume that \codeinl{m} moved from class \codeinl{X} to class \codeinl{Y}, but actually \codeinl{X} was renamed and \codeinl{m} is the same.
 
 \todo{write}
 
@@ -250,6 +284,7 @@ On the other hand, the token \codeinl{else} occurs in one method ($\mathtt{min}$
 
 
 \subsubsection{Extract and Inline Similarity}
+\label{SecSimX}
 
 While the similarity function presented previously is suitable to compute whether two code elements are are similar, in some situations we need to assess whether the source code of an element is contained within another one. This is the case of \emph{Extract}, and \emph{Inline} relationships. For example, if a method $e_2$ is extracted from $e_1$, the source code of $e_2$ should be contained within $e_1$ prior to the refactoring, although $e_1$ and $e_2$ may be significantly different from each other. Analogously, if a method $e_1$ is inlined into $e_2$, the source code of $e_1$ should be contained within $e_2$.
 Thus, we defined a specialized version of the similarity function $\rdsimx$ defined by the following formula:
