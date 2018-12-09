@@ -105,17 +105,17 @@ To demonstrate that capability, we provide implementations for three programming
 
 \begin{tabular}{@{}lll@{}}
 \toprule
-Relationship type & Conditions \\
+Relationship type & \multicolumn{2}{l}{Conditions} \\
 \midrule
 & \multicolumn{2}{l}{$(n_1, n_2) \in N^- \times N^+$, such that:}\\
-Same & & $\rdsig(n_1) = \rdsig(n_2) \land \rdparent(n_1)' = \rdparent(n_2) \land \rdtype(n_1) = \rdtype(n_2)$ \\
-Convert Type & & $\rdsig(n_1) = \rdsig(n_2) \land \rdparent(n_1)' = \rdparent(n_2) \land \rdtype(n_1) \neq \rdtype(n_2)$ \\
-Pull Up & & $\rdsig(n_1) = \rdsig(n_2) \land \rdsub(\rdparent(n_1)', \rdparent(n_2))$ \\
-Push Down & & $\rdsig(n_1) = \rdsig(n_2) \land \rdsub(\rdparent(n_2), \rdparent(n_1)')$ \\
-Change Signature & & $\rdname(n_1) = \rdname(n_2) \land \rdsig(n_1) \neq \rdsig(n_2) \land \rdparent(n_1)' = \rdparent(n_2) \land \rdsim(n_1, n_2) > \tau$ \\
-Move & & $\rdname(n_1) = \rdname(n_2) \land \rdparent(n_1)' \neq \rdparent(n_2) \land \rdsim(n_1, n_2) > \tau$ \\
-Rename & & $\rdname(n_1) \neq \rdname(n_2) \land \rdparent(n_1)' = \rdparent(n_2) \land \rdsim(n_1, n_2) > \tau$ \\
-Move and Rename & & $\rdname(n_1) \neq \rdname(n_2) \land \rdparent(n_1)' \neq \rdparent(n_2) \land \rdsim(n_1, n_2) > \tau$ \\
+Same & & $\rdtype(n_1) = \rdtype(n_2) \land \rdsig(n_1) = \rdsig(n_2) \land \rdparent(n_1)' = \rdparent(n_2)$ \\
+Convert Type & & $\rdtype(n_1) \neq \rdtype(n_2) \land \rdsig(n_1) = \rdsig(n_2) \land \rdparent(n_1)' = \rdparent(n_2)$ \\
+Pull Up & & $\rdtype(n_1) = \rdtype(n_2) \land \rdsig(n_1) = \rdsig(n_2) \land \rdsub(\rdparent(n_1)', \rdparent(n_2))$ \\
+Push Down & & $\rdtype(n_1) = \rdtype(n_2) \land \rdsig(n_1) = \rdsig(n_2) \land \rdsub(\rdparent(n_2), \rdparent(n_1)')$ \\
+Change Signature & & $\rdtype(n_1) = \rdtype(n_2) \land \rdsig(n_1) \neq \rdsig(n_2) \land \rdname(n_1) = \rdname(n_2) \land \rdparent(n_1)' = \rdparent(n_2) \land \rdsim(n_1, n_2) > \tau$ \\
+Move & & $\rdtype(n_1) = \rdtype(n_2) \land \rdname(n_1) = \rdname(n_2) \land \rdparent(n_1)' \neq \rdparent(n_2) \land \rdsim(n_1, n_2) > \tau$ \\
+Rename & & $\rdtype(n_1) = \rdtype(n_2) \land \rdname(n_1) \neq \rdname(n_2) \land \rdparent(n_1)' = \rdparent(n_2) \land \rdsim(n_1, n_2) > \tau$ \\
+Move and Rename & & $\rdtype(n_1) = \rdtype(n_2) \land \rdname(n_1) \neq \rdname(n_2) \land \rdparent(n_1)' \neq \rdparent(n_2) \land \rdsim(n_1, n_2) > \tau$ \\
 \addlinespace
 & \multicolumn{2}{l}{$(n_1, n_2) \in N_1^= \times N^+$, such that:}\\
 Extract Supertype & & $\exists (n_3, n_4, \mathit{PullUp}) \in R_{1,2}\, (n_1 = \rdparent(n_3) \land n_2 = \rdparent(n_4))$ \\
@@ -175,7 +175,6 @@ Let $N^-$ be the set of deleted nodes between revisions and $N^+$ be the set of 
 Initially, we define $R_{1,2} \gets \emptyset$, $N^- \gets N_1$, and $N^+ \gets N_2$, that is, before finding any relationship, we presume that all code elements from $v_1$ were deleted and  all code elements from $v_2$ were add.
 Then, in each step, we look for pairs $(n_1, n_2)$ that match the criteria for a specific relationship type described in Table~\ref{TabRelationshipTypes}, and add the corresponding relationships to $R_{1,2}$.
 Additionally, we remove $n_1$ from $N^-$ and $n_2$ from $N^+$, in the case of a matching relationship.
-By the end of this procedure, $R_{1,2}$ contains all relationships found, $N^-$ contains the removed nodes, and $N^+$ contains the added nodes.
 Specifically, we follow the steps below to look for relationships:
 \begin{enumerate}
 
@@ -199,19 +198,47 @@ The rationale for this decision is explained in Section~\ref{SecDependentConflic
 
 \end{enumerate}
 
+\begin{figure}[htb]
+\begin{algorithmic}[1]
+\Procedure{FindRelationships}{$v_1,v_2$}
+\State $R_{1,2} \gets \emptyset$
+\State $N^- \gets N_1$
+\State $N^+ \gets N_2$
+\State $\textsc{findMatchingsById}()$
+\State $\textsc{findMatchingsBySimilarity}()$
+\EndProcedure
+\end{algorithmic}
+\caption{General procedure to find relationships}
+\label{AlgoGeneral}
+\end{figure}
+
+By the end of this procedure, $R_{1,2}$ contains all relationships found, $N^-$ contains the removed nodes, and $N^+$ contains the added nodes.
+Figure~\ref{FigRelationships1} shows the relationships we would find after running RefDiff in the example system from Figure~\ref{FigDiff1}.
+Each relationship is represented by and edge connecting nodes from the left and right CST's.
+There are three relationships of the type \textit{Same}, involving the code elements whose identifiers didn't change: the class \codeinl{Main} and the methods \codeinl{main} and \codeinl{sum}.
+Two of the relationships are of the type \textit{Rename}, indicating that the class \codeinl{Calculator} was renamed to \codeinl{FpCalculator}, and the method \codeinl{min} was renamed to \codeinl{minimum}.
+Moreover, there is a \textit{Extract} relationship indicating that the method \codeinl{print} was extract from \codeinl{main}.
+Finally, we can also note that two nodes, $n_8$ and $n_{12}$, are not involved in matching relationships. Thus, we classify them as added code elements. As every node on the left side is matched, there are no deleted code elements.
+
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=1.0\linewidth]{img/relationshipDiff1.pdf}
+\caption{Relationships found in the example system from Figure~\ref{FigDiff1}}
+\label{FigRelationships1}
+\end{figure}
+
 
 \subsubsection{Dependent and conflicting relationship conditions}
 \label{SecDependentConflictingRel}
 
 In some cases, correctly finding a relationship depends on finding a prior relationship.
-Specifically, the conditions from Table~\ref{TabRelationshipTypes} that contains the expression $\rdparent(n_1)'$, which denotes the matching element of the parent of $n_1$, may yield different results depending on the current elements of $R$.
-For example, consider 
+%Specifically, the conditions from Table~\ref{TabRelationshipTypes} that contains the expression $\rdparent(n_1)'$, which denotes the matching element of the parent of $n_1$, relies on the matching relationships found so far.
+For example, consider the relationship $(n_5, n_{11}, Rename)$ in Figure~\ref{FigRelationships1} (method \codeinl{min} renamed to \codeinl{minimum}).
+The conditions for this relationship includes the clause $\rdparent(n_5)' = \rdparent(n_{11})$, which only yields true if the relationship $(n_2, n_9, \mathit{Rename})$ is found first.
+In fact, if we try to match the pair $(n_5, n_{11})$ before analyzing $(n_2, n_9)$, we would incorrectly classify it as a \textit{Move and Rename}.
 
-
-
-The rationale is that matching a child node before matching its parent may lead to incorrect relationship types. For example, suppose that a class \codeinl{X} with a method \codeinl{m} is renamed to \codeinl{Y} in the subsequent revision, but method \codeinl{m} is unchanged. If we match method \codeinl{m} before matching class \codeinl{X}, we would incorrectly assume that \codeinl{m} moved from class \codeinl{X} to class \codeinl{Y}, but actually \codeinl{X} was renamed and \codeinl{m} is the same.
-
-\todo{write}
+\todo{continue}
 
 
 \subsection{Code Similarity}

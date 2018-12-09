@@ -1,83 +1,125 @@
-\section{Evaluation}
+\section{Evaluation with Java Projects}
 
-\subsection{Evaluation Procedure}
+In this section, we evaluate the precision and recall of our approach using a recently proposed dataset of refactorings performed in real-world Java open source projects. We also compare RefDiff's accuracy with RefactoringMiner, 
+a state-of-the-art tool for detecting refactorings in Java.
+First, we present our evaluation design (Section~\ref{sec:eval:java:design}) and then we present the results (Section~\ref{sec:eval:java:results}).
 
-\subsection{Java}
+\subsection{Evaluation Design}
+\label{sec:eval:java:design}
 
-To evaluate the performance of RefDiff in Java we initially use an oracle proposed by Tsantalis et al.~\cite{xx}. This oracle includes 3,188 manually-validated refactoring instances, detected in 185 open source projects, and covering 15 refactoring operations. \todo{discutir quais sao cobertos ou nao por RefDiff 2.0}. We also use this oracle to compare RefDiff's precision and recall against RefactoringMiner, a state-of-the-art tool for detecting refactorings in Java.
+To evaluate the performance of RefDiff in Java we initially use an oracle proposed by Tsantalis et al.~\cite{tsantalis2018rminer}. This oracle includes 3,188 manually-validated refactoring instances, detected in 185 open source projects, and covering 15 refactoring operations. \todo{discutir quais sao cobertos ou nao por RefDiff 2.0}. We also use this oracle to compare RefDiff's precision and recall against RefactoringMiner.
 
 First, we run RefDiff on the oracle commits. For each commit with a detected refactoring $r$ we checked whether $r$ is in the oracle. If yes, $r$ is a true positive; otherwise, $r$ was evaluated by two authors of this paper, to check whether it is a true positive or not. This extra manual validation is needed because the initial oracle must not be granted as complete, i.e., including all refactorings performed in the set of analysed commits. In reality, this oracle was constructed based on an initial list of refactorings produced by RefactoringMiner and RefDiff 1.0. For this reason, it might miss true refactorings only detected by the improved implementation of RefDiff, described in this paper.
 
-After following this procedure, RefDiff 2.0 detected 406 new refactoring instances (i.e., not listed in the initial oracle), which were  validated by two paper's authors, called here validators.  In the case of 269 refactorings (66\%), the validators agreed on their classification, including 184 refactorings labelled as true positives by both validators and 85 labelled as false positives. After this initial and independent validation, the validators discussed together the remaining 137 cases (34\%), to reach an agreement. As a result, xx refactorings were considered true positives and xx refactorings were classified as false positives. Figure xx shows an example of true positive. \todo{ilustrar um caso bem obvio de TP}. Figure xx shows an example of false positive \todo{ilustrar com um caso bem dificil e confuso, de FP}.
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=0.8\textwidth]{img/diff2.pdf}
+\caption{Illustrative diff of an \emph{Inline Method} refactoring considered as true positive by the validators.}
+\label{FigDiff2}
+\end{figure*}
 
-In summary, after these two steps (indenpendent validation and consensuous meeting), xx refactorings instances were  classified as true positives and therefore included in the oracle. The expanded oracle includes xx refactoring instances (xx\% more than the initial one) and it is publicly available at: xx)
+After following this procedure, RefDiff 2.0 detected 406 new refactoring instances (i.e., not listed in the initial oracle), which were  validated by two paper's authors, called here validators.  In the case of 269 refactorings (66\%), the validators agreed on their classification, including 184 refactorings labelled as true positives by both validators and 85 labelled as false positives. After this initial and independent validation, the validators discussed together the remaining 137 cases (34\%), to reach an agreement. As a result, xx refactorings were considered true positives and xx refactorings were classified as false positives. Figure~\ref{FigDiff2} shows a first example of true positive. RefDiff identified an \emph{Inline Method} refactoring, consisting on the substitution of the method named \codeinl{acquireNodeRelationshipCursor}, which was removed in the same commit, by invocations to methods \codeinl{get()} and \codeinl{init()}. We emphasize in this figure the changes that correspond to this refactoring. This indication of refactoring was not listed in the oracle. The validators individually analyzed this commit and both agreed that an \emph{Inline Method} was applied in this commit.
+
+
+
+Figure~\ref{FigDiff3} shows another example of true positive, this time as an indication of \emph{Extract} and \emph{Move Method} refactorings. Developers removed the invocation to the method \codeinl{readValue(String, Class)}, which was extracted and moved to the class \codeinl{Controls}. An invocation to this new method \codeinl{validateControlsString(String)} was replaced in the same line. Similarly to the example in Figure~\ref{FigDiff2}, both validators agreed that \emph{Extract} and \emph{Move Method} were applied in this commit.
+
+\begin{figure*}[htb]
+\centering
+\includegraphics[width=0.8\textwidth]{img/diff3.pdf}
+\caption{Illustrative diff of an \emph{Extract Method} refactoring considered as true positive by the validators.}
+\label{FigDiff3}
+\end{figure*}
+
+In summary, after these two steps (independent validation and consensus meeting), xx refactorings instances were  classified as true positives and therefore were included in the oracle. The expanded oracle includes xx refactoring instances (xx\% more than the initial one) and it is publicly available at: xx)
+
+\subsection{Results}
+\label{sec:eval:java:results}
+
+\section{Evaluation with JavaScript and C}
+\label{sec:eval:js:c:reults}
+
+We also evaluate RefDiff with refactorings performed in two important but very different programming languages: JavaScript (a widely popular dynamic programming language, used mostly to build web applications) and C (a procedural programming language, used mostly to implement system software).
+In the literature, we did not find a dataset with detailed information about real refactorings performed in these languages. Therefore, to evaluate precision, we manually validated the refactorings detected by RefDiff in a set of programs, in both languages (Section xx). Then, to evaluate recall, we created an oracle of manually validated refactoring operations performed in another set of programs (Section xx).  After that, in Section~\ref{sec:eval:js:c:results}, we report the precision and recall achieved by RefDiff.  We are not aware of any other tool for detecting refactorings in these languages. Therefore, in this second evaluation, it was not possible to compare RefDiff's results with competitor tools.
+
+\subsection{Evaluation Design}
+\label{sec:eval:js:c:design}
+
+In this section, we defined the steps we followed to compute RefDiff's precision (Section~\ref{sec:eval:js:c:precision})
+and recall (Section~\ref{sec:eval:js:c:recall}), when used to detect refactorings in JavaScript and C commits.
 
 \subsubsection{Precision}
-\label{SecPrecisionProcedure}
+\label{sec:eval:js:c:precision}
 
-The procedure to compute the precision of our approach consists of the following steps:
+
+To compute RefDiff's precision when detecting refactorings in JavaScript and C, we followed these steps:
 
 \begin{enumerate}  
-\item We selected the 20 most popular repositories of a target programming language. For this, we queried the GitHub API for repositories, sorting by stars count---which is an indicator of popularity~\cite{icsme2016,jss-2018-github-stars} ---and filtering by the programming language.
-The resulting list of repositories was manually inspected to discard the ones that were not actual software projects, e.g., tutorials or code samples.
-For each selected repository, we created a fork of it to preserve its version history from future changes pushed to the original project.
+\item We selected the 20 most popular GitHub repositories of each language. For this, we queried the GitHub API for repositories, sorting by stars count---which is a reliable indicator of popularity in GitHub~\cite{icsme2016,jss-2018-github-stars} ---and filtering by programming language.
+The resulting list of repositories was manually inspected to discard the ones that are not actual software projects, e.g., tutorials or code samples. Then, we forked each selected repository, to preserve their version histories from future changes pushed to the original project. Table xx shows the name, short description, and number of commits of each selected repository, both for JavaScrpit and C.  \todo{tabela que acabou de ser mencionada}
 
-\item We ran RefDiff in the version history of each repository and recorded the refactorings found.
-The version history was inspected by navigating the commit graph backwards, starting from the most recent commit in the master branch.
-For each commit, we compared its source code with its predecessor using RefDiff.
-It is worth noting that merge commits, which have two predecessors, were ignored.
-The rationale for such decision is that comparing a merge commit with their predecessors would result in duplicated reports of refactorings applied in the commits prior to the merge operation.
-Moreover, to avoid over-representing projects with longer histories, we established a limit of 500 commits per repository.
+\item We ran RefDiff in the version history of each repository. To select the commits, we navigate the commit graph backwards, starting from the most recent commit in the master branch. We also discarded merge commits, i.e.,~commits which have two predecessors. The rationale is that comparing a merge commit with their predecessors results in duplicated reports of refactorings applied in the commits prior to the merge operation. Moreover, to avoid over-representing projects with longer histories, we established a limit of 500 commits per repository. For each selected commit, we compared its source code with its predecessor using RefDiff, to detect refactoring operations.
 
-\item Given the list of refactorings instances found by RefDiff, we randomly selected 10 instances of each refactoring type to assess whether they correspond to actual refactorings (true positives), or incorrect reports (false positives).
+\item Given the list of refactorings detected by RefDiff, we randomly selected 10 instances of each refactoring type to manually assess whether they correspond to actual refactorings (true positives), or incorrect reports (false positives).
 When applying the random selection, we enforced the constraint that we should not select two refactoring instances performed in the same commit.
-This way, we avoided selecting very similar refactoring instances which were performed in batch, e.g., multiple classes or functions moved together.
-To confirm each refactoring instance, one of the authors inspected the diff of the code changes in the corresponding commit.
+In this way, we avoid selecting similar refactorings which were performed in batch, e.g., multiple classes or functions moved together.
+To confirm each refactoring instance, one of the authors manually inspected the diff of the code changes in the corresponding commit.
 \end{enumerate}
 
-After performing the three steps described above, we were able to compute the precision as $P = \mathit{TP} / (\mathit{TP} + \mathit{FP})$, where $\mathit{TP}$ is the number of true positives and $\mathit{FP}$ is the number of false positives.
+After following the three steps, we compute precision as $P = \mathit{TP} / (\mathit{TP} + \mathit{FP})$, where $\mathit{TP}$ is the number of true positives and $\mathit{FP}$ is the number of false positives.
 
 
 
 \subsubsection{Recall}
+\label{sec:eval:js:c:recall}
 
-The procedure to compute the recall of our approach consists of the following steps:
+To compute RefDiff's recall when detecting refactorings in JavaScript and C, we followed three steps:
 
 \begin{enumerate}  
-\item We queried the GitHub API to find refactorings documented in commits from the 20 repositories selected in the first step of the precision evaluation procedure (Section~\ref{SecPrecisionProcedure}). Such queries consist in searching for keywords denoting a particular type of refactoring in the commit message. For example, when looking for \emph{Rename Function} refactoring instances, we built a query that looks for commits which contain the keywords \texttt{rename} and \texttt{function} in their commit messages.
+\item We used GitHub API to find refactorings documented in commits from the repositories selected for evaluating precision (Section~\ref{sec:eval:js:c:precision}). Such queries consist in searching for keywords denoting a particular type of refactoring in the commit message, as described in Table xx.\todo{acrescentar esta tabela} For example, when looking for \emph{Rename Function} refactoring instances in JavaScript, we built a query that looks for commits which contain the keywords \texttt{rename} and \texttt{function} in their messages.
 
-\item Given the results of a query, we manually inspected the commit message and the diff of the source code to confirm the applied refactoring. We repeated this procedure until we found 10 instances of each refactoring type or there were no more results to inspect. Each confirmed refactoring was recorded in a normalized textual format compatible with the output of RefDiff.
+\item Given the results of a query, we manually inspected the commit message and the diff of the source code to confirm the applied refactoring. We repeated this procedure until we found 10 instances of each refactoring type or when there were no more results to inspect (which happened only for xxx \todo{detalhar refactorings com menos de 10 instances)}. Each confirmed refactoring was recorded in a normalized textual format compatible with the output of RefDiff.
+
 %It is worth noting that, during this procedure, most of the results were discarded because the commit message did not actually documented a refactoring. Besides, the diff of some of the commits were so large that could not be displayed in the user interface. In summary, we only registered the refactoring instances that we could confirm both in the commit message and in the code diff.
 
-\item We ran RefDiff in the commits that contained refactorings found in the previous step to assess whether they are reported (true positives) or missed (false negatives). 
+\item We ran RefDiff in the commits that contain documented and manually-validated refactorings to assess whether they are reported (true positives) or missed (false negatives). 
 
 \end{enumerate}
 
-After performing the three steps described above, we were able to compute the recall as $R = \mathit{TP} / (\mathit{TP} + \mathit{FN})$, where $\mathit{TP}$ is the number of true positives and $\mathit{FN}$ is the number of false negatives.
+After following these steps, we compute recall as $R = \mathit{TP} / (\mathit{TP} + \mathit{FN})$, where $\mathit{TP}$ is the number of true positives and $\mathit{FN}$ is the number of false negatives.
 
 
-\subsection{JavaScript evaluation results}
+\subsection{Results}
+\label{sec:eval:js:c:results}
 
-The following GitHub repositories were selected to run evaluation procedure:
-\textsc{facebook/\-react}, 
-\textsc{vuejs/\-vue}, 
-\textsc{d3/\-d3}, 
-\textsc{face\-book/\-react-native}, 
-\textsc{angular/\-angular.js}, 
-\textsc{face\-book/\-create-react-app}, 
-\textsc{jquery/\-jquery}, 
-\textsc{atom/\-atom}, 
-\textsc{axios/\-axios}, 
-\textsc{mrdoob/\-three.js}, 
-\textsc{socketio/\-socket.io}, 
-\textsc{reduxjs/\-redux}, 
-\textsc{webpack/\-webpack}, 
-\textsc{Semantic-Org/\-Semantic-UI}, 
-\textsc{hakimel/\-reveal.js}, 
-\textsc{meteor/\-meteor}, 
-\textsc{expressjs/\-express}, 
-\textsc{mui-org/\-material-ui}, 
-\textsc{chartjs/\-Chart.js}
+In this section, we present the precision and recall results for JavaScript (Section~\ref{sec:eval:js:c:results:js}) and C (Section xx).
+
+\subsubsection{JavaScript Results}
+\label{sec:eval:js:c:results:js}
+
+Table~\ref{TabResultJsPrecison} shows the precision results for JavaScript. The overall precision is 91\%. There are three refactorings with precision of 80\%: Rename Function, Move and Rename Function, and Inline Function. For the remaining refactoring types, RefDiff has as precision of 90\% (two refactoring types) or a precision of 100\% (five refactoring types). Table~\ref{TabResultJsRecall} shows the recall results, which reach 88\% when all refactoring types are considered together.
+Inline function has the lowest recall (40\%); however, in our oracle has only five instances of this operation. The two most common refactorings (Move File and Move Function, both with 10 instances) have a recall of 100\%.
+
+%The following GitHub repositories were selected to run evaluation procedure:
+%\textsc{facebook/\-react}, 
+%\textsc{vuejs/\-vue}, 
+%\textsc{d3/\-d3}, 
+%\textsc{face\-book/\-react-native}, 
+%\textsc{angular/\-angular.js}, 
+%\textsc{face\-book/\-create-react-app}, 
+%\textsc{jquery/\-jquery}, 
+%\textsc{atom/\-atom}, 
+%\textsc{axios/\-axios}, 
+%\textsc{mrdoob/\-three.js}, 
+%\textsc{socketio/\-socket.io}, 
+%\textsc{reduxjs/\-redux}, 
+%\textsc{webpack/\-webpack}, 
+%\textsc{Semantic-Org/\-Semantic-UI}, 
+%\textsc{hakimel/\-reveal.js}, 
+%\textsc{meteor/\-meteor}, 
+%\textsc{expressjs/\-express}, 
+%\textsc{mui-org/\-material-ui}, 
+%\textsc{chartjs/\-Chart.js}
 
 
 \begin{table}[htbp]
