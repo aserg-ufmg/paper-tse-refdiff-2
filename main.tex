@@ -150,12 +150,22 @@
 \DeclareMathOperator{\rdname}{name}
 \DeclareMathOperator{\rdparent}{\pi}
 \DeclareMathOperator{\rdsig}{id}
+\DeclareMathOperator{\rdns}{ns}
 \DeclareMathOperator{\rdsub}{subtype}
 \DeclareMathOperator{\rdtype}{nType}
 \DeclareMathOperator{\rdsim}{sim}
 \DeclareMathOperator{\rdsimx}{sim_{x}}
 \DeclareMathOperator{\rduses}{uses}
+\DeclareMathOperator{\rdchildren}{child}
 
+\DeclareMathOperator{\rdSame}{Same}
+\DeclareMathOperator{\rdConvertType}{ConvertType}
+\DeclareMathOperator{\rdExtract}{Extract}
+\DeclareMathOperator{\rdExtractSuper}{ExtractSuper}
+\DeclareMathOperator{\rdInline}{Inline}
+\DeclareMathOperator{\rdrank}{\mathit{rank}}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
 
 
 \usepackage{listings}
@@ -196,6 +206,8 @@ frame=single}
 % http://www.ctan.org/pkg/algorithmicx
 \usepackage{algpseudocode}
 
+\algnewcommand\algorithmicforeach{\textbf{for each}}
+\algdef{S}[FOR]{ForEach}[1]{\algorithmicforeach\ #1\ \algorithmicdo}
 
 
 % *** ALIGNMENT PACKAGES ***

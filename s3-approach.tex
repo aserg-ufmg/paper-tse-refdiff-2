@@ -3,7 +3,7 @@
 Our approach consists in two phases: Source Code Analysis and Relationship Analysis.
 In the first phase, Source Code Analysis, we take as input two revisions of a system, $v_1$ and $v_2$, and build two models that represent their source code.
 Both models have the form of a tree, in which each node corresponds to a code element (classes, functions, etc.).
-In the second phase, Relationship Analysis, we compute the set $R_{1,2}$, which contains triples of the form $(n_1, n_2, t)$, where $n_1$ is a code element from revision $v_1$, $n_2$ is a code element from revision $v_2$ and $t$ is a relationship type.
+In the second phase, Relationship Analysis, we compute the set $R$, which contains triples of the form $(n_1, n_2, t)$, where $n_1$ is a code element from revision $v_1$, $n_2$ is a code element from revision $v_2$ and $t$ is a relationship type.
 Such relationships may denote a high-level refactoring operation (move, rename, extract, etc.) or an exact correspondence between the code elements.
 For example, consider the diff between two revisions of a system depicted in Figure~\ref{FigDiff1}.
 Among other changes, the class \codeinl{Calculator}, declared in revision~1, is renamed to \codeinl{FpCalculator} in revision~2. This would correspond to a relationship of the type \emph{Rename} between them.
@@ -117,12 +117,12 @@ Move & & $\rdtype(n_1) = \rdtype(n_2) \land \rdname(n_1) = \rdname(n_2) \land \r
 Rename & & $\rdtype(n_1) = \rdtype(n_2) \land \rdname(n_1) \neq \rdname(n_2) \land \rdparent(n_1)' = \rdparent(n_2) \land \rdsim(n_1, n_2) > \tau$ \\
 Move and Rename & & $\rdtype(n_1) = \rdtype(n_2) \land \rdname(n_1) \neq \rdname(n_2) \land \rdparent(n_1)' \neq \rdparent(n_2) \land \rdsim(n_1, n_2) > \tau$ \\
 \addlinespace
-& \multicolumn{2}{l}{$(n_1, n_2) \in N_1^= \times N^+$, such that:}\\
-Extract Supertype & & $\exists (n_3, n_4, \mathit{PullUp}) \in R_{1,2}\, (n_1 = \rdparent(n_3) \land n_2 = \rdparent(n_4))$ \\
+& \multicolumn{2}{l}{$(n_1, n_2) \in M_1 \times N^+$, such that:}\\
+Extract Supertype & & $\exists (n_3, n_4, \mathit{PullUp}) \in R\, (n_1 = \rdparent(n_3) \land n_2 = \rdparent(n_4))$ \\
 Extract & & $\rduses(n_1', n_2) \land \rdparent(n_1)' = \rdparent(n_2) \land \rdsimx(n_2, n_1) > \tau$ \\
 Extract and Move & & $\rduses(n_1', n_2) \land \rdparent(n_1)' \neq \rdparent(n_2) \land \rdsimx(n_2, n_1) > \tau$ \\
 \addlinespace
-& \multicolumn{2}{l}{$(n_1, n_2) \in N^- \times N_2^=$, such that:}\\
+& \multicolumn{2}{l}{$(n_1, n_2) \in N^- \times M_2$, such that:}\\
 Inline & & $\rduses(n_1, n_2') \land \rdsimx(n_1, n_2) > \tau$ \\
 \bottomrule
 \end{tabular}
@@ -132,12 +132,13 @@ Inline & & $\rduses(n_1, n_2') \land \rdsimx(n_1, n_2) > \tau$ \\
 \midrule
 \multicolumn{3}{c}{\textbf{Definitions}}\\
 \begin{tabular}{@{}ll@{}}
-$N_1^=$ & the set of nodes from $N_1$ that matches with another node from $N_2$\\
-$N_2^=$ & the set of nodes from $N_2$ that matches with another node from $N_1$\\
-$N^-$ & the set of presumably deleted nodes ($N_1 \setminus N_1^=$)\\
-$N^+$ & the set of presumably added nodes ($N_2 \setminus N_2^=$)\\
+$M_1$ & the set of nodes from $N_1$ that matches with another node from $N_2$\\
+$M_2$ & the set of nodes from $N_2$ that matches with another node from $N_1$\\
+$N^-$ & the set of unmatched nodes from $N_1$ ($N_1 \setminus M_1$)\\
+$N^+$ & the set of unmatched nodes from $N_2$ ($N_2 \setminus M_2$)\\
 $n'$ & the code element that matches with $n$ in the other revision\\
 $\rdparent(n)$ & parent of a node $n$ (it may be a namespace or another CST node)\\
+$\rdns(n)$ & namespace of the code element $n$\\
 \end{tabular}
 & &
 \begin{tabular}{@{}ll@{}}
@@ -157,67 +158,120 @@ $\rdsimx(n_1, n_2)$ & extract similarity between $n_1$ and $n_2$\\
 
 
 
-This phase takes as input the CST's of revisions $v_1$ and $v_2$ and outputs the set of relationships $R_{1,2}$. Let $N_1$ and $N_2$ be the sets of code elements from the CST's of $v_1$ and $v_2$ respectively, each relationship $r \in R_{1,2}$ is a triple $(n_1, n_2, t)$, where $n_1 \in N_1$, $n_2 \in N_2$, and $t$ is a relationship type. The types of relationships are listed in the first column of Table~\ref{TabRelationshipTypes}, and can be subdivided into two groups:
-\begin{enumerate}
+This phase takes as input the CST's of revisions $v_1$ and $v_2$ and outputs the set of relationships $R$. Let $N_1$ and $N_2$ be the sets of code elements from the CST's of $v_1$ and $v_2$ respectively, each relationship $r \in R$ is a triple $(n_1, n_2, t)$, where $n_1 \in N_1$, $n_2 \in N_2$, and $t$ is a relationship type. The types of relationships are listed in the first column of Table~\ref{TabRelationshipTypes}, and can be subdivided into two groups:
+\begin{itemize}
 \item \textbf{Matching relationships}, which include \textit{Same}, \textit{Convert Type}, \textit{Pull Up}, \textit{Push Down}, \textit{Change Signature}, \textit{Move}, \textit{Rename}, and \textit{Move and Rename}.
 Those relationships indicates that the node $n_1$ corresponds to $n_2$ in the subsequent revision.
-We say that a node $n_1$ matches with $n_2$ if exists a relationship $(n_1, n_2, t) \in R_{1,2}$ such that $t$ is a matching relationship.
+We say that a node $n_1$ matches with $n_2$ if exists a relationship $(n_1, n_2, t) \in R$ such that $t$ is a matching relationship.
 
 \item \textbf{Non-matching relationships}, which include \textit{Extract Supertype}, \textit{Extract}, \textit{Extract and Move}, and \textit{Inline}.
 Those relationships don't indicate a matching, but rather that either node $n_1$ is decomposed to create $n_2$, or node $n_1$ is incorporated into $n_2$.
-\end{enumerate}
+\end{itemize}
 
 
 \subsubsection{General procedure to find relationships}
 
-Our approach employs an iterative procedure to find the relationships.
-Let $N^-$ be the set of deleted nodes between revisions and $N^+$ be the set of added nodes between revisions.
-Initially, we define $R_{1,2} \gets \emptyset$, $N^- \gets N_1$, and $N^+ \gets N_2$, that is, before finding any relationship, we presume that all code elements from $v_1$ were deleted and  all code elements from $v_2$ were add.
-Then, in each step, we look for pairs $(n_1, n_2)$ that match the criteria for a specific relationship type described in Table~\ref{TabRelationshipTypes}, and add the corresponding relationships to $R_{1,2}$.
-Additionally, we remove $n_1$ from $N^-$ and $n_2$ from $N^+$, in the case of a matching relationship.
-Specifically, we follow the steps below to look for relationships:
-\begin{enumerate}
-
-\item We look for \textit{Same} and \textit{Convert type} relationships in a top-down order. The conditions for those relationships (see Table~\ref{TabRelationshipTypes}) relies on matching by the identifier and parent node, i.e., code elements with the same identifier and parent node are assumed to be the same.
-This way, many code elements are usually matched at this step, reducing the number of possibilities that need to be checked in the next steps.
-
-\item We look for \textit{Change signature}, \textit{Move}, \textit{Rename}, and \textit{Move and Rename} relationships.
-The conditions to find those relationships relies on a code similarity metric, which is described in details in Section~\ref{SecCodeSim}.
-In this step, we limit our search to top-level nodes.
-The rationale for this decision is explained in Section~\ref{SecDependentConflictingRel}.
-
-\item We look for \textit{Pull Up} and \textit{Push Down} relationships.
-
-\item Once again, we look for \textit{Change signature}, \textit{Move}, \textit{Rename}, and \textit{Move and Rename} relationships, but this time we consider both parent and children nodes.
-
-\item We look for \textit{Extract Supertype} relationships.
-
-\item We look for \textit{Extract} and \textit{Extract and Move} relationships.
-
-\item Finally, we look for \textit{Inline} relationships.
-
-\end{enumerate}
-
-\begin{figure}[htb]
+\begin{figure}[htbp]
 \begin{algorithmic}[1]
-\Procedure{FindRelationships}{$v_1,v_2$}
-\State $R_{1,2} \gets \emptyset$
-\State $N^- \gets N_1$
-\State $N^+ \gets N_2$
-\State $\textsc{findMatchingsById}()$
-\State $\textsc{findMatchingsBySimilarity}()$
+\Procedure{FindRelationships}{$t_1,t_2$}
+\State $R \gets \emptyset$
+\State $M \gets \emptyset$
+\State $\textsc{findMatchingsById}(t_1,t_2)$
+\State $\textsc{findMatchingsBySim}$
+\State $\textsc{resolveMatchings}$
+\State $\textsc{findNonMatchingRel}$
+\State \Return $R$
+\\
+\Procedure{findMatchingsById}{$p_1,p_2$}
+\ForEach{$(n_1, n_2) \in \rdchildren(p_1) \times \rdchildren(p_2)$}
+  \If {$\rdsig(n_1) = \rdsig(n_2) \land \rdns(n_1) = \rdns(n_2)$}
+    \State $\textsc{addMatch}(n_1, n_2)$
+  \EndIf
+\EndFor
 \EndProcedure
+\\
+\Procedure{findMatchingsBySim}{}
+\State $M' \gets N^- \times N^+$
+\While{$M' \neq \emptyset$}
+  \State $(n_1, n_2) \gets \argmin_{m \in M'} \rdrank(m)$
+  \State $M' \gets M' \setminus \{(n_1, n_2)\}$
+  \If {$\mathit{findMatchRel}(n_1, n_2) \neq \emptyset$}
+    \State $\textsc{addMatch}(n_1, n_2)$
+  \EndIf
+\EndWhile
+\EndProcedure
+\\
+\Procedure{resolveMatchings}{}
+\ForEach{$(n_1, n_2) \in M$}
+  \State $R \gets R \cup \mathit{findMatchRel}(n_1, n_2)$
+\EndFor
+\EndProcedure
+\\
+\Procedure{findNonMatchingRel}{}
+\ForEach{$(n_1, n_2) \in N_1^= \times N^+$}
+  \State $R \gets R \cup \mathit{findExtractSupertype}(n_1, n_2)$
+  \State $R \gets R \cup \mathit{findExtract}(n_1, n_2)$
+  \State $R \gets R \cup \mathit{findExtractMove}(n_1, n_2)$
+\EndFor
+\ForEach{$(n_1, n_2) \in N^- \times N_2^=$}
+  \State $R \gets R \cup \mathit{findInline}(n_1, n_2)$
+\EndFor
+\EndProcedure
+\\
+\Procedure{addMatch}{$n_1, n_2$}
+\If {$n_1 \in N^- \land n_2 \in N^+$}
+  \State $M \gets M \cup \{(n_1, n_2)\}$
+  \State $\textsc{findMatchingsById}(n_1,n_2)$
+\EndIf
+\EndProcedure
+\\
+\EndProcedure
+
 \end{algorithmic}
-\caption{General procedure to find relationships}
+\caption{Procedure to find relationships}
 \label{AlgoGeneral}
 \end{figure}
 
-By the end of this procedure, $R_{1,2}$ contains all relationships found, $N^-$ contains the removed nodes, and $N^+$ contains the added nodes.
+Our approach employs the procedure described in Figure~\ref{AlgoGeneral} to find the relationships.
+The procedure \textsc{FindRelationships} has two parameters, $t_1$ and $t_2$, which are the root nodes of the CST's of both revisions.
+Initially, we define $R \gets \emptyset$ as the set of relationships found so far.
+Additionally, we also define $M \gets \emptyset$ as the set of pairs of matching nodes found so far.
+Then, we execute four subroutines:
+\begin{enumerate}
+
+\item In \textsc{findMatchingsById}, we recursively look for matching nodes that have the same identifier and parent, i.e., we assume that code elements with the same identifier and parent are the same.
+Such assumption enable us to match many code elements at this step, reducing the number of possibilities that need to be checked in the next steps.
+The procedure consists of a loop that pairs the children of the nodes received as arguments and calls the procedure \textsc{addMatch} whenever a matching is found.
+On its turn, \textsc{addMatch} adds a pair of matching nodes to $M$ and calls \textsc{findMatchingsById} again to look for matchings on their children, completing the recursion.
+The matching pairs found in this step will be resolved to \textit{Same} and \textit{Convert type} relationships later.
+
+\item In \textsc{findMatchingsBySim}, we look for matching nodes based on code similarity.
+This is the case of \textit{Change signature}, \textit{Move}, \textit{Rename}, and \textit{Move and Rename} relationships.
+The procedure starts by computing the set $M'$, which contains unmatched pairs of nodes from $t_1$ and $t_2$.
+We use the notation $N^-$ to denote the set of unmatched nodes from $t_1$ (presumably deleted) and $N^+$ to denote the set of unmatched nodes from $t_2$ (presumably added).
+Then, it repeatedly takes a pair $(n_1, n_2)$ from $M'$, sorting by the $\rdrank$ function, and checks if it meets the conditions (specified in the second column of Table~\ref{TabRelationshipTypes}) for any matching relationship by calling $\mathit{findMatchRel}(n_1, n_2)$.
+That function will either return a singleton containing a matching relationship or an empty set if none of the conditions are met.
+Last, the \textsc{addMatch} subroutine is called in the case a matching.
+It's worth noting that the conditions to find those relationships and the $\rdrank$ function relies on a code similarity metric, which is described in details in Section~\ref{SecCodeSim}.
+
+\item In \textsc{resolveMatchings}, we add the relationships corresponding to the matching pairs found at steps~1 and 2 to $R$.
+The procedure iterates over the elements of $M$ and calls $\mathit{findMatchRel}$ to find which relationship type holds between $n_1$ and $n_2$.
+By the end of this step, $R$ will contain all matching relationships found.
+The rationale for postponing the resolution of the relationship type is discussed in Section~\ref{SecDependentConflictingRel}.
+
+\item In \textsc{findNonMatchingRel}, we look for non-matching relationships.
+First, we iterate over the pairs of matched/unmatched nodes, i.e., $M_1 \times N^+$, to look for \textit{ExtractSupertype}, \textit{Extract} and \textit{Extract and Move} relationships.
+Similarly, we also iterate over the pairs of unmatched/matched nodes ($N^- \times M_2$) to look for \textit{Inline} relationships.
+The functions $findExtractSupertype$, $findExtract$, $findExtractMove$, and $findInline$ checks the  preconditions for the corresponding relationship types, according to Table~\ref{TabRelationshipTypes}.
+By the end of this last step, $R$ will contain all relationships found.
+\end{enumerate}
+
+
 Figure~\ref{FigRelationships1} shows the relationships we would find after running RefDiff in the example system from Figure~\ref{FigDiff1}.
 Each relationship is represented by and edge connecting nodes from the left and right CST's.
 There are three relationships of the type \textit{Same}, involving the code elements whose identifiers didn't change: the class \codeinl{Main} and the methods \codeinl{main} and \codeinl{sum}.
 Two of the relationships are of the type \textit{Rename}, indicating that the class \codeinl{Calculator} was renamed to \codeinl{FpCalculator}, and the method \codeinl{min} was renamed to \codeinl{minimum}.
-Moreover, there is a \textit{Extract} relationship indicating that the method \codeinl{print} was extract from \codeinl{main}.
+Moreover, there is an \textit{Extract} relationship indicating that the method \codeinl{print} was extract from \codeinl{main}.
 Finally, we can also note that two nodes, $n_8$ and $n_{12}$, are not involved in matching relationships. Thus, we classify them as added code elements. As every node on the left side is matched, there are no deleted code elements.
 
 
@@ -229,17 +283,23 @@ Finally, we can also note that two nodes, $n_8$ and $n_{12}$, are not involved i
 \end{figure}
 
 
-\subsubsection{Dependent and conflicting relationship conditions}
+\subsubsection{Dependent and conflicting relationships}
 \label{SecDependentConflictingRel}
 
 In some cases, correctly finding a relationship depends on finding a prior relationship.
-%Specifically, the conditions from Table~\ref{TabRelationshipTypes} that contains the expression $\rdparent(n_1)'$, which denotes the matching element of the parent of $n_1$, relies on the matching relationships found so far.
 For example, consider the relationship $(n_5, n_{11}, Rename)$ in Figure~\ref{FigRelationships1} (method \codeinl{min} renamed to \codeinl{minimum}).
-The conditions for this relationship includes the clause $\rdparent(n_5)' = \rdparent(n_{11})$, which only yields true if the relationship $(n_2, n_9, \mathit{Rename})$ is found first.
-In fact, if we try to match the pair $(n_5, n_{11})$ before analyzing $(n_2, n_9)$, we would incorrectly classify it as a \textit{Move and Rename}.
+The conditions for this relationship includes the clause $\rdparent(n_5)' = \rdparent(n_{11})$, which means that the matching node of the parent of $n_5$ should be equal to the parent of $n_{11}$.
+This clause only yields true after the matching pair $(n_2, n_9)$ is added to $M$, i.e., after we find out that \codeinl{Calculator} was renamed to \codeinl{FpCalculator}.
+In fact, if we call $\mathit{findMatchRel}(n_5, n_{11})$ before $M$ contains $(n_2, n_9)$, we would incorrectly classify it as a \textit{Move and Rename} relationship.
+To address this issue, we only resolve the actual relationship type in step~3, after all matching pairs are found (note that in steps~1 and 2 we record the matching pairs in $M$, purposely ignoring the type of relationship).
+Moreover, non-matching relationships, which also depends on the matchings found, are analyzed in the last step. 
 
-\todo{continue}
-
+Another issue which we may face when looking for relationships are conflicts, i.e., the conditions for different matching relationships involving the same code element may yield true.
+For instance, in the example from Figure~\ref{FigRelationships1}, the conditions for \textit{Rename} yield true for the pair of methods \codeinl{min} and \codeinl{minimum} because their source code are similar and their parents match.
+However, this is also the case for the pair of methods \codeinl{min} and \codeinl{maximum}.
+We cannot match the same node twice, thus, we must decide upon which relationship we will accept and discard the other one.
+This issue is addressed in the \textsc{findMatchingsBySim} procedure by using the $\rdrank$ function to sort the potential matching pairs, enforcing that we take first the most likely matches.
+After a matching pair $(n_1, n_2)$ is added to $M$, no more matchings involving $n_1$ or $n_2$ will be accepted, because \textsc{addMatch} procedure checks that $n_1 \in N^- \land n_2 \in N^+$.
 
 \subsection{Code Similarity}
 \label{SecCodeSim}
