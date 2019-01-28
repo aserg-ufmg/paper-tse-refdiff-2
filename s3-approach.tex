@@ -112,18 +112,18 @@ Same & & $\rdtype(n_1) = \rdtype(n_2) \land \rdsig(n_1) = \rdsig(n_2) \land \rdp
 Convert Type & & $\rdtype(n_1) \neq \rdtype(n_2) \land \rdsig(n_1) = \rdsig(n_2) \land \rdparent(n_1)' = \rdparent(n_2)$ \\
 Pull Up & & $\rdtype(n_1) = \rdtype(n_2) \land \rdsig(n_1) = \rdsig(n_2) \land \rdsub(\rdparent(n_1)', \rdparent(n_2))$ \\
 Push Down & & $\rdtype(n_1) = \rdtype(n_2) \land \rdsig(n_1) = \rdsig(n_2) \land \rdsub(\rdparent(n_2), \rdparent(n_1)')$ \\
-Change Signature & & $\rdtype(n_1) = \rdtype(n_2) \land \rdsig(n_1) \neq \rdsig(n_2) \land \rdname(n_1) = \rdname(n_2) \land \rdparent(n_1)' = \rdparent(n_2) \land \rdsim(n_1, n_2) > \tau$ \\
-Move & & $\rdtype(n_1) = \rdtype(n_2) \land \rdname(n_1) = \rdname(n_2) \land \rdparent(n_1)' \neq \rdparent(n_2) \land \rdsim(n_1, n_2) > \tau$ \\
-Rename & & $\rdtype(n_1) = \rdtype(n_2) \land \rdname(n_1) \neq \rdname(n_2) \land \rdparent(n_1)' = \rdparent(n_2) \land \rdsim(n_1, n_2) > \tau$ \\
-Move and Rename & & $\rdtype(n_1) = \rdtype(n_2) \land \rdname(n_1) \neq \rdname(n_2) \land \rdparent(n_1)' \neq \rdparent(n_2) \land \rdsim(n_1, n_2) > \tau$ \\
+Change Signature & & $\rdtype(n_1) = \rdtype(n_2) \land \rdsig(n_1) \neq \rdsig(n_2) \land \rdname(n_1) = \rdname(n_2) \land \rdparent(n_1)' = \rdparent(n_2) \land \rdsim(n_1, n_2) > 0.5$ \\
+Move & & $\rdtype(n_1) = \rdtype(n_2) \land \rdname(n_1) = \rdname(n_2) \land \rdparent(n_1)' \neq \rdparent(n_2) \land \rdsim(n_1, n_2) > 0.5$ \\
+Rename & & $\rdtype(n_1) = \rdtype(n_2) \land \rdname(n_1) \neq \rdname(n_2) \land \rdparent(n_1)' = \rdparent(n_2) \land \rdsim(n_1, n_2) > 0.5$ \\
+Move and Rename & & $\rdtype(n_1) = \rdtype(n_2) \land \rdname(n_1) \neq \rdname(n_2) \land \rdparent(n_1)' \neq \rdparent(n_2) \land \rdsim(n_1, n_2) > 0.5$ \\
 \addlinespace
 & \multicolumn{2}{l}{$(n_1, n_2) \in M_1 \times N^+$, such that:}\\
 Extract Supertype & & $\exists (n_3, n_4, \mathit{PullUp}) \in R\, (n_1 = \rdparent(n_3) \land n_2 = \rdparent(n_4))$ \\
-Extract & & $\rduses(n_1', n_2) \land \rdparent(n_1)' = \rdparent(n_2) \land \rdsimx(n_2, n_1) > \tau$ \\
-Extract and Move & & $\rduses(n_1', n_2) \land \rdparent(n_1)' \neq \rdparent(n_2) \land \rdsimx(n_2, n_1) > \tau$ \\
+Extract & & $\rduses(n_1', n_2) \land \rdparent(n_1)' = \rdparent(n_2) \land \rdsimx(n_2, n_1) > 0.5$ \\
+Extract and Move & & $\rduses(n_1', n_2) \land \rdparent(n_1)' \neq \rdparent(n_2) \land \rdsimx(n_2, n_1) > 0.5$ \\
 \addlinespace
 & \multicolumn{2}{l}{$(n_1, n_2) \in N^- \times M_2$, such that:}\\
-Inline & & $\rduses(n_1, n_2') \land \rdsimx(n_1, n_2) > \tau$ \\
+Inline & & $\rduses(n_1, n_2') \land \rdsimx(n_1, n_2) > 0.5$ \\
 \bottomrule
 \end{tabular}
 
@@ -320,34 +320,15 @@ The multiplicity of an element is the number of occurrences of that element with
 
 For example, Figure~\ref{FigSourceCodeTransformation} depicts the transformation of the source code of three methods (\codeinl{sum}, \codeinl{min}, and \codeinl{power}), of the class \codeinl{Calculator}, into multisets of tokens. In this figure, the multiplicity function $m$ for each method is represented in a tabular form. For example, the multiplicity of the token \codeinl{y} in method \codeinl{min} is two (i.e., $m_{\mathtt{min}}(\mathtt{y}) = 2$), whilst the multiplicity of the token \codeinl{if} in method \codeinl{power} is zero (i.e., $m_{\mathtt{power}}(\mathtt{if}) = 0$).
 
-
-Later, to compute the similarity between two code elements $e_1$ and $e_2$, we use a generalization of the Jaccard coefficient, known as weighted Jaccard coefficient~\cite{chierichetti2010finding}.
-Let $U$ be the set of all possible tokens and $w(e, t)$ be a weight function of a token $t$ for the entity $e$.
-We define the similarity between $e_1$ and $e_2$ by the following formula:
-
-
-\begin{align}
-\rdsim(e_1, e_2) = \frac{\sum_{t \in U} \min(w(e_1, t), w(e_2, t))}
-                        {\sum_{t \in U} \max(w(e_1, t), w(e_2, t))}
-\end{align}
-
-%\subsubsubsection{Weight of a token for a code entity}
-
-Our similarity function is based on a weighting function $w(e, t)$ that expresses the importance a token $t$ for a code entity $e$.
+Besides computing the source representation, we also compute a weight for each token
+of the source code.
 In fact, some tokens are more important than others to discriminate a code element.
 For example, in Figure~\ref{FigSourceCodeTransformation}, all three methods contain the token \codeinl{return}. In contrast, only one method (\codeinl{power}) contains the token \codeinl{Math}. Therefore, the later is a better indicator of similarity between methods than the former.
 
 In order to take this into account, we employ a variation of the TF-IDF weighting scheme~\cite{salton1986introduction}, which is a well-known technique from information retrieval.
 TF-IDF, which is the short form of \emph{Term Frequency–Inverse Document Frequency}, reflects how important a term is to a document within a collection of documents.
-In the context of code elements, we consider a token as a term, and the body of a method (or class) as a document.
-
-Let $E$ be the set of all code elements and $n_t$ be the number of elements in $E$ that contains the token $t$,
-we define the weight of $t$ for a code element $e$ as the function $w(e, t)$, which is defined by the following formula:
-\begin{align}
-w(e, t) = m_e(t) \times \mathit{idf}(t)
-\end{align}
-
-\noindent where $m_e(t)$ is the multiplicity of $t$ in $e$, and $\mathit{idf}(t)$ is the Inverse Document Frequency, which is defined as:
+In the context of code elements, we consider a token as a term, and code element as a document.
+Let $E$ be the set of all code elements and $n_t$ be the number of elements in $E$ that contains the token $t$. The Inverse Document Frequency ($\mathit{idf}$), is defined as:
 \begin{align}
 \mathit{idf}(t) = \log (1 + \frac{|E|}{n_t})
 \end{align}
@@ -369,17 +350,53 @@ On the other hand, the token \codeinl{else} occurs in one method ($\mathtt{min}$
 \log (1 + \frac{3}{1}) = 0.602
 \]
 
+Last, to compute the similarity between two code elements $e_1$ and $e_2$, we use a generalization of the Jaccard coefficient, known as weighted Jaccard coefficient~\cite{chierichetti2010finding}.
+Let $U$ be the set of all possible tokens and $m_i(t)$ be the multiplicity of a token $t$ in the source code of a code element $e_i$.
+We define the similarity between $e_1$ and $e_2$ by the following formula:
 
-\subsubsection{Extract and Inline Similarity}
-\label{SecSimX}
 
-While the similarity function presented previously is suitable to compute whether two code elements are are similar, in some situations we need to assess whether the source code of an element is contained within another one. This is the case of \emph{Extract}, and \emph{Inline} relationships. For example, if a method $e_2$ is extracted from $e_1$, the source code of $e_2$ should be contained within $e_1$ prior to the refactoring, although $e_1$ and $e_2$ may be significantly different from each other. Analogously, if a method $e_1$ is inlined into $e_2$, the source code of $e_1$ should be contained within $e_2$.
-Thus, we defined a specialized version of the similarity function $\rdsimx$ defined by the following formula:
 \begin{align}
-\rdsimx(e_1, e_2) = \frac{\sum_{t \in U} \min(w(e_1, t), w(e_2, t))}
-                        {\sum_{t \in U} w(e_1, t)}
+\rdsim(e_1, e_2) = \frac{\sum_{t \in U} \min(m_1(t), m_2(t)) \times \mathit{idf}(t) }
+                        {\sum_{t \in U} \max(m_1(t), m_2(t)) \times \mathit{idf}(t) }
 \end{align}
 
-The rationale behind this formula is that the similarity is at maximum when the multiset of tokens of $e_1$ is a subset of the multiset of tokens of $e_2$, i.e., all tokens from $e_1$ can be found in $e_2$. Note that, given this definition, $\rdsimx(e_1, e_2) \neq \rdsimx(e_2, e_1)$.
+The rationale behind this formula is that the similarity is at maximum (1.0) when the multiset of tokens representing $e_1$ and $e_2$ contain the same tokens with the same cardinality. In contrast, if the multisets contain no tokens in common, the similarity is zero. Additionaly, tokens with higher $\mathit{idf}$ will have a higher weight.
+%It is worth noting that when both multisets are empty, the denominator of the formula is zero, which yields undefined. We handle such special case considering that the similarity is zero.
 
 
+\subsection{Extract similarity}
+\label{SecSimX}
+
+While the similarity function presented previously is suitable to compute whether two code elements are similar, it is not appropriate to assess whether a code element is extracted from another one, because their source code may be significantly different on their entirety.
+However, if a method $e_2$ is extracted from $e_1$, we expect that part of the code of $e_1$ is moved to $e_2$. Therefore, the source code removed from $e_1$ should be similar to the source code of the body of $e_2$.
+
+However, we may face two issues when directly comparing the code removed from $e_1$ with the body of $e_2$. First, not all code removed from $e_1$ may have been moved to $e_2$, i.e., some parts of the code may have been extracted to other locations or simply deleted. Second, $e_2$ may contain additional code, introduced after the extraction. In fact, one of the common reasons to extract a method/function is to facilitate the addition of new code~\cite{fse2016-why-we-refactor}. Thus, to be less susceptible to those issues, our similarity index for \textit{Extract} relationships relies on two heuristics: (i) the code from the body of $e_2$ should be mostly contained in the removed code from $e_1$, or (ii) the removed code from $e_1$ should be mostly contained in the body of $e_2$.
+
+To compute the extract similarity, first we need to compute the representation of the removed code from $e_1$. As we represent the source code as multisets of tokens, we are able subtract its source code representation before and after the change. The subtract operation between two multisets $M_1$ and $M_2$, which we denote by $M_1 \setminus M_2$, yields a new multiset $M_r$ defined by the following multiplicity function:
+\begin{align}
+m_r(t) = \max(0, m_1(t) - m_2(t))
+\end{align}
+where $m_1$ and $m_2$ are the multiplicity functions of $M_1$ and $M_2$, respectively.
+
+To compute the extract similarity, we employ a variation of the similarity function from the previous section, specialized for computing the containment between two multisets, defined by the following formula:
+
+\begin{align}
+\rdsimc(M_1, M_2) = \frac{\sum_{t \in U} \min(m_1(t), m_2(t)) \times \mathit{idf}(t)}
+                        {\sum_{t \in U} m_1(t) \times \mathit{idf}(t)}
+\end{align}
+
+Given those definitions, we are able to define the extract similarity index, $\rdsimx$, as:
+\begin{align}
+\rdsimx(e_1, e_2) = \max( \rdsimc(M_1^-, M_2), \rdsimc(M_2, M_1^-) )
+\end{align}
+where $M_1^-$ is the multiset representing the removed code from $e_1$ ($M_1 \setminus M_1'$) and $M_2$ is the multiset representing the source code of the body of $e_2$. The rationale behind this formula is that the similarity is at maximum when $M_1^-$ is a subset of $M_2$, or when $M_2$ is a subset of $M_1^-$, addressing the two heuristics described previosly.
+
+\subsection{Inline similarity}
+\label{SecSimI}
+
+The similarity index for computing \textit{Inline} relationships is analogous to the \textit{Extract} similarity index, but we adopt a simpler heuristic in this instance because it is less common to introduce code changes in the inlined method along with the refactoring operation.
+If a code element $e_1$ is inlined into a code element $e_2$, we expect that the code from the body of $e_1$ should be mostly contained in the code added to $e_2$. Specifically, we define the inline similarity index, $\rdsimi$, as:
+\begin{align}
+\rdsimi(e_1, e_2) = \rdsimc(M_1, M_2^+)
+\end{align}
+where $M_1$ is the multiset representing of the source code of the body of $e_1$ and $M_2^+$ is the multiset representing the code added to $e_2$ ($M_2' \setminus M_2$). Such similarity index is at maximum when $M_1$ is a subset of the added code ($M_2^+$).
