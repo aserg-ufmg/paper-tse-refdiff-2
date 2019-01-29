@@ -3,34 +3,34 @@
 Our approach consists in two phases: Source Code Analysis and Relationship Analysis.
 In the first phase, Source Code Analysis, we take as input two revisions of a system, $v_1$ and $v_2$, and build two models that represent their source code.
 Both models have the form of a tree, in which each node corresponds to a code element (classes, functions, etc.).
-In the second phase, Relationship Analysis, we compute the set $R$, which contains triples of the form $(n_1, n_2, t)$, where $n_1$ is a code element from revision $v_1$, $n_2$ is a code element from revision $v_2$ and $t$ is a relationship type.
+In the second phase, Relationship Analysis, we compute a set $R$, which contains triples of the form $(n_1, n_2, t)$, where $n_1$ is a code element from revision $v_1$, $n_2$ is a code element from revision $v_2$ and $t$ is a relationship type.
 Such relationships may denote a high-level refactoring operation (move, rename, extract, etc.) or an exact correspondence between the code elements.
 For example, consider the diff between two revisions of a system depicted in Figure~\ref{FigDiff1}.
 Among other changes, the class \codeinl{Calculator}, declared in revision~1, is renamed to \codeinl{FpCalculator} in revision~2. This would correspond to a relationship of the type \emph{Rename} between them.
-In the next sections we describe in details each phase of our approach.
+In the next sections, we describe in details each phase of our approach.
 
 \begin{figure*}[htb]
 \centering
 \includegraphics[width=0.9\textwidth]{img/diff1.pdf}
-\caption{Illustrative diff between two revisions of a system}
+\caption{Illustrative diff between two revisions of a system annotated with refactoring operations}
 \label{FigDiff1}
 \end{figure*}
 
 
 \subsection{Phase 1: Source Code Analysis}
 
-The goal of this phase is compute a language-independent model that represents the source code of the system, which we denote from now on as \emph{Code Structure Tree} (CST). The CST is a tree-like structure that resembles an \emph{Abstract Syntax Tree} (AST), however, in this representation we are interested in coarse-grained code elements, that encompass a code region and may be referred by an identifier in other parts of the system.
+The goal of this phase is to compute a language-independent model that represents the source code of the system, which we denote from now on as \emph{Code Structure Tree} (CST). The CST is a tree-like structure that resembles an \emph{Abstract Syntax Tree} (AST). However, in this representation we are only interested in coarse-grained code elements (e.g., classes and functions) that encompass a code region and may be referred by an identifier in other parts of the system.
 
 To construct the CST, we need to parse the source code, generate the AST for the target programming language, and extract the necessary information.
-Thus, the decision of which types of AST nodes becomes CST nodes depends on language.
+Thus, the decision of which types of AST nodes becomes CST nodes depends on the programming language.
 For example, in Java we represent classes, enums, interfaces, and methods as CST nodes.
 In contrast, local variables are not represented.
 Nevertheless, it is important to note that the granularity of the CST nodes determines the granularity of the relationships we are able to find, e.g., we can only find relationships between methods if we represent methods in the CST.
-Table~\ref{TabCstNodes} lists the types of AST nodes that are represented in the CST for each programming language we support.
+Table~\ref{TabCstNodes} lists the types of AST nodes that are represented in the CST for each programming language supported by the current implementation of our approach.
 
 \begin{table}[htbp]
 \renewcommand{\arraystretch}{1.2}
-\caption{AST nodes that are represented in the CST}
+\caption{AST nodes that are represented in CSTs}
 \label{TabCstNodes}
 \centering
 \begin{tabular}{@{}ll@{}}
@@ -53,16 +53,16 @@ JavaScript & file, class, and function \\
 
 Figure~\ref{FigJavaToCst} exemplifies the transformation of the example system from Figure~\ref{FigDiff1} into a corresponding CST.
 In revision~1, the class \codeinl{Main} is declared with a single method \codeinl{main} and the class \codeinl{Calculator} contains two methods: \codeinl{sum} and \codeinl{min}.
-Note that all those classes and methods become nodes in the CST for revision~1, preserving the same nesting structure of the source code. Analogously, the figure also depicts the CST for revision 2, which contains seven nodes in total (two classes and five methods).
+Note that these classes and methods become nodes in the CST for revision~1, preserving the same nesting structure of the source code. Analogously, the figure also depicts the CST for revision 2, which contains seven nodes in total (two classes and five methods).
 
-Besides the representation of the code elements, the CST also holds a simplified call graph and  a type hierarchy graph of the nodes within the CST, that is, there are edges to represent whether a certain node $n_1$ calls $n_2$, or $n_1$ is a subtype of $n_2$. The first information is necessary to find \emph{Extract} and \emph{Inline} relationships between code elements, while the second is used to find inheritance related relationships such as \emph{Pull Up} and \emph{Push Down}.
+Besides the representation of the code elements, the CST also embeds a simplified call graph and  a type hierarchy graph of the nodes within the CST, that is, there are edges to represent whether a certain node $n_1$ calls $n_2$, or whether $n_1$ is a subtype of $n_2$. The first information is necessary to find \emph{Extract} and \emph{Inline} relationships between code elements, while the second is used to find inheritance-related relationships such as \emph{Pull Up} and \emph{Push Down}.
 
 Moreover, along with each node of the CST, we store the following information:
 \begin{description}
     \item[Identifier] \hfill \\
     An identifier of the code element in its declared scope. 
     The identifier is usually the name of the code element, but it may also contain additional information to avoid ambiguities.
-    For example, the identifier of the class \codeinl{Calculator} from Figure~\ref{FigJavaToCst} is simply its name, but the identifier of the method \codeinl{sum} is \codeinl{sum(double,double)} because there could be an overloaded method with a different signature.
+    For example, the identifier of the class \codeinl{Calculator} from Figure~\ref{FigJavaToCst} is simply its name, but the identifier of the method \codeinl{sum} is \codeinl{sum(double,double)},  because there could be an overloaded method with a different signature.
     
     \item[Namespace] \hfill \\
     An optional prefix that, along with the identifier, globally identifies the code element. 
@@ -75,23 +75,23 @@ Moreover, along with each node of the CST, we store the following information:
     An optional list of the name of the parameters, in the case the node corresponds to a method or function.
     
     \item[Tokenized source code]  \hfill \\
-    The source code of the code element in the form of a list of tokens. 
+    The source code of the element in the form of a list of tokens. 
     This information is necessary to compute the similarity between code elements, as explained in Section~\ref{SecCodeSim}.
     
     \item[Tokenized source code of the body]  \hfill \\
     The source code of the body of the code element in the form of a list of tokens. 
-    This information is optional, as not every node possess a body (e.g., abstract members).
+    This information is optional, as not every node has a body (e.g., abstract methods).
     This information is also necessary to compute the similarity between code elements in the special cases of \textit{Extract} and \textit{Inline} relationships, as explained in Section~\ref{SecSimX}.
     
 \end{description}
 
 It is worth noting that we generate the CST only for source files that have been added, removed, or modified between revisions. 
-Such information can be efficiently obtained from version control systems, without the need to read the content of all files within the repository.
-This way, we avoid a costly operation that might compromise the scalability of our approach, as large repositories contains thousands of source files, but only a small fraction of them change between subsequent revisions.
+Such information can be efficiently obtained from version control systems, without the need to analyze the content of all files within the repository.
+This way, we avoid a costly operation that might compromise the scalability of our approach, as large repositories contain thousands of source files, but only a small fraction of them change between revisions.
 
-Although the construction of the CST is a language-specific process, from this point on, the approach is language-independent and relies only on the information encoded in the CST.
+Although the construction of the CST is a language-specific process, from this point on, the approach is language-independent and relies only on information encoded in CSTs.
 This way, one is able to extend our approach to work with different programming languages only by implementing the \emph{Source Code Analysis} module.
-To demonstrate that capability, we provide implementations for three programming languages: Java, C, and JavaScript.
+To demonstrate this capability, we provide implementations for three programming languages: Java, C, and JavaScript.\footnote{\url{https://github.com/aserg-ufmg/RefDiff}}
 
 
 \subsection{Phase 2: Relationship Analysis}
@@ -158,20 +158,21 @@ $\rdsimx(n_1, n_2)$ & extract similarity between $n_1$ and $n_2$\\
 
 
 
-This phase takes as input the CST's of revisions $v_1$ and $v_2$ and outputs the set of relationships $R$. Let $N_1$ and $N_2$ be the sets of code elements from the CST's of $v_1$ and $v_2$ respectively, each relationship $r \in R$ is a triple $(n_1, n_2, t)$, where $n_1 \in N_1$, $n_2 \in N_2$, and $t$ is a relationship type. The types of relationships are listed in the first column of Table~\ref{TabRelationshipTypes}, and can be subdivided into two groups:
+This phase takes as input the CST's of revisions $v_1$ and $v_2$ and outputs the set of relationships $R$. Let $N_1$ and $N_2$ be the sets of code elements from the CST's of $v_1$ and $v_2$ respectively. Each relationship $r \in R$ is a triple $(n_1, n_2, t)$, where $n_1 \in N_1$, $n_2 \in N_2$, and $t$ is a relationship type. The types of relationships are listed in the first column of Table~\ref{TabRelationshipTypes}, and can be subdivided into two groups:
 \begin{itemize}
-\item \textbf{Matching relationships}, which include \textit{Same}, \textit{Convert Type}, \textit{Pull Up}, \textit{Push Down}, \textit{Change Signature}, \textit{Move}, \textit{Rename}, and \textit{Move and Rename}.
-Those relationships indicates that the node $n_1$ corresponds to $n_2$ in the subsequent revision.
+\item \textbf{Matching relationships}, which indicate that the node $n_1$ corresponds to $n_2$ in the subsequent revision.
+The possible matching relationships are \textit{Same}, \textit{Convert Type}, \textit{Pull Up}, \textit{Push Down}, \textit{Change Signature}, \textit{Move}, \textit{Rename}, and \textit{Move and Rename}.
 We say that a node $n_1$ matches with $n_2$ if exists a relationship $(n_1, n_2, t) \in R$ such that $t$ is a matching relationship.
 
-\item \textbf{Non-matching relationships}, which include \textit{Extract Supertype}, \textit{Extract}, \textit{Extract and Move}, and \textit{Inline}.
-Those relationships don't indicate a matching, but rather that either node $n_1$ is decomposed to create $n_2$, or node $n_1$ is incorporated into $n_2$.
+\item \textbf{Non-matching relationships}, which indicate that either node $n_1$ is decomposed to create $n_2$, or node $n_1$ is incorporated into $n_2$.
+There are four non-matching relationships: \textit{Extract Supertype}, \textit{Extract}, \textit{Extract and Move}, and \textit{Inline}.
 \end{itemize}
 
 
 \subsubsection{General procedure to find relationships}
 
 \begin{figure}[htbp]
+\small
 \begin{algorithmic}[1]
 \Procedure{FindRelationships}{$t_1,t_2$}
 \State $R \gets \emptyset$
@@ -208,12 +209,12 @@ Those relationships don't indicate a matching, but rather that either node $n_1$
 \EndProcedure
 \\
 \Procedure{findNonMatchingRel}{}
-\ForEach{$(n_1, n_2) \in N_1^= \times N^+$}
+\ForEach{$(n_1, n_2) \in M_1 \times N^+$}
   \State $R \gets R \cup \mathit{findExtractSupertype}(n_1, n_2)$
   \State $R \gets R \cup \mathit{findExtract}(n_1, n_2)$
   \State $R \gets R \cup \mathit{findExtractMove}(n_1, n_2)$
 \EndFor
-\ForEach{$(n_1, n_2) \in N^- \times N_2^=$}
+\ForEach{$(n_1, n_2) \in N^- \times M_2$}
   \State $R \gets R \cup \mathit{findInline}(n_1, n_2)$
 \EndFor
 \EndProcedure
@@ -228,57 +229,78 @@ Those relationships don't indicate a matching, but rather that either node $n_1$
 \EndProcedure
 
 \end{algorithmic}
+
+\vspace{1em}
+{
+\footnotesize
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{@{}ll@{}}
+\midrule
+\multicolumn{2}{c}{\textbf{Definitions}}\\
+$M_1$ & the set of nodes from $N_1$ that matches with another node\\
+$M_2$ & the set of nodes from $N_2$ that matches with another node\\
+$N^-$ & the set of unmatched nodes from $N_1$ ($N_1 \setminus M_1$)\\
+$N^+$ & the set of unmatched nodes from $N_2$ ($N_2 \setminus M_2$)\\
+$\rdsig(n)$ & identifier of the code element $n$\\
+$\rdns(n)$ & namespace of the code element $n$\\
+$\rdchildren(n)$ & set of children of $n$ in the CST\\
+$\argmin_{x} f(x)$ & the value of $x$ for which $f(x)$ is minimum\\
+\midrule
+\end{tabular}
+}
+
 \caption{Procedure to find relationships}
 \label{AlgoGeneral}
 \end{figure}
 
-Our approach employs the procedure described in Figure~\ref{AlgoGeneral} to find the relationships.
+Our approach employs the procedure described in Figure~\ref{AlgoGeneral} to find the relationships (i.e., to compute the set $R$).
 The procedure \textsc{FindRelationships} has two parameters, $t_1$ and $t_2$, which are the root nodes of the CST's of both revisions.
-Initially, we define $R \gets \emptyset$ as the set of relationships found so far.
-Additionally, we also define $M \gets \emptyset$ as the set of pairs of matching nodes found so far.
+Initially, we define $R \gets \emptyset$ as the set of relationships found so far (line~2).
+Additionally, we also define $M \gets \emptyset$ as the set of pairs of matching nodes found so far (line~3).
 Then, we execute four subroutines:
 \begin{enumerate}
 
 \item In \textsc{findMatchingsById}, we recursively look for matching nodes that have the same identifier and parent, i.e., we assume that code elements with the same identifier and parent are the same.
 Such assumption enable us to match many code elements at this step, reducing the number of possibilities that need to be checked in the next steps.
-The procedure consists of a loop that pairs the children of the nodes received as arguments and calls the procedure \textsc{addMatch} whenever a matching is found.
-On its turn, \textsc{addMatch} adds a pair of matching nodes to $M$ and calls \textsc{findMatchingsById} again to look for matchings on their children, completing the recursion.
-The matching pairs found in this step will be resolved to \textit{Same} and \textit{Convert type} relationships later.
+The procedure consists of a loop that pairs the children of the nodes received as arguments and calls the procedure \textsc{addMatch} whenever a matching is found (line~13).
+On its turn, \textsc{addMatch} (lines 46-51) adds a pair of matching nodes to $M$ and calls \textsc{findMatchingsById} again to look for matchings on their children, completing the recursion.
+The matching pairs found in this step will be resolved to \textit{Same} and \textit{Convert type} relationships later (see step~3).
 
 \item In \textsc{findMatchingsBySim}, we look for matching nodes based on code similarity.
-This is the case of \textit{Change signature}, \textit{Move}, \textit{Rename}, and \textit{Move and Rename} relationships.
+The goal is to find \textit{Change Signature}, \textit{Move}, \textit{Rename}, and \textit{Move and Rename} relationships.
 The procedure starts by computing the set $M'$, which contains unmatched pairs of nodes from $t_1$ and $t_2$.
 We use the notation $N^-$ to denote the set of unmatched nodes from $t_1$ (presumably deleted) and $N^+$ to denote the set of unmatched nodes from $t_2$ (presumably added).
 Then, it repeatedly takes a pair $(n_1, n_2)$ from $M'$, sorting by the $\rdrank$ function, and checks if it meets the conditions (specified in the second column of Table~\ref{TabRelationshipTypes}) for any matching relationship by calling $\mathit{findMatchRel}(n_1, n_2)$.
-That function will either return a singleton containing a matching relationship or an empty set if none of the conditions are met.
-Last, the \textsc{addMatch} subroutine is called in the case a matching.
-It's worth noting that the conditions to find those relationships and the $\rdrank$ function relies on a code similarity metric, which is described in details in Section~\ref{SecCodeSim}.
+This function returns a singleton containing a matching relationship or an empty set if none of the conditions are met.
+Last, the \textsc{addMatch} subroutine is called in the case of a matching (line~24).
+It is worth noting that the conditions to find those relationships and the $\rdrank$ function relies on a code similarity metric, which is described in details in Section~\ref{SecCodeSim}.
 
 \item In \textsc{resolveMatchings}, we add the relationships corresponding to the matching pairs found at steps~1 and 2 to $R$.
-The procedure iterates over the elements of $M$ and calls $\mathit{findMatchRel}$ to find which relationship type holds between $n_1$ and $n_2$.
-By the end of this step, $R$ will contain all matching relationships found.
+The procedure iterates over the elements of $M$ and calls $\mathit{findMatchRel}$ to find which relationship type holds between $n_1$ and $n_2$ (according to the conditions defined in Table~\ref{TabRelationshipTypes}).
+By the end of this step, $R$ contains all matching relationships found.
 The rationale for postponing the resolution of the relationship type is discussed in Section~\ref{SecDependentConflictingRel}.
 
 \item In \textsc{findNonMatchingRel}, we look for non-matching relationships.
-First, we iterate over the pairs of matched/unmatched nodes, i.e., $M_1 \times N^+$, to look for \textit{ExtractSupertype}, \textit{Extract} and \textit{Extract and Move} relationships.
+First, we iterate over the pairs of matched/unmatched nodes, i.e., $M_1 \times N^+$, to look for \textit{Extract Supertype}, \textit{Extract} and \textit{Extract and Move} relationships.
 Similarly, we also iterate over the pairs of unmatched/matched nodes ($N^- \times M_2$) to look for \textit{Inline} relationships.
-The functions $findExtractSupertype$, $findExtract$, $findExtractMove$, and $findInline$ checks the  preconditions for the corresponding relationship types, according to Table~\ref{TabRelationshipTypes}.
-By the end of this last step, $R$ will contain all relationships found.
+The functions $findExtractSupertype$, $findExtract$, $findExtractMove$, and $findInline$ check the  preconditions for the corresponding relationship types, according to Table~\ref{TabRelationshipTypes}.
+By the end of this last step, $R$ contains all matching and non-matching relationships between CST nodes of both revisions.
 \end{enumerate}
 
 
-Figure~\ref{FigRelationships1} shows the relationships we would find after running RefDiff in the example system from Figure~\ref{FigDiff1}.
+Figure~\ref{FigRelationships1} shows the relationships we find after running RefDiff in the example system from Figure~\ref{FigDiff1}.
 Each relationship is represented by and edge connecting nodes from the left and right CST's.
-There are three relationships of the type \textit{Same}, involving the code elements whose identifiers didn't change: the class \codeinl{Main} and the methods \codeinl{main} and \codeinl{sum}.
-Two of the relationships are of the type \textit{Rename}, indicating that the class \codeinl{Calculator} was renamed to \codeinl{FpCalculator}, and the method \codeinl{min} was renamed to \codeinl{minimum}.
-Moreover, there is an \textit{Extract} relationship indicating that the method \codeinl{print} was extract from \codeinl{main}.
-Finally, we can also note that two nodes, $n_8$ and $n_{12}$, are not involved in matching relationships. Thus, we classify them as added code elements. As every node on the left side is matched, there are no deleted code elements.
+There are three relationships of the type \textit{Same}, involving the code elements whose identifiers do not change: the class \codeinl{Main} and the methods \codeinl{main} and \codeinl{sum}.
+Two of the relationships are of type \textit{Rename}, indicating that the class \codeinl{Calculator} is renamed to \codeinl{FpCalculator}, and the method \codeinl{min} is renamed to \codeinl{minimum}.
+Moreover, there is an \textit{Extract} relationship indicating that the method \codeinl{print} is extracted from \codeinl{main}.
+Finally, we can also note that two nodes, $n_8$ and $n_{12}$, are not involved in matching relationships. Thus, we classify them as added code elements.
+In this example, as every node on the left side is matched, there are no deleted code elements.
 
 
 \begin{figure}[htb]
 \centering
 \includegraphics[width=1.0\linewidth]{img/relationshipDiff1.pdf}
-\caption{Relationships found in the example system from Figure~\ref{FigDiff1}}
+\caption{Relationships found in the example from Figure~\ref{FigDiff1}}
 \label{FigRelationships1}
 \end{figure}
 
@@ -288,18 +310,25 @@ Finally, we can also note that two nodes, $n_8$ and $n_{12}$, are not involved i
 
 In some cases, correctly finding a relationship depends on finding a prior relationship.
 For example, consider the relationship $(n_5, n_{11}, Rename)$ in Figure~\ref{FigRelationships1} (method \codeinl{min} renamed to \codeinl{minimum}).
-The conditions for this relationship includes the clause $\rdparent(n_5)' = \rdparent(n_{11})$, which means that the matching node of the parent of $n_5$ should be equal to the parent of $n_{11}$.
-This clause only yields true after the matching pair $(n_2, n_9)$ is added to $M$, i.e., after we find out that \codeinl{Calculator} was renamed to \codeinl{FpCalculator}.
-In fact, if we call $\mathit{findMatchRel}(n_5, n_{11})$ before $M$ contains $(n_2, n_9)$, we would incorrectly classify it as a \textit{Move and Rename} relationship.
-To address this issue, we only resolve the actual relationship type in step~3, after all matching pairs are found (note that in steps~1 and 2 we record the matching pairs in $M$, purposely ignoring the type of relationship).
-Moreover, non-matching relationships, which also depends on the matchings found, are analyzed in the last step. 
+The conditions for this relationship includes the clause $\rdparent(n_5)' = \rdparent(n_{11})$, which means that the matching node of the parent of $n_5$ should be equal to the parent of $n_{11}$ (see Table~\ref{TabRelationshipTypes}, \textit{Rename} row).
+This clause only yields true after the matching pair $(n_3, n_9)$ is added to $M$, i.e., after we find out that \codeinl{Calculator} is renamed to \codeinl{FpCalculator}.
+In fact, if we call $\mathit{findMatchRel}(n_5, n_{11})$ before $M$ contains $(n_3, n_9)$, we would incorrectly classify it as a \textit{Move and Rename} relationship.
+To address this issue, we only resolve the actual relationship types in steps~3 and~4, after all matching pairs are found (note that in steps~1 and 2 we record the matching pairs in $M$, purposely ignoring the type of relationship).
+%Moreover, non-matching relationships, which also depends on the matchings found, are analyzed in the last step. 
 
-Another issue which we may face when looking for relationships are conflicts, i.e., the conditions for different matching relationships involving the same code element may yield true.
+Another issue which we may face when looking for relationships are conflicts, i.e., two or more matching relationships hold for the same code element (according to conditions from Table~\ref{TabRelationshipTypes}).
 For instance, in the example from Figure~\ref{FigRelationships1}, the conditions for \textit{Rename} yield true for the pair of methods \codeinl{min} and \codeinl{minimum} because their source code are similar and their parents match.
-However, this is also the case for the pair of methods \codeinl{min} and \codeinl{maximum}.
+However, this is also the case for the pair of methods \codeinl{min} and \codeinl{maximum}, whose bodies are also similar.
 We cannot match the same node twice, thus, we must decide upon which relationship we will accept and discard the other one.
 This issue is addressed in the \textsc{findMatchingsBySim} procedure by using the $\rdrank$ function to sort the potential matching pairs, enforcing that we take first the most likely matches.
-After a matching pair $(n_1, n_2)$ is added to $M$, no more matchings involving $n_1$ or $n_2$ will be accepted, because \textsc{addMatch} procedure checks that $n_1 \in N^- \land n_2 \in N^+$.
+The $\rdrank$ function relies on a similarity metric, which we discuss in details in Section~\ref{SecCodeSim}.
+After a matching pair $(n_1, n_2)$ is added to $M$, no more matchings involving $n_1$ or $n_2$ are accepted, because \textsc{addMatch} procedure checks that $n_1 \in N^- \land n_2 \in N^+$ (line~47).
+
+
+
+
+
+
 
 \subsection{Code Similarity}
 \label{SecCodeSim}
@@ -309,31 +338,31 @@ After a matching pair $(n_1, n_2)$ is added to $M$, no more matchings involving 
 \centering
 \footnotesize
 \input{img/sourceCodeTransformation2.tex}
-\caption{Transformation of the body of each method into a multiset of tokens}
+\caption{Transformation of the body of methods into a multiset of tokens}
 \label{FigSourceCodeTransformation}
 \end{figure*}
 
-A key element of our approach to find relationships, as mentioned previously, is computing the similarity.
-The first step to compute the similarity between code elements is to represent their source code as a multiset (or bag) of tokens.
+A key element of our approach to find relationships, as previously mentioned, is computing the similarity between code elements (i.e., CST nodes).
+The first step to compute this similarity is to represent their source code as a multiset (or bag) of tokens.
 A multiset is a generalization of the concept of a set, but it allows multiple instances of the same element.
 The multiplicity of an element is the number of occurrences of that element within the multiset. Formally, a multiset can be defined in terms of a multiplicity function $m: U \to \mathbb{N}$, where $U$ is the set of all possible elements. In other words, $m(t)$ is the multiplicity of the element $t$ in the multiset. Note that the multiplicity of an element that is not in the multiset is zero.
 
 For example, Figure~\ref{FigSourceCodeTransformation} depicts the transformation of the source code of three methods (\codeinl{sum}, \codeinl{min}, and \codeinl{power}), of the class \codeinl{Calculator}, into multisets of tokens. In this figure, the multiplicity function $m$ for each method is represented in a tabular form. For example, the multiplicity of the token \codeinl{y} in method \codeinl{min} is two (i.e., $m_{\mathtt{min}}(\mathtt{y}) = 2$), whilst the multiplicity of the token \codeinl{if} in method \codeinl{power} is zero (i.e., $m_{\mathtt{power}}(\mathtt{if}) = 0$).
 
-Besides computing the source representation, we also compute a weight for each token
+After extracting a multiset of tokens, we also compute a weight for each token
 of the source code.
 In fact, some tokens are more important than others to discriminate a code element.
 For example, in Figure~\ref{FigSourceCodeTransformation}, all three methods contain the token \codeinl{return}. In contrast, only one method (\codeinl{power}) contains the token \codeinl{Math}. Therefore, the later is a better indicator of similarity between methods than the former.
 
 In order to take this into account, we employ a variation of the TF-IDF weighting scheme~\cite{salton1986introduction}, which is a well-known technique from information retrieval.
 TF-IDF, which is the short form of \emph{Term Frequency–Inverse Document Frequency}, reflects how important a term is to a document within a collection of documents.
-In the context of code elements, we consider a token as a term, and code element as a document.
+In the context of code elements, we consider a token as a term, and a code element as a document.
 Let $E$ be the set of all code elements and $n_t$ be the number of elements in $E$ that contains the token $t$. The Inverse Document Frequency ($\mathit{idf}$), is defined as:
 \begin{align}
 \mathit{idf}(t) = \log (1 + \frac{|E|}{n_t})
 \end{align}
 
-Note that the value of $\mathit{idf}(t)$ decreases as $n_t$ increases, because the more frequent a token is among the collection of code elements, the less important it is to distinguish code elements.
+Note that the value of $\mathit{idf}(t)$ decreases as $n_t$ increases, because the more frequent a token is among the collection of code elements, the less important it is to distinguish them.
 For example, in Figure~\ref{FigSourceCodeTransformation}, the token \codeinl{y} occurs in two methods (\codeinl{sum} and \codeinl{min}). Thus, its $\mathit{idf}$ is:
 
 \[
@@ -342,7 +371,7 @@ For example, in Figure~\ref{FigSourceCodeTransformation}, the token \codeinl{y} 
 \log (1 + \frac{3}{2}) = 0.398
 \]
 
-On the other hand, the token \codeinl{else} occurs in one method ($\mathtt{min}$), and its $\mathit{idf}$ is:
+On the other hand, the token \codeinl{else} occurs in one method ($\mathtt{min}$), and therefore its $\mathit{idf}$ is:
 
 \[
 \mathit{idf}(\mathtt{else}) = 
@@ -351,11 +380,12 @@ On the other hand, the token \codeinl{else} occurs in one method ($\mathtt{min}$
 \]
 
 Last, to compute the similarity between two code elements $e_1$ and $e_2$, we use a generalization of the Jaccard coefficient, known as weighted Jaccard coefficient~\cite{chierichetti2010finding}.
-Let $U$ be the set of all possible tokens and $m_i(t)$ be the multiplicity of a token $t$ in the source code of a code element $e_i$.
+Let $U$ be the set of all possible tokens and $m_i: U \to \mathbb{N}$ be the multiplicity function representing the multiset of tokens of a code element $e_i$.
 We define the similarity between $e_1$ and $e_2$ by the following formula:
 
 
 \begin{align}
+\label{WJaccard}
 \rdsim(e_1, e_2) = \frac{\sum_{t \in U} \min(m_1(t), m_2(t)) \times \mathit{idf}(t) }
                         {\sum_{t \in U} \max(m_1(t), m_2(t)) \times \mathit{idf}(t) }
 \end{align}
@@ -370,33 +400,37 @@ The rationale behind this formula is that the similarity is at maximum (1.0) whe
 While the similarity function presented previously is suitable to compute whether two code elements are similar, it is not appropriate to assess whether a code element is extracted from another one, because their source code may be significantly different on their entirety.
 However, if a method $e_2$ is extracted from $e_1$, we expect that part of the code of $e_1$ is moved to $e_2$. Therefore, the source code removed from $e_1$ should be similar to the source code of the body of $e_2$.
 
-However, we may face two issues when directly comparing the code removed from $e_1$ with the body of $e_2$. First, not all code removed from $e_1$ may have been moved to $e_2$, i.e., some parts of the code may have been extracted to other locations or simply deleted. Second, $e_2$ may contain additional code, introduced after the extraction. In fact, one of the common reasons to extract a method/function is to facilitate the addition of new code~\cite{fse2016-why-we-refactor}. Thus, to be less susceptible to those issues, our similarity index for \textit{Extract} relationships relies on two heuristics: (i) the code from the body of $e_2$ should be mostly contained in the removed code from $e_1$, or (ii) the removed code from $e_1$ should be mostly contained in the body of $e_2$.
+However, we face two issues when directly comparing the code removed from $e_1$ with the body of $e_2$. First, not all code removed from $e_1$ may have been moved to $e_2$, i.e., some parts of the code may have been extracted to other locations or simply deleted. Second, $e_2$ may contain additional code, introduced after the extraction. In fact, one of the common reasons to extract a method/function is to facilitate the addition of new code~\cite{fse2016-why-we-refactor}. Thus, to be less susceptible to those issues, our similarity index for \textit{Extract} relationships relies on two heuristics: (i) the code from the body of $e_2$ should be mostly contained in the code removed from $e_1$, or (ii) the code removed from $e_1$ should be mostly contained in the body of $e_2$.
 
-To compute the extract similarity, first we need to compute the representation of the removed code from $e_1$. As we represent the source code as multisets of tokens, we are able subtract its source code representation before and after the change. The subtract operation between two multisets $M_1$ and $M_2$, which we denote by $M_1 \setminus M_2$, yields a new multiset $M_r$ defined by the following multiplicity function:
+To compute the extract similarity, first we need to compute the code removed from $e_1$. As we represent the source code as multisets of tokens, we are able to use the subtract operation to achieve this goal.
+Let $m_1$ be the multiset of tokens of $e_1$ before the change and $m_1'$ be the multiset of tokens of $e_1$ after the change.
+The subtract operation between both multisets, which we denote by $m_1' \setminus m_1$, yields a new multiset $m_1^-$ defined by the following multiplicity function:
 \begin{align}
-m_r(t) = \max(0, m_1(t) - m_2(t))
+m_1^-(t) = \max(0, m_1'(t) - m_1(t))
 \end{align}
-where $m_1$ and $m_2$ are the multiplicity functions of $M_1$ and $M_2$, respectively.
 
-To compute the extract similarity, we employ a variation of the similarity function from the previous section, specialized for computing the containment between two multisets, defined by the following formula:
-
+Besides computing the code removed from $e_1$, we need to measure if its contained within $e_2$. Thus, we employ a variation of the weighted Jaccard coefficient introduced previously (see Equation~\ref{WJaccard}), which is defined as:
 \begin{align}
-\rdsimc(M_1, M_2) = \frac{\sum_{t \in U} \min(m_1(t), m_2(t)) \times \mathit{idf}(t)}
+\rdsimc(m_1, m_2) = \frac{\sum_{t \in U} \min(m_1(t), m_2(t)) \times \mathit{idf}(t)}
                         {\sum_{t \in U} m_1(t) \times \mathit{idf}(t)}
 \end{align}
+where $m_1$ and $m_2$ are multisets (defined by their multiplicity functions).
+In this variation, we change the denominator of Equation~\ref{WJaccard} to include only the multiplicity of the tokens from the first multiset (not their union).
+This way, the similarity is at maximum (1.0) when $m_1$ is a subset of $m_2$, even if both multisets are not identical. In contrast, the similarity is zero when the intersection between $m_1$ and $m_2$ is empty.
+
 
 Given those definitions, we are able to define the extract similarity index, $\rdsimx$, as:
 \begin{align}
-\rdsimx(e_1, e_2) = \max( \rdsimc(M_1^-, M_2), \rdsimc(M_2, M_1^-) )
+\rdsimx(e_1, e_2) = \max( \rdsimc(m_1^-, m_2), \rdsimc(m_2, m_1^-) )
 \end{align}
-where $M_1^-$ is the multiset representing the removed code from $e_1$ ($M_1 \setminus M_1'$) and $M_2$ is the multiset representing the source code of the body of $e_2$. The rationale behind this formula is that the similarity is at maximum when $M_1^-$ is a subset of $M_2$, or when $M_2$ is a subset of $M_1^-$, addressing the two heuristics described previosly.
+where $m_1^-$ is the multiset representing the code removed from $e_1$ ($m_1 \setminus m_1'$) and $m_2$ is the multiset representing the source code of the body of $e_2$. The rationale behind this formula is that the similarity is at maximum when $m_1^-$ is a subset of $m_2$, or when $m_2$ is a subset of $m_1^-$, addressing the two heuristics described previosly.
 
 \subsection{Inline similarity}
 \label{SecSimI}
 
-The similarity index for computing \textit{Inline} relationships is analogous to the \textit{Extract} similarity index, but we adopt a simpler heuristic in this instance because it is less common to introduce code changes in the inlined method along with the refactoring operation.
+The similarity index for computing \textit{Inline} relationships is analogous to the \textit{Extract} similarity index, but we adopt a simpler heuristic in this instance because it is less common to introduce code changes in the inlined method along with the refactoring operation \todo{esta explicacao nao tem muito fundamento na verdade}.
 If a code element $e_1$ is inlined into a code element $e_2$, we expect that the code from the body of $e_1$ should be mostly contained in the code added to $e_2$. Specifically, we define the inline similarity index, $\rdsimi$, as:
 \begin{align}
-\rdsimi(e_1, e_2) = \rdsimc(M_1, M_2^+)
+\rdsimi(e_1, e_2) = \rdsimc(m_1, m_2^+)
 \end{align}
-where $M_1$ is the multiset representing of the source code of the body of $e_1$ and $M_2^+$ is the multiset representing the code added to $e_2$ ($M_2' \setminus M_2$). Such similarity index is at maximum when $M_1$ is a subset of the added code ($M_2^+$).
+where $m_1$ is the multiset representing of the source code of the body of $e_1$ and $m_2^+$ is the multiset representing the code added to $e_2$ ($m_2' \setminus m_2$). Such similarity index is at maximum (1.0) when $m_1$ is a subset of the added code ($m_2^+$).
