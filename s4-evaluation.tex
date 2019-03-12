@@ -36,6 +36,59 @@ In summary, after these two steps (independent validation and consensus meeting)
 \subsection{Results}
 \label{sec:eval:java:results}
 
+\begin{table}[htbp]
+\renewcommand{\arraystretch}{1.2}
+\caption{Java precision and recall results}
+\label{TabResultJava}
+\centering
+\begin{tabular}{@{}lrrrll@{}}
+\toprule
+Refactoring Type & TP & FP & FN & Precision & Recall \\
+\midrule
+Move Class & 1063 & 1 & 30 & \xbar{0.999} & \xbar{0.973} \\
+Move Method & 288 & 164 & 30 & \xbar{0.637} & \xbar{0.906} \\
+Rename Class & 62 & 2 & 19 & \xbar{0.969} & \xbar{0.765} \\
+Rename Method & 232 & 12 & 111 & \xbar{0.951} & \xbar{0.676} \\
+Extract Interface & 15 & 3 & 9 & \xbar{0.833} & \xbar{0.625} \\
+Extract Superclass & 52 & 13 & 18 & \xbar{0.800} & \xbar{0.743} \\
+Pull Up Method & 65 & 1 & 23 & \xbar{0.985} & \xbar{0.739} \\
+Push Down Method & 37 & 2 & 2 & \xbar{0.949} & \xbar{0.949} \\
+Extract Method & 764 & 64 & 237 & \xbar{0.923} & \xbar{0.763} \\
+Inline Method & 86 & 3 & 34 & \xbar{0.966} & \xbar{0.717} \\
+\addlinespace
+Total & 2664 & 265 & 513 & \xbar{0.910} & \xbar{0.839} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table*}[htbp]
+\renewcommand{\arraystretch}{1.2}
+\caption{Java precision and recall results}
+\label{TabResultJava2}
+\centering
+\begin{tabular}{@{}lrlrrrlllrrrll@{}}
+\toprule
+ & & & \multicolumn{5}{c}{RefDiff} & & \multicolumn{5}{c}{Refactoring Miner}\\
+\cmidrule{4-8} \cmidrule{10-14}
+Refactoring Type & \# & & TP & FP & FN & Precision & Recall & & TP & FP & FN & Precision & Recall \\
+\midrule
+Move Class & 1091 & & 1061 & 1 & 30 & \xbar{0.999} & \xbar{0.973} & & 1015 & 0 & 76 & \xbar{1.000} & \xbar{0.930} \\
+Move Method & 317 & & 286 & 164 & 31 & \xbar{0.636} & \xbar{0.902} & & 208 & 10 & 109 & \xbar{0.954} & \xbar{0.656} \\
+Rename Class & 83 & & 62 & 2 & 21 & \xbar{0.969} & \xbar{0.747} & & 59 & 1 & 24 & \xbar{0.983} & \xbar{0.711} \\
+Rename Method & 342 & & 231 & 12 & 111 & \xbar{0.951} & \xbar{0.675} & & 269 & 6 & 73 & \xbar{0.978} & \xbar{0.787} \\
+Extract Interface & 24 & & 15 & 3 & 9 & \xbar{0.833} & \xbar{0.625} & & 20 & 0 & 4 & \xbar{1.000} & \xbar{0.833} \\
+Extract Superclass & 69 & & 51 & 13 & 18 & \xbar{0.797} & \xbar{0.739} & & 67 & 3 & 2 & \xbar{0.957} & \xbar{0.971} \\
+Pull Up Method & 83 & & 65 & 1 & 18 & \xbar{0.985} & \xbar{0.783} & & 67 & 0 & 16 & \xbar{1.000} & \xbar{0.807} \\
+Push Down Method & 39 & & 37 & 2 & 2 & \xbar{0.949} & \xbar{0.949} & & 33 & 0 & 6 & \xbar{1.000} & \xbar{0.846} \\
+Extract Method & 1027 & & 766 & 56 & 261 & \xbar{0.932} & \xbar{0.746} & & 792 & 12 & 235 & \xbar{0.985} & \xbar{0.771} \\
+Inline Method & 120 & & 86 & 3 & 34 & \xbar{0.966} & \xbar{0.717} & & 97 & 1 & 23 & \xbar{0.990} & \xbar{0.808} \\
+\addlinespace
+Total & 3212 & & 2672 & 257 & 540 & \xbar{0.912} & \xbar{0.832} & & 2642 & 33 & 570 & \xbar{0.988} & \xbar{0.823} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+
 \section{Evaluation with JavaScript and C}
 \label{sec:eval:js:c:reults}
 
@@ -127,7 +180,7 @@ Inline function has the lowest recall (40\%); however, in our oracle has only fi
 \caption{JavaScript precision results}
 \label{TabResultJsPrecison}
 \centering
-\begin{tabular}{@{}lrrrll@{}}
+\begin{tabular}{@{}lrrl@{}}
 \toprule
 Refactoring Type & TP & FP & Precision\\
 \midrule
@@ -152,7 +205,7 @@ Total & 79 & 8 & \xbar{0.91} \\
 \caption{JavaScript recall results}
 \label{TabResultJsRecall}
 \centering
-\begin{tabular}{@{}lrrrll@{}}
+\begin{tabular}{@{}lrrl@{}}
 \toprule
 Refactoring Type & TP & FN & Recall\\
 \midrule
@@ -201,7 +254,7 @@ The following GitHub repositories were selected to run evaluation procedure:
 \caption{C precision results}
 \label{TabResultCPrecison}
 \centering
-\begin{tabular}{@{}lrrrll@{}}
+\begin{tabular}{@{}lrrl@{}}
 \toprule
 Refactoring Type & TP & FP & Precision\\
 \midrule
@@ -225,7 +278,7 @@ Total & 70 & 10 & \xbar{0.88} \\
 \caption{C recall results}
 \label{TabResultCRecall}
 \centering
-\begin{tabular}{@{}lrrrll@{}}
+\begin{tabular}{@{}lrrl@{}}
 \toprule
 Refactoring Type & TP & FN & Recall\\
 \midrule
