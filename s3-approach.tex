@@ -22,7 +22,7 @@ In the next sections, we describe in details each phase of our approach.
 The goal of this phase is to compute a language-independent model that represents the source code of the system, which we denote from now on as \emph{Code Structure Tree} (CST). The CST is a tree-like structure that resembles an \emph{Abstract Syntax Tree} (AST). However, in this representation we are only interested in coarse-grained code elements (e.g., classes and functions) that encompass a code region and may be referred by an identifier in other parts of the system.
 
 To construct the CST, we need to parse the source code, generate the AST for the target programming language, and extract the necessary information.
-Thus, the decision of which types of AST nodes becomes CST nodes depends on the programming language.
+Thus, the decision of which types of AST nodes become CST nodes depends on the programming language.
 For example, in Java we represent classes, enums, interfaces, and methods as CST nodes.
 In contrast, local variables are not represented.
 Nevertheless, it is important to note that the granularity of the CST nodes determines the granularity of the relationships we are able to find, e.g., we can only find relationships between methods if we represent methods in the CST.
@@ -55,7 +55,7 @@ Figure~\ref{FigJavaToCst} exemplifies the transformation of the example system f
 In revision~1, the class \codeinl{Main} is declared with a single method \codeinl{main} and the class \codeinl{Calculator} contains two methods: \codeinl{sum} and \codeinl{min}.
 Note that these classes and methods become nodes in the CST for revision~1, preserving the same nesting structure of the source code. Analogously, the figure also depicts the CST for revision 2, which contains seven nodes in total (two classes and five methods).
 
-Besides the representation of the code elements, the CST also embeds a simplified call graph and  a type hierarchy graph of the nodes within the CST, that is, there are edges to represent whether a certain node $n_1$ calls $n_2$, or whether $n_1$ is a subtype of $n_2$. The first information is necessary to find \emph{Extract} and \emph{Inline} relationships between code elements, while the second is used to find inheritance-related relationships such as \emph{Pull Up} and \emph{Push Down}.
+Besides the representation of the code elements, the CST also embeds a simplified call graph and  a type hierarchy graph of the nodes within the CST, that is, there are edges to represent whether a certain node $n_1$ calls $n_2$, or whether $n_1$ is a subtype of $n_2$. The first information is necessary to find \emph{Extract} and \emph{Inline} relationships between code elements, while the second is used to find inheritance-related relationships, such as \emph{Pull Up} and \emph{Push Down}.
 
 Moreover, along with each node of the CST, we store the following information:
 \begin{description}
@@ -75,13 +75,15 @@ Moreover, along with each node of the CST, we store the following information:
     An optional list of the name of the parameters, in the case the node corresponds to a method or function.
     
     \item[Tokenized source code]  \hfill \\
-    The source code of the element in the form of a list of tokens. 
+    The source code of the element in the form of a list of tokens.
     This information is necessary to compute the similarity between code elements, as explained in Section~\ref{SecCodeSim}.
+    Here, we include all tokens in the code region that encompasses the complete declaration of the code element, including its name/signature.
+    
     
     \item[Tokenized source code of the body]  \hfill \\
     The source code of the body of the code element in the form of a list of tokens. 
-    This information is optional, as not every node has a body (e.g., abstract methods).
     This information is also necessary to compute the similarity between code elements in the special cases of \textit{Extract} and \textit{Inline} relationships, as explained in Section~\ref{SecSimX}.
+    It is worth noting that this information is optional, as not every node has a body (e.g., abstract methods). Moreover, here we include only the tokens within the body of the code element, but not its name/signature.
     
 \end{description}
 
@@ -169,7 +171,7 @@ There are four non-matching relationships: \textit{Extract Supertype}, \textit{E
 \end{itemize}
 
 
-\subsubsection{General procedure to find relationships}
+\subsubsection{General algorithm to find relationships}
 
 \begin{figure}[htbp]
 \small
@@ -249,11 +251,11 @@ $\argmin_{x} f(x)$ & the value of $x$ for which $f(x)$ is minimum\\
 \end{tabular}
 }
 
-\caption{Procedure to find relationships}
+\caption{Algorithm to find relationships}
 \label{AlgoGeneral}
 \end{figure}
 
-Our approach employs the procedure described in Figure~\ref{AlgoGeneral} to find the relationships (i.e., to compute the set $R$).
+Our approach employs the algorithm described in Figure~\ref{AlgoGeneral} to find the relationships (i.e., to compute the set $R$).
 The procedure \textsc{FindRelationships} has two parameters, $t_1$ and $t_2$, which are the root nodes of the CST's of both revisions.
 Initially, we define $R \gets \emptyset$ as the set of relationships found so far (line~2).
 Additionally, we also define $M \gets \emptyset$ as the set of pairs of matching nodes found so far (line~3).
@@ -261,7 +263,7 @@ Then, we execute four subroutines:
 \begin{enumerate}
 
 \item In \textsc{findMatchingsById}, we recursively look for matching nodes that have the same identifier and parent, i.e., we assume that code elements with the same identifier and parent are the same.
-Such assumption enable us to match many code elements at this step, reducing the number of possibilities that need to be checked in the next steps.
+Such assumption allows us to match many code elements at this step, reducing the number of possibilities that need to be checked in the next steps.
 The procedure consists of a loop that pairs the children of the nodes received as arguments and calls the procedure \textsc{addMatch} whenever a matching is found (line~13).
 On its turn, \textsc{addMatch} (lines 46-51) adds a pair of matching nodes to $M$ and calls \textsc{findMatchingsById} again to look for matchings on their children, completing the recursion.
 The matching pairs found in this step will be resolved to \textit{Same} and \textit{Convert type} relationships later (see step~3).
@@ -273,7 +275,8 @@ We use the notation $N^-$ to denote the set of unmatched nodes from $t_1$ (presu
 Then, it repeatedly takes a pair $(n_1, n_2)$ from $M'$, sorting by the $\rdrank$ function, and checks if it meets the conditions (specified in the second column of Table~\ref{TabRelationshipTypes}) for any matching relationship by calling $\mathit{findMatchRel}(n_1, n_2)$.
 This function returns a singleton containing a matching relationship or an empty set if none of the conditions are met.
 Last, the \textsc{addMatch} subroutine is called in the case of a matching (line~24).
-It is worth noting that the conditions to find those relationships and the $\rdrank$ function relies on a code similarity metric, which is described in details in Section~\ref{SecCodeSim}.
+The conditions to find those relationships and the $\rdrank$ function rely on a code similarity metric, which is described in details in Section~\ref{SecCodeSim}.
+\todo{falar da heuristica especifica de move method aqui?}
 
 \item In \textsc{resolveMatchings}, we add the relationships corresponding to the matching pairs found at steps~1 and 2 to $R$.
 The procedure iterates over the elements of $M$ and calls $\mathit{findMatchRel}$ to find which relationship type holds between $n_1$ and $n_2$ (according to the conditions defined in Table~\ref{TabRelationshipTypes}).
@@ -284,12 +287,12 @@ The rationale for postponing the resolution of the relationship type is discusse
 First, we iterate over the pairs of matched/unmatched nodes, i.e., $M_1 \times N^+$, to look for \textit{Extract Supertype}, \textit{Extract} and \textit{Extract and Move} relationships.
 Similarly, we also iterate over the pairs of unmatched/matched nodes ($N^- \times M_2$) to look for \textit{Inline} relationships.
 The functions $findExtractSupertype$, $findExtract$, $findExtractMove$, and $findInline$ check the  preconditions for the corresponding relationship types, according to Table~\ref{TabRelationshipTypes}.
-By the end of this last step, $R$ contains all matching and non-matching relationships between CST nodes of both revisions.
+After this last step, $R$ contains all matching and non-matching relationships between CST nodes of both revisions.
 \end{enumerate}
 
 
 Figure~\ref{FigRelationships1} shows the relationships we find after running RefDiff in the example system from Figure~\ref{FigDiff1}.
-Each relationship is represented by and edge connecting nodes from the left and right CST's.
+Each relationship is represented by an edge connecting nodes from the left and right CSTs.
 There are three relationships of the type \textit{Same}, involving the code elements whose identifiers do not change: the class \codeinl{Main} and the methods \codeinl{main} and \codeinl{sum}.
 Two of the relationships are of type \textit{Rename}, indicating that the class \codeinl{Calculator} is renamed to \codeinl{FpCalculator}, and the method \codeinl{min} is renamed to \codeinl{minimum}.
 Moreover, there is an \textit{Extract} relationship indicating that the method \codeinl{print} is extracted from \codeinl{main}.
@@ -394,15 +397,18 @@ The rationale behind this formula is that the similarity is at maximum (1.0) whe
 %It is worth noting that when both multisets are empty, the denominator of the formula is zero, which yields undefined. We handle such special case considering that the similarity is zero.
 
 
-\subsection{Extract similarity}
+\subsubsection{Extract similarity}
 \label{SecSimX}
 
 While the similarity function presented previously is suitable to compute whether two code elements are similar, it is not appropriate to assess whether a code element is extracted from another one, because their source code may be significantly different on their entirety.
-However, if a method $e_2$ is extracted from $e_1$, we expect that part of the code of $e_1$ is moved to $e_2$. Therefore, the source code removed from $e_1$ should be similar to the source code of the body of $e_2$.
+However, if a method $e_2$ is extracted from $e_1$, we expect that part of the code of $e_1$ is moved to $e_2$.
+Therefore, the source code of the body of $e_2$ should be similar to the source code removed from $e_1$.
+Additionally, not all code removed from $e_1$ may have been moved to $e_2$, i.e., some parts of the code may have been extracted to other locations or simply deleted.
+To be less susceptible to this issue, our similarity index for \textit{Extract} relationships rely on the following assumption: the code from the body of $e_2$ should be mostly contained in the code removed from $e_1$.
 
-However, we face two issues when directly comparing the code removed from $e_1$ with the body of $e_2$. First, not all code removed from $e_1$ may have been moved to $e_2$, i.e., some parts of the code may have been extracted to other locations or simply deleted. Second, $e_2$ may contain additional code, introduced after the extraction. In fact, one of the common reasons to extract a method/function is to facilitate the addition of new code~\cite{fse2016-why-we-refactor}. Thus, to be less susceptible to those issues, our similarity index for \textit{Extract} relationships relies on two heuristics: (i) the code from the body of $e_2$ should be mostly contained in the code removed from $e_1$, or (ii) the code removed from $e_1$ should be mostly contained in the body of $e_2$.
+%However, we face two issues when directly comparing the code removed from $e_1$ with the body of $e_2$. First, not all code removed from $e_1$ may have been moved to $e_2$, i.e., some parts of the code may have been extracted to other locations or simply deleted. Second, $e_2$ may contain additional code, introduced after the extraction. In fact, one of the common reasons to extract a method/function is to facilitate the addition of new code~\cite{fse2016-why-we-refactor}. Thus, to be less susceptible to those issues, our similarity index for \textit{Extract} relationships relies on two heuristics: (i) the code from the body of $e_2$ should be mostly contained in the code removed from $e_1$, or (ii) the code removed from $e_1$ should be mostly contained in the body of $e_2$.
 
-To compute the extract similarity, first we need to compute the code removed from $e_1$. As we represent the source code as multisets of tokens, we are able to use the subtract operation to achieve this goal.
+Thus, to compute the extract similarity, first we need to compute the code removed from $e_1$. As we represent the source code as multisets of tokens, we are able to use the subtract operation to achieve this goal.
 Let $m_1$ be the multiset of tokens of $e_1$ before the change and $m_1'$ be the multiset of tokens of $e_1$ after the change.
 The subtract operation between both multisets, which we denote by $m_1' \setminus m_1$, yields a new multiset $m_1^-$ defined by the following multiplicity function:
 \begin{align}
@@ -419,18 +425,26 @@ In this variation, we change the denominator of Equation~\ref{WJaccard} to inclu
 This way, the similarity is at maximum (1.0) when $m_1$ is a subset of $m_2$, even if both multisets are not identical. In contrast, the similarity is zero when the intersection between $m_1$ and $m_2$ is empty.
 
 
-Given those definitions, we are able to define the extract similarity index, $\rdsimx$, as:
+Given these definitions, we are able to define the extract similarity index, $\rdsimx$, as:
 \begin{align}
-\rdsimx(e_1, e_2) = \max( \rdsimc(m_1^-, m_2), \rdsimc(m_2, m_1^-) )
+%\rdsimx(e_1, e_2) = \max( \rdsimc(m_1^-, m_2), \rdsimc(m_2, m_1^-) )
+\rdsimx(e_1, e_2) = \rdsimc(m_2, m_1^-)
 \end{align}
-where $m_1^-$ is the multiset representing the code removed from $e_1$ ($m_1 \setminus m_1'$) and $m_2$ is the multiset representing the source code of the body of $e_2$. The rationale behind this formula is that the similarity is at maximum when $m_1^-$ is a subset of $m_2$, or when $m_2$ is a subset of $m_1^-$, addressing the two heuristics described previosly.
+where $m_1^-$ is the multiset representing the code removed from $e_1$ ($m_1 \setminus m_1'$) and $m_2$ is the multiset representing the source code of the body of $e_2$.
+The rationale behind this formula is that the similarity is at maximum
+%when $m_1^-$ is a subset of $m_2$, or 
+when $m_2$ is a subset of $m_1^-$, addressing the previously described heuristic.
+%that the code from the body of $e_2$ should be mostly contained in the code removed from $e_1$.
 
-\subsection{Inline similarity}
+\todo{falar da estrategia de ignorar os parametros}
+
+\subsubsection{Inline similarity}
 \label{SecSimI}
 
-The similarity index for computing \textit{Inline} relationships is analogous to the \textit{Extract} similarity index, but we adopt a simpler heuristic in this instance because it is less common to introduce code changes in the inlined method along with the refactoring operation \todo{esta explicacao nao tem muito fundamento na verdade}.
+The similarity index for computing \textit{Inline} relationships is analogous to the \textit{Extract} similarity index.
+%, but we adopt a simpler heuristic in this instance because it is less common to introduce code changes in the inlined method along with the refactoring operation \todo{esta explicacao nao tem muito fundamento na verdade}.
 If a code element $e_1$ is inlined into a code element $e_2$, we expect that the code from the body of $e_1$ should be mostly contained in the code added to $e_2$. Specifically, we define the inline similarity index, $\rdsimi$, as:
 \begin{align}
 \rdsimi(e_1, e_2) = \rdsimc(m_1, m_2^+)
 \end{align}
-where $m_1$ is the multiset representing of the source code of the body of $e_1$ and $m_2^+$ is the multiset representing the code added to $e_2$ ($m_2' \setminus m_2$). Such similarity index is at maximum (1.0) when $m_1$ is a subset of the added code ($m_2^+$).
+where $m_1$ is the multiset representing the source code of the body of $e_1$ and $m_2^+$ is the multiset representing the code added to $e_2$ ($m_2' \setminus m_2$). Such similarity index is at maximum (1.0) when $m_1$ is a subset of the added code ($m_2^+$).

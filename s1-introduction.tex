@@ -25,13 +25,37 @@
 % 
 % Here we have the typical use of a "T" for an initial drop letter
 % and "HIS" in caps to complete the first word.
-\IEEEPARstart{T}{his} demo file is intended to serve as a ``starter file''
-for IEEE Computer Society journal papers produced under \LaTeX\ using
-IEEEtran.cls version 1.8b and later.
-% You must have at least 2 lines in the paragraph with the drop letter
-% (should never be an issue)
-I wish you the best of success.
+\IEEEPARstart{R}{efactoring} is a well-known technique to improve the design of a system and enable its evolution~\cite{Fowler:1999}.
+In fact, existing studies~\cite{MurphyHill2012, tsantalis_empiricalstudy, Kim:2012:FSE, kim-tse-2014, fse2016-why-we-refactor} present strong evidences that refactoring is frequently applied by development teams, and it is an important aspect of their software maintenance workflow.
 
-\hfill mds
- 
-\hfill August 26, 2015
+
+Therefore, knowing about the refactoring activity in a code change is a valuable information to help researchers to understand software evolution.
+For example, past studies have used such information to shed light on important aspects of refactoring practice, such as: how developers refactor~\cite{MurphyHill2012}, the usage of refactoring tools~\cite{negara2013, MurphyHill2012}, the motivations driving refactoring~\cite{Kim:2012:FSE, kim-tse-2014, fse2016-why-we-refactor}, the risks of refactoring~\cite{Kim:2012:FSE, kim-tse-2014, Kim:2011, weissgerber2006refactorings, bavota2012does}, and the impact of refactoring on code quality metrics~\cite{Kim:2012:FSE, kim-tse-2014}.
+Moreover, knowing which refactoring operations were applied in the version history of a system may help in several practical tasks.
+For example, in a study by Kim~et~al.~\cite{Kim:2012:FSE}, many developers mentioned the difficulties they face when reviewing or integrating code changes after large refactoring operations, which moves or renames several code elements. Thus, developers feel discouraged to refactor their code. If a tool is able to identify such refactoring operations, it can possibly resolve merge conflicts automatically. 
+Moreover, diff visualization tools can also benefit from such information, presenting refactored code elements side-by-side with their corresponding version before the change.
+Another application for such information is adapting client code to a refactored version of an API it uses~\cite{henkel2005catchup, Xing:2008:JDevAn}. If we are able to detect the refactorings that were applied to an API, we can replay them on the client code automatically.
+\todo{Falar no paragrafo acima de papers mais recentes, como o paper ICSE do Andre~\cite{icse2018}}
+
+%Although there are approaches capable of detecting refactorings automatically, there are still some issues that hinder their application. Specifically, the precision and recall of such approaches still need improvements.
+%In this paper, we try to fill this gap by proposing RefDiff, an automated approach that identifies refactorings performed in the version history of a system.
+%RefDiff employs a combination of heuristics based on static analysis and code similarity to detect 13 well-known refactoring types.
+%When compared to existing approaches, RefDiff leverages existing techniques and also introduces some novel ideas, such as the adaptation of the classical TF-IDF similarity measure from information retrieval to compare refactored code elements, and a new strategy to compare the similarity of fields by taking into account the similarity of the statements that reads from or writes to them.
+
+\todo{Falar do RefDiff 1.0 e motivar o RefDiff 2.0, dando enfase na questao de ser  multilinguagem}
+
+%In the paper, we also describe in details a study to evaluate the precision and recall of RefDiff and three existing refactoring detection approaches: Refactoring Miner~\cite{fse2016-why-we-refactor}, Refactoring Crawler~\cite{dig2006automated}, and Ref-Finder~\cite{prete2010template,Kim:2010:RefFinder}. In our study, RefDiff achieved precision of 100\% and recall of 88\%, which were the best results among the evaluated approaches.
+
+
+In summary, the contributions we deliver in this work are:
+\begin{itemize}
+\item A major extension of our refactoring detection approach proposed in previous work~\cite{msr2017}, which includes improved detection heuristics and a complete redesign of its core to work with a language-independent model.
+We provide a publicly available\footnote{RefDiff and all evaluation data are public available in GitHub:\\
+\url{https://github.com/aserg-ufmg/RefDiff}} implementation of our approach that supports Java, C and Javascript.
+\item An evaluation of the precision and recall of RefDiff using a large scale dataset of refactorings performed in real-world Java open source projects, comparing it with RMiner, a state-of-the-art tool for detecting refactorings in Java. As a byproduct of this evaluation, we also extend the dataset with new refactoring insntances discovered by our tool. 
+\item An evaluation of the precision and recall of RefDiff in real-world C and Javascript open source projects.
+\end{itemize}
+
+The remainder of this paper is structured as follows. \todo{continuar} %Section~\ref{SecBackground} describes related work, focusing on the three approaches we compare with RefDiff. Section~\ref{SecApproach} presents the proposed approach in details.
+%Section~\ref{SecEval} describes how we evaluated RefDiff and discusses the achieved results.
+%Section~\ref{SecThreats} discusses threats to validity and we conclude the paper in Section~\ref{SecConclusion}.
