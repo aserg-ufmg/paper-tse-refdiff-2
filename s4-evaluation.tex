@@ -41,7 +41,14 @@ Figure~\ref{FigDiff3} shows another example of true positive, this time as an in
 \label{FigDiff3}
 \end{figure*}
 
-In summary, after these two steps (independent validation and consensus meeting), 181 (65\%) refactorings instances were classified as true positives and therefore were included in the oracle. The expanded oracle includes 3,212 refactoring instances (5.97\% more than the initial one) and it is publicly available at: \todo{xx})
+After the manual validation of the refactoring instances it was possible to identify some common causes of failure.
+In particular, one common reason for \emph{Move Method} false positives was missed \emph{Move/Rename Class}, i.e., RefDiff did not detect that the entire class has been moved (or renamed), and incorrectly reported that several of its members were moved.
+We mitigated this issue by introducing a specific heuristic for this case (see Section~\ref{AlgoGeneral}).
+Moreover, the analysis of the incorrect reports allowed us to identify and fix a couple of bugs in our implementation.
+After applying the aforementioned fixes to RefDiff, it was necessary to run it again and compare the results against the update oracle. This time, 51 new refactoring instances were found, which were  validated by one of the authors. 24 of them (47\%) were classified as true positive, whilst 27 of them (53\%) were classified as false positive.
+
+In summary, after these two rounds of manual validation, 184 new refactorings instances were classified as true positives and therefore included in the oracle. 
+The expanded oracle includes 3,261 refactoring instances (5.98\% more than the initial one) and it is publicly available at RefDiff's GitHub repository.\footnote{\url{https://github.com/aserg-ufmg/RefDiff}}
 
 \subsection{Results}
 \label{sec:eval:java:results}
@@ -57,29 +64,29 @@ In summary, after these two steps (independent validation and consensus meeting)
 \cmidrule{4-8} \cmidrule{10-14}
 Refactoring Type & \# & & TP & FP & FN & Precision & Recall & & TP & FP & FN & Precision & Recall \\
 \midrule
-Move Class & 1091 & & 1061 & 1 & 30 & \xbar{0.999} & \xbar{0.973} & & 1015 & 0 & 76 & \xbar{1.000} & \xbar{0.930} \\
-Move Method & 317 & & 286 & 164 & 31 & \xbar{0.636} & \xbar{0.902} & & 208 & 10 & 109 & \xbar{0.954} & \xbar{0.656} \\
-Move and Rename/Rename Class & 83 & & 62 & 2 & 21 & \xbar{0.969} & \xbar{0.747} & & 59 & 1 & 24 & \xbar{0.983} & \xbar{0.711} \\
-Rename Method & 342 & & 231 & 12 & 111 & \xbar{0.951} & \xbar{0.675} & & 269 & 6 & 73 & \xbar{0.978} & \xbar{0.787} \\
-Extract Interface & 24 & & 15 & 3 & 9 & \xbar{0.833} & \xbar{0.625} & & 20 & 0 & 4 & \xbar{1.000} & \xbar{0.833} \\
-Extract Superclass & 69 & & 51 & 13 & 18 & \xbar{0.797} & \xbar{0.739} & & 67 & 3 & 2 & \xbar{0.957} & \xbar{0.971} \\
-Pull Up Method & 83 & & 65 & 1 & 18 & \xbar{0.985} & \xbar{0.783} & & 67 & 0 & 16 & \xbar{1.000} & \xbar{0.807} \\
-Push Down Method & 39 & & 37 & 2 & 2 & \xbar{0.949} & \xbar{0.949} & & 33 & 0 & 6 & \xbar{1.000} & \xbar{0.846} \\
-Extract/Extract and Move Method & 1027 & & 766 & 56 & 261 & \xbar{0.932} & \xbar{0.746} & & 792 & 12 & 235 & \xbar{0.985} & \xbar{0.771} \\
-Inline Method & 120 & & 86 & 3 & 34 & \xbar{0.966} & \xbar{0.717} & & 97 & 1 & 23 & \xbar{0.990} & \xbar{0.808} \\
+Move Class & 1121 & & 1067 & 1 & 54 & \xbar{0.999} & \xbar{0.952} & & 1017 & 0 & 104 & \xbar{1.000} & \xbar{0.907} \\
+Move Method & 320 & & 256 & 38 & 64 & \xbar{0.871} & \xbar{0.800} & & 210 & 10 & 110 & \xbar{0.955} & \xbar{0.656} \\
+Move and Rename/Rename Class & 92 & & 80 & 10 & 12 & \xbar{0.889} & \xbar{0.870} & & 59 & 1 & 33 & \xbar{0.983} & \xbar{0.641} \\
+Rename Method & 346 & & 238 & 19 & 108 & \xbar{0.926} & \xbar{0.688} & & 270 & 6 & 76 & \xbar{0.978} & \xbar{0.780} \\
+Extract Interface & 24 & & 21 & 3 & 3 & \xbar{0.875} & \xbar{0.875} & & 20 & 0 & 4 & \xbar{1.000} & \xbar{0.833} \\
+Extract Superclass & 70 & & 52 & 0 & 18 & \xbar{1.000} & \xbar{0.743} & & 68 & 3 & 2 & \xbar{0.958} & \xbar{0.971} \\
+Pull Up Method & 91 & & 75 & 2 & 16 & \xbar{0.974} & \xbar{0.824} & & 72 & 0 & 19 & \xbar{1.000} & \xbar{0.791} \\
+Push Down Method & 40 & & 38 & 2 & 2 & \xbar{0.950} & \xbar{0.950} & & 33 & 0 & 7 & \xbar{1.000} & \xbar{0.825} \\
+Extract/Extract and Move Method & 1037 & & 686 & 29 & 351 & \xbar{0.959} & \xbar{0.662} & & 796 & 12 & 241 & \xbar{0.985} & \xbar{0.768} \\
+Inline Method & 120 & & 86 & 6 & 34 & \xbar{0.935} & \xbar{0.717} & & 97 & 1 & 23 & \xbar{0.990} & \xbar{0.808} \\
 \addlinespace
-Total & 3212 & & 2672 & 257 & 540 & \xbar{0.912} & \xbar{0.832} & & 2642 & 33 & 570 & \xbar{0.988} & \xbar{0.823} \\
+Total & 3261 & & 2599 & 110 & 662 & \xbar{0.959} & \xbar{0.797} & & 2642 & 33 & 619 & \xbar{0.988} & \xbar{0.810} \\
 \bottomrule
 \end{tabular}
 \end{table*}
 
-Table~\ref{TabResultJava} shows the precision and recall results for RefDiff and RMiner using the oracle described in the previous section. The overall precision and recall of RefDiff is 91.2\% and 83.2\%, respectively.
-Precision ranges from 63.7\% (\emph{Move Method}) to 99.9\% (\emph{Move Class}), and it is above 90\% for 7 of the 10 refactoring types.
-Recall ranges from 62.5\% (\emph{Extract Interface}) to 97.3\% (\emph{Move Class}), and it is above 75\% for only 8 refactoring types.
-We noted that one common reason for \emph{Move Method} false positives was missed \emph{Move/Rename Class}, i.e., RefDiff did not detect that the entire class has been moved (or renamed), and incorrectly reported that several of its members were moved.
-
-On its turn, RMiner achieves 98.8\% of precision and 83.2\% of recall, overall. Thus, we conclude that both tools have similar recall, but RefDiff can not best RMiner's precision.
-Nevertheless, we argue that RefDiff's precision of 91.2\% is satisfactory, specially when we consider that our approach is programming language neutral.
+Table~\ref{TabResultJava} shows the precision and recall results for RefDiff and RMiner using the oracle described in the previous section. The overall precision and recall of RefDiff is 95.9\% and 79.7\%, respectively.
+Precision ranges from 87.1\% (\emph{Move Method}) to 100.0\% (\emph{Extract Superclass}), and it is above 90\% for 7 of the 10 refactoring types.
+Recall ranges from 66.2\% (\emph{Extract Method}) to 95.2\% (\emph{Move Class}), and it is above 80\% for 6 of the 10 refactoring types.
+On its turn, RMiner achieves 98.8\% of overall precision (ranging from 95.5\% to 100.0\%) and 81.0\% of overall recall (ranging from 64.1\% to 97.1\%).
+When we analyze individual refactoring types, RefDiff's precision is always lower, but recall is higher in 6 refactoring types.
+Thus, we conclude that both tools have very similar recall, but RMiner's precision is consistently higher.
+Nevertheless, we argue that RefDiff's precision of 95.9\% is satisfactory, specially when we consider that our approach is programming language neutral.
 
 
 \section{Evaluation with JavaScript and C}
