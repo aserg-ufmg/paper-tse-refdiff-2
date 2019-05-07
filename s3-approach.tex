@@ -76,14 +76,15 @@ Moreover, along with each node of the CST, we store the following information:
     
     \item[Tokenized source code]  \hfill \\
     The source code of the element in the form of a list of tokens.
-    This information is necessary to compute the similarity between code elements, as explained in Section~\ref{SecCodeSim}.
     Here, we include all tokens in the code region that encompasses the complete declaration of the code element, including its name/signature.
+    This information is necessary to compute the similarity between code elements, as explained in Section~\ref{SecCodeSim}.
     
     
     \item[Tokenized source code of the body]  \hfill \\
-    The source code of the body of the code element in the form of a list of tokens. 
+    The source code of the body of the code element in the form of a list of tokens.
+    Here we include only the tokens within the body of the code element, but not its name/signature.
     This information is also necessary to compute the similarity between code elements in the special cases of \textit{Extract} and \textit{Inline} relationships, as explained in Section~\ref{SecSimX}.
-    It is worth noting that this information is optional, as not every node has a body (e.g., abstract methods). Moreover, here we include only the tokens within the body of the code element, but not its name/signature.
+    It is worth noting that this information is optional, as not every node has a body (e.g., abstract methods).
     
 \end{description}
 
@@ -436,7 +437,10 @@ The rationale behind this formula is that the similarity is at maximum
 when $m_2$ is a subset of $m_1^-$, addressing the previously described heuristic.
 %that the code from the body of $e_2$ should be mostly contained in the code removed from $e_1$.
 
-\todo{falar da estrategia de ignorar os parametros}
+
+
+%When building the multiset of tokens representing the source code of the body of a code element, we ignore any occurrence of identifiers that are parameters. 
+
 
 \subsubsection{Inline similarity}
 \label{SecSimI}
@@ -448,3 +452,17 @@ If a code element $e_1$ is inlined into a code element $e_2$, we expect that the
 \rdsimi(e_1, e_2) = \rdsimc(m_1, m_2^+)
 \end{align}
 where $m_1$ is the multiset representing the source code of the body of $e_1$ and $m_2^+$ is the multiset representing the code added to $e_2$ ($m_2' \setminus m_2$). Such similarity index is at maximum (1.0) when $m_1$ is a subset of the added code ($m_2^+$).
+
+
+\subsubsection{Ignoring parameters and return keywords}
+
+%\noindent\textbf{Ignoring parameters and \codeinl{return} keywords}\\
+When retrieving the tokenized source code of the body of a code element, some tokens are ignored to avoid that syntactical constructs necessary to its declaration
+introduce noise when computing the \textit{Extract} or \textit{Inline} similarity index.
+For example, let's take the refactoring operation \#1 depicted in Figure~\ref{FigDiff1}: \codeinl{print} is extracted from \codeinl{main}.
+The body of the new method \codeinl{print} contains a single statement:
+\begin{lstlisting}
+System.out.printf("%.2f", res);
+\end{lstlisting}
+All the tokens within this method are present in \codeinl{main} before the extraction, except the identifier \codeinl{res}, which is a declared parameter of \codeinl{print}. In fact, in the original statement, a variable \codeinl{r} is used in place of \codeinl{res}. To be less susceptible to such differences, we omit all occurences of parameters in the tokenized source code of the body. Similarly, occurences of \codeinl{return} keywords are also ignored because they may be introduced when turning the extracted code into a method.
+It is worth noting that the filtering such tokens is of responsability of the source analysis module. Thus, specific rules may be implemented according to the peculiarities of the programming language.
