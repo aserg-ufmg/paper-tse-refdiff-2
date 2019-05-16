@@ -29,33 +29,49 @@
 In fact, existing studies~\cite{MurphyHill2012, tsantalis_empiricalstudy, Kim:2012:FSE, kim-tse-2014, fse2016-why-we-refactor} present strong evidences that refactoring is frequently applied by development teams, and it is an important aspect of their software maintenance workflow.
 
 
-Therefore, knowing about the refactoring activity in a code change is a valuable information to help researchers to understand software evolution.
+Therefore, knowing about the refactoring activity in software projects is a valuable information to help researchers understand software evolution.
 For example, past studies have used such information to shed light on important aspects of refactoring practice, such as: how developers refactor~\cite{MurphyHill2012}, the usage of refactoring tools~\cite{negara2013, MurphyHill2012}, the motivations driving refactoring~\cite{Kim:2012:FSE, kim-tse-2014, fse2016-why-we-refactor}, the risks of refactoring~\cite{Kim:2012:FSE, kim-tse-2014, Kim:2011, weissgerber2006refactorings, bavota2012does}, and the impact of refactoring on code quality metrics~\cite{Kim:2012:FSE, kim-tse-2014}.
-Moreover, knowing which refactoring operations were applied in the version history of a system may help in several practical tasks.
+Moreover, it is often important to keep track of refactorings when performing source code evolution analysis because files, classes, or functions may have their histories split by the refactorings such as \emph{Move} or \emph{Rename}~\cite{icse2018}.
+
+Additionally, knowing which refactoring operations were applied in the version history of a system may help in several practical tasks.
 For example, in a study by Kim~et~al.~\cite{Kim:2012:FSE}, many developers mentioned the difficulties they face when reviewing or integrating code changes after large refactoring operations, which moves or renames several code elements. Thus, developers feel discouraged to refactor their code. If a tool is able to identify such refactoring operations, it can possibly resolve merge conflicts automatically. 
 Moreover, diff visualization tools can also benefit from such information, presenting refactored code elements side-by-side with their corresponding version before the change.
 Another application for such information is adapting client code to a refactored version of an API it uses~\cite{henkel2005catchup, Xing:2008:JDevAn}. If we are able to detect the refactorings that were applied to an API, we can replay them on the client code automatically.
-\todo{Falar no paragrafo acima de papers mais recentes, como o paper ICSE do Andre~\cite{icse2018}}
 
 %Although there are approaches capable of detecting refactorings automatically, there are still some issues that hinder their application. Specifically, the precision and recall of such approaches still need improvements.
 %In this paper, we try to fill this gap by proposing RefDiff, an automated approach that identifies refactorings performed in the version history of a system.
 %RefDiff employs a combination of heuristics based on static analysis and code similarity to detect 13 well-known refactoring types.
 %When compared to existing approaches, RefDiff leverages existing techniques and also introduces some novel ideas, such as the adaptation of the classical TF-IDF similarity measure from information retrieval to compare refactored code elements, and a new strategy to compare the similarity of fields by taking into account the similarity of the statements that reads from or writes to them.
 
-\todo{Falar do RefDiff 1.0 e motivar o RefDiff 2.0, dando enfase na questao de ser  multilinguagem}
+Given the importance of studying refactoring activity, we proposed RefDiff in previous work~\cite{msr2017}. RefDiff is an automated approach that identifies refactorings operations performed in the version history of Java systems.
+By that time, our main goal was to provide a reliable tool to mine refactoring activity in a fully automated fashion, with better precision and recall than existing approaches. Since then, other approaches have emerged, such as RMiner~\cite{tsantalis2018rminer}, which enhanced precision to even higher standards.
+%the state-of-the-art has evolved to even higher standards of precision with RMiner~\cite{tsantalis2018rminer}.
+Today, the availability of such tools enables large-scale and in-depth empirical studies on refactoring practice~\cite{fse2016-why-we-refactor, icse2018}.
 
-%In the paper, we also describe in details a study to evaluate the precision and recall of RefDiff and three existing refactoring detection approaches: Refactoring Miner~\cite{fse2016-why-we-refactor}, Refactoring Crawler~\cite{dig2006automated}, and Ref-Finder~\cite{prete2010template,Kim:2010:RefFinder}. In our study, RefDiff achieved precision of 100\% and recall of 88\%, which were the best results among the evaluated approaches.
+Nevertheless, despite the advancements in the field of refactoring detection, existing tools are all centered in the Java language.
+Thus, we are still not able to mine refactoring activity in a vast amount of software repositories written in other programming languages.
+By restricting refactoring research to a single programming language, we may get a biased understanding of the reality.
+Moreover, the practical applications of such tools are hindered by the lack of support of other popular programming languages.
 
-
-In summary, the contributions we deliver in this work are:
+For all this reasons, in this paper we propose a multi-language refactoring detection approach, named as RefDiff~2.0, which is a complete redesign of its first version that introduces an extensible architecture.
+In RefDiff~2.0, the refactoring detection heuristics are fully implemented in a common core, and support for programming languages is provided by plug-in modules.
+%that works with a language-independent model that abstracts abstracting away the 
+As a way to validate this architecture, we implemented and evaluated extension modules for three mainstream programming languages: Java, C, and JavaScript.
+Additionally, we reworked the refactoring detection heuristics of RefDiff to significantly improve its precision when compared to its prior version.
+In summary, we deliver the following contributions in this work:
 \begin{itemize}
-\item A major extension of our refactoring detection approach proposed in previous work~\cite{msr2017}, which includes improved detection heuristics and a complete redesign of its core to work with a language-independent model.
-We provide a publicly available\footnote{RefDiff and all evaluation data are public available in GitHub:\\
-\url{https://github.com/aserg-ufmg/RefDiff}} implementation of our approach that supports Java, C and Javascript.
-\item An evaluation of the precision and recall of RefDiff using a large scale dataset of refactorings performed in real-world Java open source projects, comparing it with RMiner, a state-of-the-art tool for detecting refactorings in Java. As a byproduct of this evaluation, we also extend the dataset with new refactoring insntances discovered by our tool. 
+\item A major extension of our refactoring detection approach proposed in previous work~\cite{msr2017}, which includes a redesign of its core to work with a language-independent model and improved detection heuristics.
+\item A publicly available implementation\footnote{RefDiff and all evaluation data are public available in GitHub:\\
+\url{https://github.com/aserg-ufmg/RefDiff}}
+of our approach, with out-of-the-box support for Java, C, and Javascript.
+\item An evaluation of the precision and recall of RefDiff using a large scale dataset of refactorings performed in real-world Java open source projects, comparing it with RMiner, a state-of-the-art tool for detecting refactorings in Java. As a byproduct of this evaluation, we also extend the dataset with new refactoring instances discovered by our tool.
 \item An evaluation of the precision and recall of RefDiff in real-world C and Javascript open source projects.
 \end{itemize}
 
-The remainder of this paper is structured as follows. \todo{continuar} %Section~\ref{SecBackground} describes related work, focusing on the three approaches we compare with RefDiff. Section~\ref{SecApproach} presents the proposed approach in details.
-%Section~\ref{SecEval} describes how we evaluated RefDiff and discusses the achieved results.
-%Section~\ref{SecThreats} discusses threats to validity and we conclude the paper in Section~\ref{SecConclusion}.
+The remainder of this paper is structured as follows.
+Section~\ref{SecBackground} describes related work, discussing existing refactoring detection approaches.
+%with a special focus on RMiner, which is the one we compare with RefDiff.
+Section~\ref{SecApproach} presents the proposed approach in details.
+Section~\ref{sec:eval:java} describes the design and results of a large scale evaluation of RefDiff in Java projects.
+Section~\ref{sec:eval:js:c} describes the design and results of an evaluation of RefDiff in C and JavaScript projects.
+Last, Section~\ref{SecConclusion} presents final remarks and concludes the paper.

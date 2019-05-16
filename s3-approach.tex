@@ -1,4 +1,5 @@
 \section{Proposed Approach}
+\label{SecApproach}
 
 Our approach consists in two phases: Source Code Analysis and Relationship Analysis.
 In the first phase, Source Code Analysis, we take as input two revisions of a system, $v_1$ and $v_2$, and build two models that represent their source code.
@@ -99,68 +100,6 @@ To demonstrate this capability, we provide implementations for three programming
 
 \subsection{Phase 2: Relationship Analysis}
 
-
-\begin{table*}[htbp]
-\renewcommand{\arraystretch}{1.3}
-\caption{Relationship types and the conditions to find them}
-\label{TabRelationshipTypes}
-\centering
-
-\begin{tabular}{@{}lll@{}}
-\toprule
-Relationship type & \multicolumn{2}{l}{Conditions} \\
-\midrule
-& \multicolumn{2}{l}{$(n_1, n_2) \in N^- \times N^+$, such that:}\\
-Same & & $\rdtype(n_1) = \rdtype(n_2) \land \rdsig(n_1) = \rdsig(n_2) \land \rdparent(n_1)' = \rdparent(n_2)$ \\
-Convert Type & & $\rdtype(n_1) \neq \rdtype(n_2) \land \rdsig(n_1) = \rdsig(n_2) \land \rdparent(n_1)' = \rdparent(n_2)$ \\
-Pull Up & & $\rdtype(n_1) = \rdtype(n_2) \land \rdsig(n_1) = \rdsig(n_2) \land \rdsub(\rdparent(n_1)', \rdparent(n_2))$ \\
-Push Down & & $\rdtype(n_1) = \rdtype(n_2) \land \rdsig(n_1) = \rdsig(n_2) \land \rdsub(\rdparent(n_2), \rdparent(n_1)')$ \\
-Change Signature & & $\rdtype(n_1) = \rdtype(n_2) \land \rdsig(n_1) \neq \rdsig(n_2) \land \rdname(n_1) = \rdname(n_2) \land \rdparent(n_1)' = \rdparent(n_2) \land \rdsim(n_1, n_2) > 0.5$ \\
-Move & & $\rdtype(n_1) = \rdtype(n_2) \land \rdname(n_1) = \rdname(n_2) \land \rdparent(n_1)' \neq \rdparent(n_2) \land \rdsim(n_1, n_2) > 0.5$ \\
-Rename & & $\rdtype(n_1) = \rdtype(n_2) \land \rdname(n_1) \neq \rdname(n_2) \land \rdparent(n_1)' = \rdparent(n_2) \land \rdsim(n_1, n_2) > 0.5$ \\
-Move and Rename & & $\rdtype(n_1) = \rdtype(n_2) \land \rdname(n_1) \neq \rdname(n_2) \land \rdparent(n_1)' \neq \rdparent(n_2) \land \rdsim(n_1, n_2) > 0.5$ \\
-\addlinespace
-& \multicolumn{2}{l}{$(n_1, n_2) \in M_1 \times N^+$, such that:}\\
-Extract Supertype & & $\exists (n_3, n_4, \mathit{PullUp}) \in R\, (n_1 = \rdparent(n_3) \land n_2 = \rdparent(n_4))$ \\
-Extract & & $\rduses(n_1', n_2) \land \rdparent(n_1)' = \rdparent(n_2) \land \rdsimx(n_2, n_1) > 0.5$ \\
-Extract and Move & & $\rduses(n_1', n_2) \land \rdparent(n_1)' \neq \rdparent(n_2) \land \rdsimx(n_2, n_1) > 0.5$ \\
-\addlinespace
-& \multicolumn{2}{l}{$(n_1, n_2) \in N^- \times M_2$, such that:}\\
-Inline & & $\rduses(n_1, n_2') \land \rdsimx(n_1, n_2) > 0.5$ \\
-\bottomrule
-\end{tabular}
-
-\vspace{1em}
-\begin{tabular}{@{}lll@{}}
-\midrule
-\multicolumn{3}{c}{\textbf{Definitions}}\\
-\begin{tabular}{@{}ll@{}}
-$M_1$ & the set of nodes from $N_1$ that matches with another node from $N_2$\\
-$M_2$ & the set of nodes from $N_2$ that matches with another node from $N_1$\\
-$N^-$ & the set of unmatched nodes from $N_1$ ($N_1 \setminus M_1$)\\
-$N^+$ & the set of unmatched nodes from $N_2$ ($N_2 \setminus M_2$)\\
-$n'$ & the code element that matches with $n$ in the other revision\\
-$\rdparent(n)$ & parent of a node $n$ (it may be a namespace or another CST node)\\
-$\rdns(n)$ & namespace of the code element $n$\\
-\end{tabular}
-& &
-\begin{tabular}{@{}ll@{}}
-$\rdname(n)$ & simple name of the code element $n$\\
-$\rdsig(n)$ & identifier of the code element $n$\\
-$\rdtype(n)$ & node type of the code element $n$\\
-$\rdsub(n_1, n_2)$ & $n_1$ is subtype of $n_2$\\
-$\rduses(n_1, n_2)$ & $n_1$ uses $n_2$\\
-$\rdsim(n_1, n_2)$ & similarity between $n_1$ and $n_2$\\
-$\rdsimx(n_1, n_2)$ & extract similarity between $n_1$ and $n_2$\\
-\end{tabular}
-\\
-\midrule
-\end{tabular}
-
-\end{table*}
-
-
-
 This phase takes as input the CST's of revisions $v_1$ and $v_2$ and outputs the set of relationships $R$. Let $N_1$ and $N_2$ be the sets of code elements from the CST's of $v_1$ and $v_2$ respectively. Each relationship $r \in R$ is a triple $(n_1, n_2, t)$, where $n_1 \in N_1$, $n_2 \in N_2$, and $t$ is a relationship type. The types of relationships are listed in the first column of Table~\ref{TabRelationshipTypes}, and can be subdivided into two groups:
 \begin{itemize}
 \item \textbf{Matching relationships}, which indicate that the node $n_1$ corresponds to $n_2$ in the subsequent revision.
@@ -182,6 +121,7 @@ There are four non-matching relationships: \textit{Extract Supertype}, \textit{E
 \State $M \gets \emptyset$
 \State $\textsc{findMatchingsById}(t_1,t_2)$
 \State $\textsc{findMatchingsBySim}$
+\State $\textsc{findMatchingsByChildr}$
 \State $\textsc{resolveMatchings}$
 \State $\textsc{findNonMatchingRel}$
 \State \Return $R$
@@ -195,14 +135,20 @@ There are four non-matching relationships: \textit{Extract Supertype}, \textit{E
 \EndProcedure
 \\
 \Procedure{findMatchingsBySim}{}
-\State $M' \gets N^- \times N^+$
-\While{$M' \neq \emptyset$}
-  \State $(n_1, n_2) \gets \argmin_{m \in M'} \rdrank(m)$
-  \State $M' \gets M' \setminus \{(n_1, n_2)\}$
+\ForEach{$(n_1, n_2) \in \rdsortbysim(N^- \times N^+)$}
   \If {$\mathit{findMatchRel}(n_1, n_2) \neq \emptyset$}
     \State $\textsc{addMatch}(n_1, n_2)$
+  \EndIf  
+\EndFor
+\EndProcedure
+\\
+\Procedure{findMatchingsByChildr}{}
+\ForEach{$(n_1, n_2) \in \rdsortbysim(N^- \times N^+)$}
+  \If {$\mathit{matchingChildr}(n_1, n_2) > 1\,\land \newline
+    \hspace*{5.5em} \rdnsim(n_1, n_2) > 0.5$}
+    \State $\textsc{addMatch}(n_1, n_2)$
   \EndIf
-\EndWhile
+\EndFor
 \EndProcedure
 \\
 \Procedure{resolveMatchings}{}
@@ -230,31 +176,27 @@ There are four non-matching relationships: \textit{Extract Supertype}, \textit{E
 \EndProcedure
 \\
 \EndProcedure
-
 \end{algorithmic}
-
-\vspace{1em}
-{
-\footnotesize
-\renewcommand{\arraystretch}{1.3}
-\begin{tabular}{@{}ll@{}}
-\midrule
-\multicolumn{2}{c}{\textbf{Definitions}}\\
-$M_1$ & the set of nodes from $N_1$ that matches with another node\\
-$M_2$ & the set of nodes from $N_2$ that matches with another node\\
-$N^-$ & the set of unmatched nodes from $N_1$ ($N_1 \setminus M_1$)\\
-$N^+$ & the set of unmatched nodes from $N_2$ ($N_2 \setminus M_2$)\\
-$\rdsig(n)$ & identifier of the code element $n$\\
-$\rdns(n)$ & namespace of the code element $n$\\
-$\rdchildren(n)$ & set of children of $n$ in the CST\\
-$\argmin_{x} f(x)$ & the value of $x$ for which $f(x)$ is minimum\\
-\midrule
-\end{tabular}
-}
-
+%\vspace{1em}
+%{
+%\footnotesize
+%\renewcommand{\arraystretch}{1.3}
+%\begin{tabular}{@{}ll@{}}
+%\midrule
+%\multicolumn{2}{c}{\textbf{Definitions}}\\
+%$\rdchildren(n)$ & set of children of $n$ in the CST\\
+%$\rdsortbysim(S)$ & elements of $S$ sorted by $\rdsim$ function descending\\
+%\midrule
+%\end{tabular}
+%}
 \caption{Algorithm to find relationships}
 \label{AlgoGeneral}
 \end{figure}
+
+
+
+
+
 
 Our approach employs the algorithm described in Figure~\ref{AlgoGeneral} to find the relationships (i.e., to compute the set $R$).
 The procedure \textsc{FindRelationships} has two parameters, $t_1$ and $t_2$, which are the root nodes of the CST's of both revisions.
@@ -267,19 +209,27 @@ Then, we execute four subroutines:
 Such assumption allows us to match many code elements at this step, reducing the number of possibilities that need to be checked in the next steps.
 The procedure consists of a loop that pairs the children of the nodes received as arguments and calls the procedure \textsc{addMatch} whenever a matching is found (line~13).
 On its turn, \textsc{addMatch} (lines 46-51) adds a pair of matching nodes to $M$ and calls \textsc{findMatchingsById} again to look for matchings on their children, completing the recursion.
-The matching pairs found in this step will be resolved to \textit{Same} and \textit{Convert type} relationships later (see step~3).
+The matching pairs found in this step will be resolved to \textit{Same} and \textit{Convert type} relationships later (see step~4).
 
 \item In \textsc{findMatchingsBySim}, we look for matching nodes based on code similarity.
-The goal is to find \textit{Change Signature}, \textit{Move}, \textit{Rename}, and \textit{Move and Rename} relationships.
-The procedure starts by computing the set $M'$, which contains unmatched pairs of nodes from $t_1$ and $t_2$.
+The goal is to find \textit{Change Signature}, \textit{Pull Up}, \textit{Push Down}, \textit{Move}, \textit{Rename}, and \textit{Move and Rename} relationships.
+%The procedure starts by computing the set $M'$, which contains unmatched pairs of nodes from $t_1$ and $t_2$.
+The procedure iterates over the unmatched pairs of nodes sorted by similarity in descending order.
 We use the notation $N^-$ to denote the set of unmatched nodes from $t_1$ (presumably deleted) and $N^+$ to denote the set of unmatched nodes from $t_2$ (presumably added).
-Then, it repeatedly takes a pair $(n_1, n_2)$ from $M'$, sorting by the $\rdrank$ function, and checks if it meets the conditions (specified in the second column of Table~\ref{TabRelationshipTypes}) for any matching relationship by calling $\mathit{findMatchRel}(n_1, n_2)$.
+For each pair $(n_1, n_2)$, the procedure checks if it meets the conditions (specified in the second column of Table~\ref{TabRelationshipTypes}) for any matching relationship by calling $\mathit{findMatchRel}(n_1, n_2)$.
+%Then, it repeatedly takes a pair $(n_1, n_2)$ from $M'$, sorting by the $\rdrank$ function, and checks if it meets the conditions (specified in the second column of Table~\ref{TabRelationshipTypes}) for any matching relationship by calling $\mathit{findMatchRel}(n_1, n_2)$.
 This function returns a singleton containing a matching relationship or an empty set if none of the conditions are met.
 Last, the \textsc{addMatch} subroutine is called in the case of a matching (line~24).
-The conditions to find those relationships and the $\rdrank$ function rely on a code similarity metric, which is described in details in Section~\ref{SecCodeSim}.
-\todo{falar da heuristica especifica de move method aqui?}
+The conditions to find those relationships and the $\rdsortbysim$ function rely on a code similarity metric, which is described in details in Section~\ref{SecCodeSim}.
 
-\item In \textsc{resolveMatchings}, we add the relationships corresponding to the matching pairs found at steps~1 and 2 to $R$.
+\item In \textsc{findMatchingsByChildr}, we look for matching nodes based on matchings of their children and name similarity. 
+Once again, the procedure iterates over the unmatched pairs of nodes sorted by similarity in descending order.
+For each pair $(n_1, n_2)$, if $n_1$ has more than one children that match with $n_2$'s children and their names are similar, then we consider it a match. The $\rdnsim$ function, used to compute the similarity between names, is described in details in Section~\ref{SecNameSim}.
+This heuristic is intended to cover the cases when a code element (e.g., a class) is moved (and/or renamed) and it is also subjected to many additions or removals of its members, so that its similarity with its matching pair is not enough to yield a match in the previous step.
+Failing to detect that a class has been moved (or renamed) may yield several incorrect \textit{Move} relationships between its members before and after the change.
+
+
+\item In \textsc{resolveMatchings}, we add the relationships corresponding to the matching pairs found at steps~1, 2, and 3 to $R$.
 The procedure iterates over the elements of $M$ and calls $\mathit{findMatchRel}$ to find which relationship type holds between $n_1$ and $n_2$ (according to the conditions defined in Table~\ref{TabRelationshipTypes}).
 By the end of this step, $R$ contains all matching relationships found.
 The rationale for postponing the resolution of the relationship type is discussed in Section~\ref{SecDependentConflictingRel}.
@@ -292,6 +242,80 @@ After this last step, $R$ contains all matching and non-matching relationships b
 \end{enumerate}
 
 
+\begin{table*}[htbp]
+\renewcommand{\arraystretch}{1.3}
+\caption{Definitions used in the Algorithm from Figure~\ref{AlgoGeneral} and in the conditions from Table~\ref{TabRelationshipTypes}}
+\label{TabDefinitions}
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+%\multicolumn{3}{c}{\textbf{Definitions}}\\
+\begin{tabular}{@{}ll@{}}
+$M_1$ & the set of nodes from $N_1$ that matches with a node from $N_2$\\
+$M_2$ & the set of nodes from $N_2$ that matches with a node from $N_1$\\
+$N^-$ & the set of unmatched nodes from $N_1$ ($N_1 \setminus M_1$)\\
+$N^+$ & the set of unmatched nodes from $N_2$ ($N_2 \setminus M_2$)\\
+$n'$ & the code element that matches with $n$ in the other revision\\
+$\rdparent(n)$ & parent of a node $n$ (it may be a namespace or a CST node)\\
+$\rdns(n)$ & namespace of the code element $n$\\
+$\rdchildren(n)$ & set of children of $n$ in the CST\\
+\end{tabular}
+& &
+\begin{tabular}{@{}ll@{}}
+$\rdname(n)$ & simple name of the code element $n$\\
+$\rdsig(n)$ & identifier of the code element $n$\\
+$\rdtype(n)$ & node type of the code element $n$\\
+$\rdsub(n_1, n_2)$ & $n_1$ is subtype of $n_2$\\
+$\rduses(n_1, n_2)$ & $n_1$ uses $n_2$\\
+$\rdsim(n_1, n_2)$ & code similarity between $n_1$ and $n_2$\\
+$\rdnsim(n_1, n_2)$ & name similarity between $n_1$ and $n_2$\\
+$\rdsimx(n_1, n_2)$ & extract similarity between $n_1$ and $n_2$\\
+$\rdsortbysim(S)$ & elements of $S$ sorted by $\rdsim$ descending\\
+\end{tabular}
+\\
+\bottomrule
+\end{tabular}
+
+\end{table*}
+
+
+
+\begin{table*}[htbp]
+\renewcommand{\arraystretch}{1.3}
+\caption{Relationship types and the conditions to find them}
+\label{TabRelationshipTypes}
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+Relationship type & \multicolumn{2}{l}{Conditions} \\
+\midrule
+& \multicolumn{2}{l}{$(n_1, n_2) \in N^- \times N^+$, such that:}\\
+Same & & $\rdtype(n_1) = \rdtype(n_2) \land \rdsig(n_1) = \rdsig(n_2) \land \rdparent(n_1)' = \rdparent(n_2)$ \\
+Convert Type & & $\rdtype(n_1) \neq \rdtype(n_2) \land \rdsig(n_1) = \rdsig(n_2) \land \rdparent(n_1)' = \rdparent(n_2)$ \\
+Pull Up & & $\rdtype(n_1) = \rdtype(n_2) \land \rdsig(n_1) = \rdsig(n_2) \land \rdsub(\rdparent(n_1)', \rdparent(n_2))$ \\
+Push Down & & $\rdtype(n_1) = \rdtype(n_2) \land \rdsig(n_1) = \rdsig(n_2) \land \rdsub(\rdparent(n_2), \rdparent(n_1)')$ \\
+Change Signature & & $\rdtype(n_1) = \rdtype(n_2) \land \rdsig(n_1) \neq \rdsig(n_2) \land \rdname(n_1) = \rdname(n_2) \land \rdparent(n_1)' = \rdparent(n_2) \land \rdsim(n_1, n_2) > 0.5$ \\
+Move & & $\rdtype(n_1) = \rdtype(n_2) \land \rdname(n_1) = \rdname(n_2) \land \rdparent(n_1)' \neq \rdparent(n_2) \land \rdsim(n_1, n_2) > 0.5$ \\
+Rename & & $\rdtype(n_1) = \rdtype(n_2) \land \rdname(n_1) \neq \rdname(n_2) \land \rdparent(n_1)' = \rdparent(n_2) \land \rdsim(n_1, n_2) > 0.5$ \\
+Move and Rename & & $\rdtype(n_1) = \rdtype(n_2) \land \rdname(n_1) \neq \rdname(n_2) \land \rdparent(n_1)' \neq \rdparent(n_2) \land \rdsim(n_1, n_2) > 0.5$ \\
+\addlinespace
+& \multicolumn{2}{l}{$(n_1, n_2) \in M_1 \times N^+$, such that:}\\
+Extract Supertype & & $\exists (n_3, n_4, \mathit{PullUp}) \in R\, (n_1 = \rdparent(n_3) \land n_2 = \rdparent(n_4))$ \\
+Extract & & $\rduses(n_1', n_2) \land \rdparent(n_1)' = \rdparent(n_2) \land \rdsimx(n_2, n_1) > 0.5$ \\
+Extract and Move & & $\rduses(n_1', n_2) \land \rdparent(n_1)' \neq \rdparent(n_2) \land \rdsimx(n_2, n_1) > 0.5$ \\
+\addlinespace
+& \multicolumn{2}{l}{$(n_1, n_2) \in N^- \times M_2$, such that:}\\
+Inline & & $\rduses(n_1, n_2') \land \rdsimx(n_1, n_2) > 0.5$ \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+
+
+
+
+
+
 Figure~\ref{FigRelationships1} shows the relationships we find after running RefDiff in the example system from Figure~\ref{FigDiff1}.
 Each relationship is represented by an edge connecting nodes from the left and right CSTs.
 There are three relationships of the type \textit{Same}, involving the code elements whose identifiers do not change: the class \codeinl{Main} and the methods \codeinl{main} and \codeinl{sum}.
@@ -301,7 +325,7 @@ Finally, we can also note that two nodes, $n_8$ and $n_{12}$, are not involved i
 In this example, as every node on the left side is matched, there are no deleted code elements.
 
 
-\begin{figure}[htb]
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=1.0\linewidth]{img/relationshipDiff1.pdf}
 \caption{Relationships found in the example from Figure~\ref{FigDiff1}}
@@ -317,7 +341,7 @@ For example, consider the relationship $(n_5, n_{11}, Rename)$ in Figure~\ref{Fi
 The conditions for this relationship includes the clause $\rdparent(n_5)' = \rdparent(n_{11})$, which means that the matching node of the parent of $n_5$ should be equal to the parent of $n_{11}$ (see Table~\ref{TabRelationshipTypes}, \textit{Rename} row).
 This clause only yields true after the matching pair $(n_3, n_9)$ is added to $M$, i.e., after we find out that \codeinl{Calculator} is renamed to \codeinl{FpCalculator}.
 In fact, if we call $\mathit{findMatchRel}(n_5, n_{11})$ before $M$ contains $(n_3, n_9)$, we would incorrectly classify it as a \textit{Move and Rename} relationship.
-To address this issue, we only resolve the actual relationship types in steps~3 and~4, after all matching pairs are found (note that in steps~1 and 2 we record the matching pairs in $M$, purposely ignoring the type of relationship).
+To address this issue, we only resolve the actual relationship types in steps~4 and~5, after all matching pairs are found (note that in steps~1, 2, and 3 we record the matching pairs in $M$, purposely ignoring the type of relationship).
 %Moreover, non-matching relationships, which also depends on the matchings found, are analyzed in the last step. 
 
 Another issue which we may face when looking for relationships are conflicts, i.e., two or more matching relationships hold for the same code element (according to conditions from Table~\ref{TabRelationshipTypes}).
@@ -398,10 +422,19 @@ The rationale behind this formula is that the similarity is at maximum (1.0) whe
 %It is worth noting that when both multisets are empty, the denominator of the formula is zero, which yields undefined. We handle such special case considering that the similarity is zero.
 
 
+\subsubsection{Name similarity}
+\label{SecNameSim}
+
+Besides relying on the code similarity, our algorithm also depends on the function $\rdnsim(n_1, n_2)$ in Step~3.
+This function denotes the similarity between the names of the code elements $n_1$ and $n_2$.
+For computing $\rdnsim$, we first decompose the identifiers of $n_1$ and $n_2$ into their composing words. Specifically, we split camel case (e.g., \codeinl{myIdentifier}) or snake case patterns (e.g., \codeinl{my\_identifier}) . For example, \codeinl{SomeLong\_Name} yields three terms: \codeinl{Some}, \codeinl{Long}, and \codeinl{Name}.
+Then, we compute $\rdnsim$ using the same formula from $\rdsim$ (see Equation~\ref{WJaccard}), but in this case, each multiset of tokens contains the terms composing the identifiers of $n_1$ and $n_2$.
+
+
 \subsubsection{Extract similarity}
 \label{SecSimX}
 
-While the similarity function presented previously is suitable to compute whether two code elements are similar, it is not appropriate to assess whether a code element is extracted from another one, because their source code may be significantly different on their entirety.
+While the similarity function $\rdsim$ presented previously is suitable to compute whether two code elements are similar, it is not appropriate to assess whether a code element is extracted from another one, because their source code may be significantly different on their entirety.
 However, if a method $e_2$ is extracted from $e_1$, we expect that part of the code of $e_1$ is moved to $e_2$.
 Therefore, the source code of the body of $e_2$ should be similar to the source code removed from $e_1$.
 Additionally, not all code removed from $e_1$ may have been moved to $e_2$, i.e., some parts of the code may have been extracted to other locations or simply deleted.
@@ -452,6 +485,9 @@ If a code element $e_1$ is inlined into a code element $e_2$, we expect that the
 \rdsimi(e_1, e_2) = \rdsimc(m_1, m_2^+)
 \end{align}
 where $m_1$ is the multiset representing the source code of the body of $e_1$ and $m_2^+$ is the multiset representing the code added to $e_2$ ($m_2' \setminus m_2$). Such similarity index is at maximum (1.0) when $m_1$ is a subset of the added code ($m_2^+$).
+
+
+
 
 
 \subsubsection{Ignoring parameters and return keywords}
