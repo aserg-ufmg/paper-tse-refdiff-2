@@ -53,10 +53,10 @@ Thus, we are still not able to mine refactoring activity in a vast amount of sof
 By restricting refactoring research to a single programming language, we may get a biased understanding of the reality.
 Moreover, the practical applications of such tools are hindered by the lack of support of other popular programming languages.
 
-For all this reasons, in this paper we propose a multi-language refactoring detection approach, named as RefDiff~2.0, which is a complete redesign of its first version that introduces an extensible architecture.
+For all these reasons, in this paper we propose a multi-language refactoring detection approach, named as RefDiff~2.0, which is a complete redesign of its first version that introduces an extensible architecture.
 In RefDiff~2.0, the refactoring detection heuristics are fully implemented in a common core, and support for programming languages is provided by plug-in modules.
 %that works with a language-independent model that abstracts abstracting away the 
-As a way to validate this architecture, we implemented and evaluated extension modules for three mainstream programming languages: Java, C, and JavaScript.
+As a way to validate this architecture, we implemented and evaluated extension modules for three mainstream programming languages with distinct characteristics: Java, JavaScript (a widely popular dynamic programming language, used mostly to build web applications) and C (a procedural programming language, used mostly to implement system software).
 Additionally, we reworked the refactoring detection heuristics of RefDiff to significantly improve its precision when compared to its prior version.
 In summary, we deliver the following contributions in this work:
 \begin{itemize}

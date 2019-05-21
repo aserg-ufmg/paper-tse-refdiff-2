@@ -2,16 +2,19 @@
 \section{Evaluation with JavaScript and C}
 \label{sec:eval:js:c}
 
-We also evaluate RefDiff with refactorings performed in two important but very different programming languages: JavaScript (a widely popular dynamic programming language, used mostly to build web applications) and C (a procedural programming language, used mostly to implement system software).
-In the literature, we did not find a dataset with detailed information about real refactorings performed in these languages. Therefore, to evaluate precision, we manually validated the refactorings detected by RefDiff in a set of programs, in both languages (Section xx). Then, to evaluate recall, we created an oracle of manually validated refactoring operations performed in another set of programs (Section xx).  After that, in Section~\ref{sec:eval:js:c:results}, we report the precision and recall achieved by RefDiff.  We are not aware of any other tool for detecting refactorings in these languages. Therefore, in this second evaluation, it was not possible to compare RefDiff's results with competitor tools.
+Beyond the Java evaluation, we also evaluated precision and recall of RefDiff in JavaScript and C. Unfortunately, we did not find a dataset with detailed information about real refactorings performed in these languages that we could use as an oracle.
+Therefore, we had to adopt a different strategy. 
+%We also evaluate RefDiff with refactorings performed in two important but very different programming languages: JavaScript (a widely popular dynamic programming language, used mostly to build web applications) and C (a procedural programming language, used mostly to implement system software).
+%In the literature, we did not find a dataset with detailed information about real refactorings performed in these languages. Therefore, 
+To evaluate precision, we manually validated the refactorings detected by RefDiff in a set of programs, in both languages (Section~\ref{sec:eval:js:c:precision}). Then, to evaluate recall, we created an oracle of manually validated refactoring operations performed in another set of programs (Section~\ref{sec:eval:js:c:recall}).  After that, in Section~\ref{sec:eval:js:c:results}, we report the precision and recall achieved by RefDiff.  We are not aware of any other tool for detecting refactorings in these languages. Therefore, in this second evaluation, it was not possible to compare RefDiff's results with competitor tools.
 
-\subsection{Evaluation Design}
-\label{sec:eval:js:c:design}
+%\subsection{Evaluation Design}
+%\label{sec:eval:js:c:design}
 
-In this section, we defined the steps we followed to compute RefDiff's precision (Section~\ref{sec:eval:js:c:precision})
-and recall (Section~\ref{sec:eval:js:c:recall}), when used to detect refactorings in JavaScript and C commits.
+%In this section, we defined the steps we followed to compute RefDiff's precision (Section~\ref{sec:eval:js:c:precision})
+%and recall (Section~\ref{sec:eval:js:c:recall}), when used to detect refactorings in JavaScript and C commits.
 
-\subsubsection{Precision}
+\subsection{Evaluation Design: Precision}
 \label{sec:eval:js:c:precision}
 
 
@@ -33,7 +36,7 @@ After following the three steps, we compute precision as $P = \mathit{TP} / (\ma
 
 
 
-\subsubsection{Recall}
+\subsection{Evaluation Design: Recall}
 \label{sec:eval:js:c:recall}
 
 To compute RefDiff's recall when detecting refactorings in JavaScript and C, we followed three steps:
@@ -134,7 +137,7 @@ Total & 57 & 8 & \xbar{0.88} \\
 \end{table}
 
 
-\subsection{C evaluation results}
+\subsubsection{C Results}
 
 The following GitHub repositories were selected to run evaluation procedure:
 \textsc{torvalds/\-linux}, 
