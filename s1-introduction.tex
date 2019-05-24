@@ -57,7 +57,12 @@ For all these reasons, in this paper we propose a multi-language refactoring det
 In RefDiff~2.0, the refactoring detection heuristics are fully implemented in a common core, and support for programming languages is provided by plug-in modules.
 %that works with a language-independent model that abstracts abstracting away the 
 As a way to validate this architecture, we implemented and evaluated extension modules for three mainstream programming languages with distinct characteristics: Java, JavaScript (a widely popular dynamic programming language, used mostly to build web applications) and C (a procedural programming language, used mostly to implement system software).
-Additionally, we reworked the refactoring detection heuristics of RefDiff to significantly improve its precision when compared to its prior version.
+
+Additionally, we reworked the refactoring detection heuristics of RefDiff to significantly improve its precision when compared to our previous work.
+Now, RefDiff achieves 96.4\% of precision and 80.4\% of recall when evaluated in the Java dataset proposed by Tsantalis~et~al.~\cite{tsantalis2018rminer}, against 79.3\% of precision and 80.2\% of recall in its prior version.
+Moreover, RefDiff's precision is on par with RMiner, the current state-of-the-art in Java refactoring detection (96.4\% vs. 98.8\%).
+This is a relevant achievement because our approach is not specialized in a single language.
+
 In summary, we deliver the following contributions in this work:
 \begin{itemize}
 \item A major extension of our refactoring detection approach proposed in previous work~\cite{msr2017}, which includes a redesign of its core to work with a language-independent model and improved detection heuristics.

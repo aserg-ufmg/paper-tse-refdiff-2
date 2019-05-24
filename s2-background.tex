@@ -9,25 +9,42 @@ Another strategy is employed by Soares et al.~\cite{soares2010making}. They prop
 Moreover, many existing approaches are based on static analysis.
 This is the case of the approach proposed by Demeyer et al.~\cite{demeyer2000finding}, which finds refactored elements by observing changes in code metrics.
 
-Static analysis is also frequently used to find differences in the source code~\cite{dig2006automated, weissgerber2006identifying, tsantalis_empiricalstudy,prete2010template,Kim:2010:RefFinder}.
-Approaches based on comparing source code differences have the advantage of beeing able to identify each refactoring operation performed. As RefDiff is one of these approaches, it can be directly compared with others within this category. In the next sections, we will describe three of such approaches.
+Static analysis is also frequently used to find differences in the source code~\cite{dig2006automated, weissgerber2006identifying, tsantalis_empiricalstudy,prete2010template,Kim:2010:RefFinder,msr2017,tsantalis2018rminer}.
+Approaches based on comparing source code differences have the advantage of beeing able to identify each refactoring operation performed. As RefDiff is one of these approaches, it can be directly compared with others within this category. In the next sections, we will briefly discuss RefDiff~1.0 and three other approaches.
+
+\subsection{RefDiff~1.0}
+
+The original version of RefDiff~\cite{msr2017}, which we will denote as RefDiff~1.0 throughout this paper, employs a combination of heuristics based on static analysis and code similarity to detect 13 well-known refactoring types.
+One of its distinguishing characteristic is the use of the classical TF-IDF similarity measure from information retrieval to compute code similarity.
+In our previous work, we evaluated our approach using an oracle of 448 known refactoring operations, distributed across seven Java projects.
+We built this oracle by deliberately applying refactoring in software repositories in a controlled manner. Although this strategy poses the risk of creating an artificial dataset, this way we assured that our oracle was complete and could reliably compute both precision and recall.
+We compared our tool with three existing approaches, namely Refactoring Miner~\cite{tsantalis_empiricalstudy}, Refactoring Crawler~\cite{dig2006automated}, and Ref-Finder~\cite{Kim:2010:RefFinder}.
+Our approach achieved precision of 100\% and recall of 88\%, surpassing the three tools subjected to the comparison.
 
 
-\subsection{Refactoring Miner}
+\subsection{Refactoring Miner/RMiner}
 
-Refactoring Miner is an approach introduced by Tsantalis~et~al.~\cite{tsantalis_empiricalstudy}, that was later extend by Silva~et~al.~\cite{fse2016-why-we-refactor} to mine refactorings in large scale in git repositories. This tool is capable of identifying 14 high-level refactoring types: \emph{Rename Package/Class/Method}, \emph{Move Class/Method/Field}, \emph{Pull Up Method/Field}, \emph{Push Down Method/Field}, \emph{Extract Method}, \emph{Inline Method}, 
-and \emph{Extract Superclass/Interface}.
-
-Refactoring Miner runs a lightweight algorithm, similar to the UMLDiff proposed by Xing and Stroulia~\cite{Xing:2005}, for differencing object-oriented models, inferring the set of classes, methods, and fields added, deleted or moved between two code revisions. 
-First, the algorithm matches code entities in a top-down order (starting from the classes and going to the methods and fields) looking for exact matches on their names and signatures (in the case of methods).
-Next, the removed/added elements between the two models are matched based only on the equality of their names in order to find changes in the signatures of fields and methods.
-Third, the removed/added classes are matched based on the similarity of their members at signature level.
-Finally, a set of rules enforcing structural constraints is applied to identify specific types of refactorings.
-
-In a first study, using the version histories of JUnit, HTTPCore, and HTTPClient, Tsantalis~et~al.~\cite{tsantalis_empiricalstudy} found 8 false positives for the \emph{Extract Method} refactoring (96.4\% precision) and 4 false positives for the \emph{Rename Class} refactoring (97.6\% precision). No false positives were found for the remaining refactorings.
+Refactoring Miner is an approach originally introduced by Tsantalis~et~al.~\cite{tsantalis_empiricalstudy}, capable of identifying 14 high-level refactoring types: \emph{Rename Package/Class/Method}, \emph{Move Class/Method/Field}, \emph{Pull Up Method/Field}, \emph{Push Down Method/Field}, \emph{Extract Method}, \emph{Inline Method}, and \emph{Extract Superclass/Interface}.
+In its original version, Refactoring Miner employs a lightweight algorithm, similar to the UMLDiff proposed by Xing and Stroulia~\cite{Xing:2005}, for differencing object-oriented models, inferring the set of classes, methods, and fields added, deleted or moved between two code revisions. 
+Refactoring Miner was employed and evaluated in empirical studies on refactoring along its evolution.
+In the first study, using the version histories of JUnit, HTTPCore, and HTTPClient, Tsantalis~et~al.~\cite{tsantalis_empiricalstudy} found 8 false positives for the \emph{Extract Method} refactoring (96.4\% precision) and 4 false positives for the \emph{Rename Class} refactoring (97.6\% precision). No false positives were found for the remaining refactorings.
 In a second study that mined refactorings in 285 GitHub hosted Java repositories, Silva~et~al.~\cite{fse2016-why-we-refactor} found 1,030 false positives out of 2,441 refactorings (63\% precision). However, the authors also evaluated Refactoring Miner using as a benchmark the dataset reported by Chaparro~et~al.~\cite{Chaparro:2014}, in which it achieved 93\% precision and 98\% recall.
 
-\todo{Reescrever essa secao levando em conta o paper ICSE do RMiner}
+Last, in a recent study, Tsantalis~et~al.~\cite{tsantalis2018rminer} proposed a major evolution of its tool, now named as RMiner.
+In its current form, RMiner relies on an AST-based statement matching algorithm and a set of detection rules that cover 15 representative refactoring types. 
+Its statement matching algorithm employes two techniques to be resilient to code restructuring during refactoring: abstraction, which deals with changes in statements’ AST type due to refactoring, and argumentization, which deals with changes in sub-expressions within statements due to parameterization.
+To evaluate RMiner, the authors created a dataset with 3,188 real refactorings instances from 185 open-source projects. Using this oracle, the authors found that RMiner has a precision of 98\% and recall of 87\%, which was the best result so far, surpassing RefDiff 1.0, the previous state-of-the-art, which achieved precision of 75.7\% and recall of 85.8\% in this dataset.
+
+
+%that was later extend by Silva~et~al.~\cite{fse2016-why-we-refactor} to mine refactorings in large scale in git repositories. This tool is capable of identifying 14 high-level refactoring types: \emph{Rename Package/Class/Method}, \emph{Move Class/Method/Field}, \emph{Pull Up Method/Field}, \emph{Push Down Method/Field}, \emph{Extract Method}, \emph{Inline Method}, and \emph{Extract Superclass/Interface}.
+
+%Refactoring Miner runs a lightweight algorithm, similar to the UMLDiff proposed by Xing and Stroulia~\cite{Xing:2005}, for differencing object-oriented models, inferring the set of classes, methods, and fields added, deleted or moved between two code revisions. 
+%First, the algorithm matches code entities in a top-down order (starting from the classes and going to the methods and fields) looking for exact matches on their names and signatures (in the case of methods).
+%Next, the removed/added elements between the two models are matched based only on the equality of their names in order to find changes in the signatures of fields and methods.
+%Third, the removed/added classes are matched based on the similarity of their members at signature level.
+%Finally, a set of rules enforcing structural constraints is applied to identify specific types of refactorings.
+
+
 
 \subsection{Refactoring Crawler}
 
@@ -43,7 +60,7 @@ The strategies to detect refactorings are repeated in a loop until no new refact
 
 The authors evaluated Refactoring Crawler comparing pairs of releases of three open source software components: Eclipse UI, Struts, and JHotDraw. Such components were chosen because they provided detailed release notes describing API changes. The authors relied on such information and on manual inspection to build an oracle of known refactorings in those releases, containing 131 refactorings in total.
 The reported results are: Eclipse UI (90\% precision and 86\% recall), Struts (100\% precision and 86\% recall), and JHotDraw (100\% precision and 100\% recall).
-
+However, in our previous study~\cite{msr2017}, Refactoring Crawler achieved only 41.9\% of precision and 35.6\% of recall.
 
 \subsection{Ref-Finder}
 
@@ -57,4 +74,5 @@ The detection of some types of refactoring requires a special logic predicate th
 The authors evaluated Ref-Finder in two case studies.
 In the first one, they used code examples from the Fowler's catalog to create instances of the 63 refactoring types. The authors reported 93.7\% recall and 97.0\% precision for this first study.
 In the second study, the authors used three open-source projects: Carol, jEdit, and Columba. In this case, Ref-Finder was executed in randomly selected pairs of versions. From the 774 refactoring instances found, the authors manually inspected a sample of 344 instances and found that 254 were correct (73.8\% precision).
-However, in a study by Soares~et~al.~\cite{Soares:2013} using a set of randomly select versions of JHotDraw and Apache Common Collections containing 81 refactoring instances in total, Ref-Finder achieved only 35\% precision and 24\% recall.
+However, in a study by Soares~et~al.~\cite{Soares:2013} using a set of randomly select versions of JHotDraw and Apache Common Collections containing 81 refactoring instances in total, Ref-Finder achieved only 35\% of precision and 24\% of recall.
+Moreover, in our previous study~\cite{msr2017}, it also achieved only 26.4\% of precision and 64.2\% of recall.

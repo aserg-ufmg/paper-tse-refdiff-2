@@ -2,11 +2,66 @@
 \section{Evaluation with JavaScript and C}
 \label{sec:eval:js:c}
 
-Beyond the Java evaluation, we also evaluated precision and recall of RefDiff in JavaScript and C. Unfortunately, we did not find a dataset with detailed information about real refactorings performed in these languages that we could use as an oracle.
+\begin{table*}[htbp]
+\renewcommand{\arraystretch}{1.2}
+\caption{JavaScript and C repositories used in the evaluation}
+\label{TabJsCRepos}
+\centering
+\begin{tabular}{@{}lp{13cm}r@{}}
+\toprule
+Repository & Description & Commits\\
+\midrule
+react & A declarative, efficient, and flexible JavaScript library for building user interfaces. & 10,964 \\
+vue & Vue.js is a progressive, incrementally-adoptable JavaScript framework for building UI on the web. & 3,014 \\
+d3 & Bring data to life with SVG, Canvas and HTML. & 4,148 \\
+react-native & A framework for building native apps with React. & 16,875 \\
+angular.js & AngularJS - HTML enhanced for web apps. & 8,963 \\
+create-react-app & Set up a modern web app by running one command. & 2,233 \\
+jquery & A fast, small, and feature-rich JavaScript library. & 6,403 \\
+atom & The hackable text editor. & 36,752 \\
+axios & Promise based HTTP client for the browser and node.js. & 847 \\
+three.js & JavaScript 3D library. & 27,762 \\
+socket.io & Realtime application framework (Node.JS server). & 1,715 \\
+redux & Predictable state container for JavaScript apps. & 2,819 \\
+webpack & A bundler for javascript and friends. & 7,852 \\
+Semantic-UI & Semantic is a UI component framework based around useful principles from natural language. & 6,684 \\
+reveal.js & The HTML Presentation Framework. & 2,341 \\
+meteor & Meteor, the JavaScript App Platform. & 21,966 \\
+express & Fast, unopinionated, minimalist web framework for node. & 5,555 \\
+material-ui & React components for faster and easier web development. & 9,449 \\
+Chart.js & Simple HTML5 Charts using the canvas tag. & 2,739 \\
+\midrule
+linux & Linux kernel source tree. & 839,761 \\
+netdata & Real-time performance monitoring, done right! & 8,338 \\
+redis & Redis is an in-memory database that persists on disk. & 8,158 \\
+git & Git is a free and open source distributed version control system. & 55,723 \\
+ijkplayer & Android/iOS video player based on FFmpeg n3.4, with MediaCodec, VideoToolbox support. & 2,584 \\
+php-src & The PHP Interpreter. & 112,847 \\
+wrk & Modern HTTP benchmarking tool. & 76 \\
+the\_silver\_searcher & A code-searching tool similar to ack, but faster. & 2,016 \\
+emscripten & Emscripten: An LLVM-to-Web Compiler. & 19,468 \\
+vim & The ubiquitous text editor. & 9,875 \\
+jq & Command-line JSON processor. & 1,287 \\
+FFmpeg & A complete, cross-platform solution to record, convert and stream audio and video. & 93,898 \\
+tmux & A terminal multiplexer: it enables a number of terminals to controlled from a single screen.  & 7,618 \\
+nuklear & A single-header ANSI C gui library. & 1,646 \\
+obs-studio & Free and open source software for live streaming and screen recording. & 6,727 \\
+libuv & Cross-platform asynchronous I/O. & 4,319 \\
+swoole-src & Coroutine-based concurrency library for PHP (like Golang). & 9,938 \\
+curl & A command line tool and library for transferring data with URL syntax. & 24,339 \\
+toxcore & The future of online communications. & 3,771 \\
+darknet & Convolutional Neural Networks. & 436 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+
+Besides the Java evaluation, we also evaluated precision and recall of RefDiff in JavaScript and C. Unfortunately, we did not find a dataset with detailed information about real refactorings performed in these languages that we could use as an oracle.
 Therefore, we had to adopt a different strategy. 
 %We also evaluate RefDiff with refactorings performed in two important but very different programming languages: JavaScript (a widely popular dynamic programming language, used mostly to build web applications) and C (a procedural programming language, used mostly to implement system software).
 %In the literature, we did not find a dataset with detailed information about real refactorings performed in these languages. Therefore, 
-To evaluate precision, we manually validated the refactorings detected by RefDiff in a set of programs, in both languages (Section~\ref{sec:eval:js:c:precision}). Then, to evaluate recall, we created an oracle of manually validated refactoring operations performed in another set of programs (Section~\ref{sec:eval:js:c:recall}).  After that, in Section~\ref{sec:eval:js:c:results}, we report the precision and recall achieved by RefDiff.  We are not aware of any other tool for detecting refactorings in these languages. Therefore, in this second evaluation, it was not possible to compare RefDiff's results with competitor tools.
+To evaluate precision, we manually validated the refactorings detected by RefDiff in a set of GitHub repositories, in both languages (Section~\ref{sec:eval:js:c:precision}). Then, to evaluate recall, we created an oracle by searching for documented refactoring operations in commit messages of the same set of repositories (Section~\ref{sec:eval:js:c:recall}).
+After that, in Section~\ref{sec:eval:js:c:results}, we report the precision and recall achieved by RefDiff.  We are not aware of any other tool for detecting refactorings in these languages. Therefore, in this second evaluation, it was not possible to compare RefDiff's results with competitor tools.
 
 %\subsection{Evaluation Design}
 %\label{sec:eval:js:c:design}
@@ -22,7 +77,7 @@ To compute RefDiff's precision when detecting refactorings in JavaScript and C, 
 
 \begin{enumerate}  
 \item We selected the 20 most popular GitHub repositories of each language. For this, we queried the GitHub API for repositories, sorting by stars count---which is a reliable indicator of popularity in GitHub~\cite{icsme2016,jss-2018-github-stars} ---and filtering by programming language.
-The resulting list of repositories was manually inspected to discard the ones that are not actual software projects, e.g., tutorials or code samples. Then, we forked each selected repository, to preserve their version histories from future changes pushed to the original project. Table xx shows the name, short description, and number of commits of each selected repository, both for JavaScrpit and C.  \todo{tabela que acabou de ser mencionada}
+The resulting list of repositories was manually inspected to discard the ones that are not actual software projects, e.g., tutorials or code samples. Then, we forked each selected repository, to preserve their version histories from future changes pushed to the original project. Table~\ref{TabJsCRepos} shows the name, short description, and number of commits of each selected repository, both for JavaScript and C.
 
 \item We ran RefDiff in the version history of each repository. To select the commits, we navigate the commit graph backwards, starting from the most recent commit in the master branch. We also discarded merge commits, i.e.,~commits which have two predecessors. The rationale is that comparing a merge commit with their predecessors results in duplicated reports of refactorings applied in the commits prior to the merge operation. Moreover, to avoid over-representing projects with longer histories, we established a limit of 500 commits per repository. For each selected commit, we compared its source code with its predecessor using RefDiff, to detect refactoring operations.
 
@@ -39,173 +94,219 @@ After following the three steps, we compute precision as $P = \mathit{TP} / (\ma
 \subsection{Evaluation Design: Recall}
 \label{sec:eval:js:c:recall}
 
+
 To compute RefDiff's recall when detecting refactorings in JavaScript and C, we followed three steps:
 
 \begin{enumerate}  
-\item We used GitHub API to find refactorings documented in commits from the repositories selected for evaluating precision (Section~\ref{sec:eval:js:c:precision}). Such queries consist in searching for keywords denoting a particular type of refactoring in the commit message, as described in Table xx.\todo{acrescentar esta tabela} For example, when looking for \emph{Rename Function} refactoring instances in JavaScript, we built a query that looks for commits which contain the keywords \texttt{rename} and \texttt{function} in their messages.
+\item We used GitHub API to find refactorings documented in commits from the repositories selected for evaluating precision (Section~\ref{sec:eval:js:c:precision}). Such queries consist in searching for keywords denoting a particular type of refactoring in the commit message, as described in Table~\ref{TabSearchQueries}. For example, when looking for \emph{Rename Function} refactoring instances, we built a query that looks for commits which contain the keywords \textit{rename} and \textit{function} in their messages, among other combinations.
 
-\item Given the results of a query, we manually inspected the commit message and the diff of the source code to confirm the applied refactoring. We repeated this procedure until we found 10 instances of each refactoring type or when there were no more results to inspect (which happened only for xxx \todo{detalhar refactorings com menos de 10 instances)}. Each confirmed refactoring was recorded in a normalized textual format compatible with the output of RefDiff.
+\item Given the list of results of a query, we manually inspected each item to assess whether it really contains a refactoring. We started by analyzing the commit message. 
+In many cases, the keywords are found in the text, but they are not referring to a refactoring operation.
+For example, one of the messages was: \textit{``The routeToRegExp() function, introduced by 840b5f0, could not extract path params if the path contained question mark or hash.''}
+This message contains the keywords \textit{extract} and \textit{function}, but clearly does not describe an \emph{Extract Function} refactoring.
+In these situations, we discarded the commit with no further analysis.
+When the commit message described a refactoring, we checked the code diff to confirm it.
+Each confirmed refactoring was recorded in a normalized textual format compatible with the output of RefDiff.
+Inspecting the code diff is also necessary to locate the code elements involved in the operation.
+For example, the message \textit{``Extract commit phase passes into separate functions''} documents a \emph{Extract Function} refactoring, but don't specify the name of the extracted functions.
+We repeated this procedure until we found 10 instances of each refactoring type or when there were no more results to inspect. We found less than 10 instances when looking for \emph{Move and Rename File}, \emph{Move and Rename Function}, and \emph{Inline Function} for JavaScript. Additionally, although modern JavaScript contains classes, we did not find documented refactorings instances of \emph{Move and/or Rename Class}.
+
+
+
+% Rename scaledAssetURLScript function to scaledAssetURLNearBundle
 
 %It is worth noting that, during this procedure, most of the results were discarded because the commit message did not actually documented a refactoring. Besides, the diff of some of the commits were so large that could not be displayed in the user interface. In summary, we only registered the refactoring instances that we could confirm both in the commit message and in the code diff.
 
 \item We ran RefDiff in the commits that contain documented and manually-validated refactorings to assess whether they are reported (true positives) or missed (false negatives). 
-
 \end{enumerate}
 
 After following these steps, we compute recall as $R = \mathit{TP} / (\mathit{TP} + \mathit{FN})$, where $\mathit{TP}$ is the number of true positives and $\mathit{FN}$ is the number of false negatives.
 
+\begin{table}[htbp]
+\renewcommand{\arraystretch}{1.2}
+\caption{Search queries for each refactoring type}
+\label{TabSearchQueries}
+\centering
+\begin{tabular}{@{}lp{5cm}@{}}
+\toprule
+%Refactoring Type & Search queries\\
+%\midrule
+Change Signature & add parameter, remove parameter, add argument \\
+\addlinespace
+Move/Rename File & move file, rename file, move folder, move rename file, move rename \\
+\addlinespace
+Move/Rename Function & move function, rename function, move and rename\\
+\addlinespace
+Extract Function & extract, duplicate, extract function, factor out \\
+\addlinespace
+Inline Function & inline, inline into, remove indirection, indirect functions, remove wrapper \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\subsection{Results}
+%\subsection{Results}
+%\label{sec:eval:js:c:results}
+
+%In this section, we present the precision and recall results for JavaScript (Section~\ref{sec:eval:js:c:results:js}) and C (Section xx).
+
+\subsection{Results for JavaScript and C}
 \label{sec:eval:js:c:results}
 
-In this section, we present the precision and recall results for JavaScript (Section~\ref{sec:eval:js:c:results:js}) and C (Section xx).
-
-\subsubsection{JavaScript Results}
-\label{sec:eval:js:c:results:js}
-
-Table~\ref{TabResultJsPrecison} shows the precision results for JavaScript. The overall precision is 91\%. There are three refactorings with precision of 80\%: Rename Function, Move and Rename Function, and Inline Function. For the remaining refactoring types, RefDiff has as precision of 90\% (two refactoring types) or a precision of 100\% (five refactoring types). Table~\ref{TabResultJsRecall} shows the recall results, which reach 88\% when all refactoring types are considered together.
-Inline function has the lowest recall (40\%); however, in our oracle has only five instances of this operation. The two most common refactorings (Move File and Move Function, both with 10 instances) have a recall of 100\%.
-
-%The following GitHub repositories were selected to run evaluation procedure:
-%\textsc{facebook/\-react}, 
-%\textsc{vuejs/\-vue}, 
-%\textsc{d3/\-d3}, 
-%\textsc{face\-book/\-react-native}, 
-%\textsc{angular/\-angular.js}, 
-%\textsc{face\-book/\-create-react-app}, 
-%\textsc{jquery/\-jquery}, 
-%\textsc{atom/\-atom}, 
-%\textsc{axios/\-axios}, 
-%\textsc{mrdoob/\-three.js}, 
-%\textsc{socketio/\-socket.io}, 
-%\textsc{reduxjs/\-redux}, 
-%\textsc{webpack/\-webpack}, 
-%\textsc{Semantic-Org/\-Semantic-UI}, 
-%\textsc{hakimel/\-reveal.js}, 
-%\textsc{meteor/\-meteor}, 
-%\textsc{expressjs/\-express}, 
-%\textsc{mui-org/\-material-ui}, 
-%\textsc{chartjs/\-Chart.js}
+Table~\ref{TabResultJs} shows the precision and recall results for JavaScript. The overall precision is 91\%. There are three refactorings with precision of 80\%: \textit{Rename Function}, \textit{Move and Rename Function}, and \textit{Inline Function}. For the remaining refactoring types, RefDiff has a precision of 90\% (two refactoring types) or a precision of 100\% (five refactoring types). Table~\ref{TabResultJs} also shows the recall results, which reach 88\% when all refactoring types are considered together.
+\textit{Inline function} has the lowest recall (40\%); however, our oracle has only five instances of this operation. There are three refactoring types with precision of 100\%: \textit{Move File}, \textit{Move Function}, \textit{Move and Rename File}. For the other ones, recall ranges between 80\% and 90\%.
 
 
-\begin{table}[htbp]
-\renewcommand{\arraystretch}{1.2}
-\caption{JavaScript precision results}
-\label{TabResultJsPrecison}
-\centering
-\begin{tabular}{@{}lrrl@{}}
-\toprule
-Refactoring Type & TP & FP & Precision\\
-\midrule
-Move File & 10 & 0 & \xbar{1.00} \\
-Move Class & 2 & 0 & \xbar{1.00} \\
-Move Function & 9 & 1 & \xbar{0.90} \\
-Rename File & 10 & 0 & \xbar{1.00} \\
-Rename Class & 5 & 0 & \xbar{1.00} \\
-Rename Function & 8 & 2 & \xbar{0.80} \\
-Move and Rename File & 10 & 0 & \xbar{1.00} \\
-Move and Rename Function & 8 & 2 & \xbar{0.80} \\
-Extract Function & 9 & 1 & \xbar{0.90} \\
-Inline Function & 8 & 2 & \xbar{0.80} \\
-\addlinespace
-Total & 79 & 8 & \xbar{0.91} \\
-\bottomrule
-\end{tabular}
-\end{table}
+
+%\begin{table}[htbp]
+%\renewcommand{\arraystretch}{1.2}
+%\caption{JavaScript precision results}
+%\label{TabResultJsPrecison}
+%\centering
+%\begin{tabular}{@{}lrrl@{}}
+%\toprule
+%Refactoring Type & TP & FP & Precision\\
+%\midrule
+%Move File & 10 & 0 & \xbar{1.00} \\
+%Move Class & 2 & 0 & \xbar{1.00} \\
+%Move Function & 9 & 1 & \xbar{0.90} \\
+%Rename File & 10 & 0 & \xbar{1.00} \\
+%Rename Class & 5 & 0 & \xbar{1.00} \\
+%Rename Function & 8 & 2 & \xbar{0.80} \\
+%Move and Rename File & 10 & 0 & \xbar{1.00} \\
+%Move and Rename Function & 8 & 2 & \xbar{0.80} \\
+%Extract Function & 9 & 1 & \xbar{0.90} \\
+%Inline Function & 8 & 2 & \xbar{0.80} \\
+%\addlinespace
+%Total & 79 & 8 & \xbar{0.91} \\
+%\bottomrule
+%\end{tabular}
+%\end{table}
+
+%\begin{table}[htbp]
+%\renewcommand{\arraystretch}{1.2}
+%\caption{JavaScript recall results}
+%\label{TabResultJsRecall}
+%\centering
+%\begin{tabular}{@{}lrrl@{}}
+%\toprule
+%Refactoring Type & TP & FN & Recall\\
+%\midrule
+%Move File & 10 & 0 & \xbar{1.00} \\
+%Move Function & 10 & 0 & \xbar{1.00} \\
+%Rename File & 8 & 2 & \xbar{0.80} \\
+%Rename Function & 9 & 1 & \xbar{0.90} \\
+%Move and Rename File & 3 & 0 & \xbar{1.00} \\
+%Move and Rename Function & 6 & 1 & \xbar{0.86} \\
+%Extract Function & 9 & 1 & \xbar{0.90} \\
+%Inline Function & 2 & 3 & \xbar{0.40} \\
+%\addlinespace
+%Total & 57 & 8 & \xbar{0.88} \\
+%\bottomrule
+%\end{tabular}
+%\end{table}
 
 \begin{table}[htbp]
 \renewcommand{\arraystretch}{1.2}
-\caption{JavaScript recall results}
-\label{TabResultJsRecall}
+\caption{JavaScript precision and recall results}
+\label{TabResultJs}
 \centering
-\begin{tabular}{@{}lrrl@{}}
+\begin{tabular}{@{}lrllrl@{}}
 \toprule
-Refactoring Type & TP & FN & Recall\\
+Refactoring Type & \# & Precision & & \# & Recall\\
 \midrule
-Move File & 10 & 0 & \xbar{1.00} \\
-Move Function & 10 & 0 & \xbar{1.00} \\
-Rename File & 8 & 2 & \xbar{0.80} \\
-Rename Function & 9 & 1 & \xbar{0.90} \\
-Move and Rename File & 3 & 0 & \xbar{1.00} \\
-Move and Rename Function & 6 & 1 & \xbar{0.86} \\
-Extract Function & 9 & 1 & \xbar{0.90} \\
-Inline Function & 2 & 3 & \xbar{0.40} \\
+Move File & 10 & \xbar{1.00} & & 10 & \xbar{1.00} \\
+Move Class & 2 & \xbar{1.00} & & 0 & \\
+Move Function & 10 & \xbar{0.90} & & 10 & \xbar{1.00} \\
+Rename File & 10 & \xbar{1.00} & & 10 & \xbar{0.80} \\
+Rename Class & 5 & \xbar{1.00} & & 0 & \\
+Rename Function & 10 & \xbar{0.80} & & 10 & \xbar{0.90} \\
+Move and Rename File & 10 & \xbar{1.00} & & 3 & \xbar{1.00} \\
+Move and Rename Function & 10 & \xbar{0.80} & & 7 & \xbar{0.86} \\
+Extract Function & 10 & \xbar{0.90} & & 10 & \xbar{0.90} \\
+Inline Function & 10 & \xbar{0.80} & & 5 & \xbar{0.40} \\
 \addlinespace
-Total & 57 & 8 & \xbar{0.88} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-
-\subsubsection{C Results}
-
-The following GitHub repositories were selected to run evaluation procedure:
-\textsc{torvalds/\-linux}, 
-\textsc{firehol/\-netdata}, 
-\textsc{antirez/\-redis}, 
-\textsc{git/\-git}, 
-\textsc{Bilibili/\-ijkplayer}, 
-\textsc{php/\-php-src}, 
-\textsc{wg/\-wrk}, 
-\textsc{ggreer/\-the\_silver\_searcher}, 
-\textsc{kripken/\-emscripten}, 
-\textsc{vim/\-vim}, 
-\textsc{stedolan/\-jq}, 
-\textsc{FFmpeg/\-FFmpeg}, 
-\textsc{tmux/\-tmux}, 
-\textsc{vurtun/\-nuklear}, 
-\textsc{obsproject/\-obs-studio}, 
-\textsc{libuv/\-libuv}, 
-\textsc{swoole/\-swoole-src}, 
-\textsc{curl/\-curl}, 
-\textsc{irungentoo/\-toxcore}, 
-\textsc{pjreddie/\-darknet} 
-
-
-\begin{table}[htbp]
-\renewcommand{\arraystretch}{1.2}
-\caption{C precision results}
-\label{TabResultCPrecison}
-\centering
-\begin{tabular}{@{}lrrl@{}}
-\toprule
-Refactoring Type & TP & FP & Precision\\
-\midrule
-Move File & 10 & 0 & \xbar{1.00} \\
-Move Function & 8 & 2 & \xbar{0.80} \\
-Rename File & 10 & 0 & \xbar{1.00} \\
-Rename Function & 9 & 1 & \xbar{0.90} \\
-Move and Rename Function & 8 & 2 & \xbar{0.80} \\
-Change Signature & 10 & 0 & \xbar{1.00} \\
-Extract Function & 10 & 0 & \xbar{1.00} \\
-Inline Function & 5 & 5 & \xbar{0.50} \\
-\addlinespace
-Total & 70 & 10 & \xbar{0.88} \\
+Total & 87 & \xbar{0.91} & & 65 & \xbar{0.88} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 
+
+Table~\ref{TabResultC} shows the precision and recall results for C. The overall precision is 88\%. \textit{Inline Function} is the refatoring for which precision is lower (50\%). Besides, there are two refactorings with precision of 80\%: \textit{Move Function} and \textit{Move and Rename Function}. For the remaining refactoring types, RefDiff has a precision of 90\% (one refactoring type) or a precision of 100\% (four refactoring types).
+We did not find any instance of \textit{Move and Rename File}, thus we could not compute precision for this refactoring type.
+Table~\ref{TabResultC} also shows the recall results, which is 91\% overall.
+\textit{Extract Function} (70\%) and \textit{Move Function} (80\%) are the ones with lowest recall.
+For the remaining refactoring types, RefDiff has a recall of 90\% (three refactoring types) or a recall of 100\% (four refactoring types).
+
+
+%\begin{table}[htbp]
+%\renewcommand{\arraystretch}{1.2}
+%\caption{C precision results}
+%\label{TabResultCPrecison}
+%\centering
+%\begin{tabular}{@{}lrrl@{}}
+%\toprule
+%Refactoring Type & TP & FP & Precision\\
+%\midrule
+%Move File & 10 & 0 & \xbar{1.00} \\
+%Move Function & 8 & 2 & \xbar{0.80} \\
+%Rename File & 10 & 0 & \xbar{1.00} \\
+%Rename Function & 9 & 1 & \xbar{0.90} \\
+%Move and Rename Function & 8 & 2 & \xbar{0.80} \\
+%Change Signature & 10 & 0 & \xbar{1.00} \\
+%Extract Function & 10 & 0 & \xbar{1.00} \\
+%Inline Function & 5 & 5 & \xbar{0.50} \\
+%\addlinespace
+%Total & 70 & 10 & \xbar{0.88} \\
+%\bottomrule
+%\end{tabular}
+%\end{table}
+
+
+%\begin{table}[htbp]
+%\renewcommand{\arraystretch}{1.2}
+%\caption{C recall results}
+%\label{TabResultCRecall}
+%\centering
+%\begin{tabular}{@{}lrrl@{}}
+%\toprule
+%Refactoring Type & TP & FN & Recall\\
+%\midrule
+%Change Signature & 9 & 1 & \xbar{0.90} \\
+%Extract Function & 7 & 3 & \xbar{0.70} \\
+%Inline Function & 9 & 1 & \xbar{0.90} \\
+%Move File & 10 & 0 & \xbar{1.00} \\
+%Move Function & 8 & 2 & \xbar{0.80} \\
+%Move and Rename File & 10 & 0 & \xbar{1.00} \\
+%Move and Rename Function & 9 & 1 & \xbar{0.90} \\
+%Rename File & 10 & 0 & \xbar{1.00} \\
+%Rename Function & 10 & 0 & \xbar{1.00} \\
+%\addlinespace
+%Total & 82 & 8 & \xbar{0.91} \\
+%\bottomrule
+%\end{tabular}
+%\end{table}
+
 \begin{table}[htbp]
 \renewcommand{\arraystretch}{1.2}
-\caption{C recall results}
-\label{TabResultCRecall}
+\caption{C precision and recall results}
+\label{TabResultC}
 \centering
-\begin{tabular}{@{}lrrl@{}}
+\begin{tabular}{@{}lrllrl@{}}
 \toprule
-Refactoring Type & TP & FN & Recall\\
+Refactoring Type & \# & Precision & & \# & Recall\\
 \midrule
-Change Signature & 9 & 1 & \xbar{0.90} \\
-Extract Function & 7 & 3 & \xbar{0.70} \\
-Inline Function & 9 & 1 & \xbar{0.90} \\
-Move File & 10 & 0 & \xbar{1.00} \\
-Move Function & 8 & 2 & \xbar{0.80} \\
-Move and Rename File & 10 & 0 & \xbar{1.00} \\
-Move and Rename Function & 9 & 1 & \xbar{0.90} \\
-Rename File & 10 & 0 & \xbar{1.00} \\
-Rename Function & 10 & 0 & \xbar{1.00} \\
+Change Signature & 10 & \xbar{1.00} & & 10 & \xbar{0.90}\\
+Move File & 10 & \xbar{1.00} & & 10 & \xbar{1.00} \\
+Move Function & 10 & \xbar{0.80} & & 10 & \xbar{0.80} \\
+Rename File & 10 & \xbar{1.00} & & 10 & \xbar{1.00} \\
+Rename Function & 10 & \xbar{0.90} & & 10 & \xbar{1.00} \\
+Move and Rename File & 0 & & & 10 & \xbar{1.00} \\
+Move and Rename Function & 10 & \xbar{0.80} & & 10 & \xbar{0.90} \\
+Extract Function & 10 & \xbar{1.00} & & 10 & \xbar{0.70} \\
+Inline Function & 10 & \xbar{0.50} & & 10 & \xbar{0.90} \\
 \addlinespace
-Total & 82 & 8 & \xbar{0.91} \\
+Total & 80 & \xbar{0.88} & & 90 & \xbar{0.91} \\
 \bottomrule
 \end{tabular}
 \end{table}
