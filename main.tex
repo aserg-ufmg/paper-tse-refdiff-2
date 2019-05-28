@@ -385,7 +385,7 @@ frame=single}
 % not capitalized unless they are the first or last word of the title.
 % Linebreaks \\ can be used within to get better formatting as desired.
 % Do not put math or special symbols in the title.
-\title{RefDiff 2.0 ???}
+\title{Multi-language Refactoring Detection}
 %
 %
 % author names and IEEE memberships
@@ -409,16 +409,19 @@ frame=single}
 % journal papers have the author affiliations above the "Manuscript
 % received ..."  text while in non-compsoc journals this is reversed. Sigh.
 
-\author{Michael~Shell,~\IEEEmembership{Member,~IEEE,}
-        John~Doe,~\IEEEmembership{Fellow,~OSA,}
-        and~Jane~Doe,~\IEEEmembership{Life~Fellow,~IEEE}% <-this % stops a space
-\IEEEcompsocitemizethanks{\IEEEcompsocthanksitem M. Shell was with the Department
-of Electrical and Computer Engineering, Georgia Institute of Technology, Atlanta,
-GA, 30332.\protect\\
-% note need leading \protect in front of \\ to get a newline within \thanks as
-% \\ is fragile and will error, could use \hfil\break instead.
-E-mail: see http://www.michaelshell.org/contact.html
-\IEEEcompsocthanksitem J. Doe and J. Doe are with Anonymous University.}% <-this % stops an unwanted space
+\author{Danilo~Silva, %~\IEEEmembership{Member,~IEEE,}
+        João~Paulo~da~Silva, %~\IEEEmembership{Fellow,~OSA,}
+        Gustavo~Jansen, %~\IEEEmembership{Fellow,~OSA,}
+        Ricardo~Terra, %~\IEEEmembership{Fellow,~OSA,}
+        and~Marco~Tulio~Valente%,~\IEEEmembership{Life~Fellow,~IEEE}% <-this % stops a space
+\IEEEcompsocitemizethanks{
+\IEEEcompsocthanksitem D. Silva and M.T. Valente are with the 
+Department of Computer Science, Federal University of Minas Gerais, Av. Antônio Carlos, Belo Horizonte, MG 31270-010, Brazil.\protect\\
+E-mail: \{danilofs, mtov\}@dcc.ufmg.br.
+\IEEEcompsocthanksitem J.P. da Silva is with \todo{verificar}
+\IEEEcompsocthanksitem G. Jansen is with \todo{verificar}
+\IEEEcompsocthanksitem R. Terra is with the Department of Computer Science, Federal University of Lavras (UFLA), Lavras, Brazil. \todo{verificar}\protect\\
+E-mail: terra@dcc.ufla.br}% <-this % stops an unwanted space
 \thanks{Manuscript received April 19, 2005; revised August 26, 2015.}}
 
 % note the % following the last \IEEEmembership and also \thanks - 
@@ -482,13 +485,33 @@ E-mail: see http://www.michaelshell.org/contact.html
 % in the abstract or keywords.
 \IEEEtitleabstractindextext{%
 \begin{abstract}
-The abstract goes here.
+%Refactoring is a well-known technique that is widely adopted by software engineers to improve the design and enable the evolution of a system.
+Knowing which refactoring operations were applied in a code change is a valuable information to understand software evolution.
+%, adapt software components, merge code changes, and other applications.
+Therefore, several tools have been proposed to automatically detect refactorings applied in a system by comparing source code between revisions.
+The availability of such infrastructure has enabled researchers to study refactoring practice in large scale, leading to important advances on refactoring knowledge.
+However, although a plethora of programming languages are used in practice, the vast majority of existing studies are restricted to the Java language due to limitations of the underlying tools.
+This contradiction poses an important threat to external validity.
+Thus, to overcome such limitation, in this paper we propose RefDiff~2.0, a multi-language refactoring detection tool.
+Our approach leverages techniques proposed in our previous work and introduces a novel refactoring detection algorithm that relies on the Code Structure Tree (CST), a simple yet powerful representation of the source code that abstracts away the specificities of each programming language.
+%support other programming languages by implementing a CST generator module
+Despite its language-agnostic design, our evaluation shows that RefDiff's precision (96\%) and recall (80\%) are on par with state-of-the-art refactoring detection approaches specialized in the Java language.
+More important, our modular architecture enables one to seamless extend RefDiff to support other languages via a plugin system.
+As a proof of this, we implemented plugins to support two other popular programming languages: JavaScript and C.
+Our evaluation in these languages revealed that precision and recall ranges from 88\% to 91\%.
+With these results, we envision RefDiff as a viable alternative for breaking the barrier of language limitation in refactoring research and in practical applications of refactoring detection.
+
+%RefDiff employs a combination of heuristics based on static analysis and code similarity to detect 13 well-known refactoring types.
+
+
+
 \end{abstract}
 
 % Note that keywords are not normally used for peerreview papers.
-\begin{IEEEkeywords}
-Computer Society, IEEE, IEEEtran, journal, \LaTeX, paper, template.
-\end{IEEEkeywords}}
+%\begin{IEEEkeywords}
+%Computer Society, IEEE, IEEEtran, journal, \LaTeX, paper, template.
+%\end{IEEEkeywords}
+}
 
 
 % make the title area
