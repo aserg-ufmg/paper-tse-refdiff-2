@@ -1,4 +1,23 @@
 \section{Conclusion}
 \label{SecConclusion}
 
-\todo{Conclusion.}
+
+
+%In this paper, we proposed RefDiff 2.0, an extension a refactoring detection approach that is, from the best of our knowledge, 
+To the best of our knowledge, RefDiff 2.0 is the first refactoring detection approach that supports multiple programming languages.
+%approach designed from the ground up to support multiple programming languages.
+We made this possible with two main design decisions. First, our refactoring detection algorithm relies only on information encoded in the CST, a data structure that represents the source code but abstracts the specificities of each programming language.
+Second, we compute code similarity at the level of the tokenized source code, using techniques from information retrieval.
+In summary, RefDiff is loosely coupled to the syntax of the target programming language, which makes it easier to extend it to other languages.
+
+Our evaluation using a dataset of real refactorings in Java showed that RefDiff's precision is 96.4\% and recall is 80.4\%.
+Although we were not able to surpass RMiner's precision of 98.8\%, we argue that we achieved satisfactory results for a language-neutral approach.
+In one hand, specialized tools can use more advanced techniques to improve refactoring detection.
+For example, RMiner relies on a statement matching algorithm and apply syntax-aware replacement of AST nodes to make it more resilient to code changes overlapping with refactorings.
+On the other hand, the higher the coupling with the syntax of a particular language, the harder it becomes to port the approach to other programming languages.
+
+%This is a tradeoff
+Last, our evaluation in JavasScript and C also showed promising results. RefDiff's precision and recall are respectively 91\% and 88\% for JavaScript, and 88\% and 91\% for C.
+These results show the viability our approach for languages other than Java.
+Thus, we believe that our approach can pave the way for important advances in refactoring studies in JavaScript, C, and other languages in the future.
+Moreover, RefDiff can be employed in practical tasks, such as improving diff visualization, automatically documenting refactorings in commits, keeping track of the history of refactored code elements, and others.

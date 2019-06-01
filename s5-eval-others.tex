@@ -237,6 +237,9 @@ We did not find any instance of \textit{Move and Rename File}, thus we could not
 Table~\ref{TabResultC} also shows the recall results, which is 91\% overall.
 \textit{Extract Function} (70\%) and \textit{Move Function} (80\%) are the ones with lowest recall.
 For the remaining refactoring types, RefDiff has a recall of 90\% (three refactoring types) or a recall of 100\% (four refactoring types).
+It is worth noting that 5 of the 10 false positives we found in our evalution were due to a limitation of our implementation. Currently, the source code analysis plugin for C does not handle preprocessor directives and macros. Consequently, it may yield an incorrect CST due to parsing problems.
+
+
 
 
 %\begin{table}[htbp]
@@ -310,3 +313,15 @@ Total & 80 & \xbar{0.88} & & 90 & \xbar{0.91} \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+
+
+%\subsection{Limitations}
+%\label{sec:eval:js:c:limitations}
+
+
+%Unsupported refactoring types
+
+%Call graph
+
+
