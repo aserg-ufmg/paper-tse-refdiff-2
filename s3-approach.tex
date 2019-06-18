@@ -1,13 +1,13 @@
 \section{Proposed Approach}
 \label{SecApproach}
 
-Our approach consists in two phases: Source Code Analysis and Relationship Analysis.
+Our approach consists of two phases: Source Code Analysis and Relationship Analysis.
 In the first phase, Source Code Analysis, we take as input two revisions of a system, $v_1$ and $v_2$, and build two models that represent their source code.
 Both models have the form of a tree, in which each node corresponds to a code element (classes, functions, etc.).
 In the second phase, Relationship Analysis, we compute a set $R$, which contains triples of the form $(n_1, n_2, t)$, where $n_1$ is a code element from revision $v_1$, $n_2$ is a code element from revision $v_2$ and $t$ is a relationship type.
 Such relationships may denote a high-level refactoring operation (move, rename, extract, etc.) or an exact correspondence between the code elements.
 For example, consider the diff between two revisions of a system depicted in Figure~\ref{FigDiff1}.
-Among other changes, the class \codeinl{Calculator}, declared in revision~1, is renamed to \codeinl{FpCalculator} in revision~2. This would correspond to a relationship of the type \emph{Rename} between them.
+Among other changes, the class \codeinl{Calculator}, declared in revision~1, is renamed to \codeinl{FpCalculator} in revision~2. This corresponds to a relationship of the type \emph{Rename} between them.
 In the next sections, we describe in details each phase of our approach.
 
 \begin{figure*}[htb]

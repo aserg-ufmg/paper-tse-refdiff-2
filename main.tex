@@ -6,6 +6,7 @@
 \usepackage{booktabs}
 \usepackage[usenames]{color}
 \usepackage{blindtext}
+
 \definecolor{darkgray}{RGB}{90,90,90}
 \definecolor{lightgray}{RGB}{210,210,210}
 \newcommand\xbar[1]{#1 {\color{darkgray} \rule{\dimexpr #1pt * 16}{5.5pt}}{\color{lightgray} \rule{\dimexpr 16pt - (#1pt * 16)}{5.5pt}}}
@@ -385,7 +386,7 @@ frame=single}
 % not capitalized unless they are the first or last word of the title.
 % Linebreaks \\ can be used within to get better formatting as desired.
 % Do not put math or special symbols in the title.
-\title{Multi-language Refactoring Detection}
+\title{RefDiff 2.0: A Multi-language Refactoring Detection Tool}
 %
 %
 % author names and IEEE memberships
@@ -413,7 +414,7 @@ frame=single}
         João~Paulo~da~Silva, %~\IEEEmembership{Fellow,~OSA,}
         Gustavo~Jansen, %~\IEEEmembership{Fellow,~OSA,}
         Ricardo~Terra, %~\IEEEmembership{Fellow,~OSA,}
-        and~Marco~Tulio~Valente%,~\IEEEmembership{Life~Fellow,~IEEE}% <-this % stops a space
+        and~Marco~Tulio~Valente,~\IEEEmembership{Member,~IEEE}% <-this % stops a space
 \IEEEcompsocitemizethanks{
 \IEEEcompsocthanksitem D. Silva and M.T. Valente are with the 
 Department of Computer Science, Federal University of Minas Gerais, Av. Antônio Carlos, Belo Horizonte, MG 31270-010, Brazil.\protect\\
@@ -486,20 +487,20 @@ E-mail: terra@dcc.ufla.br}% <-this % stops an unwanted space
 \IEEEtitleabstractindextext{%
 \begin{abstract}
 %Refactoring is a well-known technique that is widely adopted by software engineers to improve the design and enable the evolution of a system.
-Knowing which refactoring operations were applied in a code change is a valuable information to understand software evolution.
+Knowing which refactoring operations were applied in a source code change is a valuable information to understand software evolution.
 %, adapt software components, merge code changes, and other applications.
 Therefore, several tools have been proposed to automatically detect refactorings applied in a system by comparing source code between revisions.
 The availability of such infrastructure has enabled researchers to study refactoring practice in large scale, leading to important advances on refactoring knowledge.
 However, although a plethora of programming languages are used in practice, the vast majority of existing studies are restricted to the Java language due to limitations of the underlying tools.
-This contradiction poses an important threat to external validity.
+This fact poses an important threat to external validity.
 Thus, to overcome such limitation, in this paper we propose RefDiff~2.0, a multi-language refactoring detection tool.
-Our approach leverages techniques proposed in our previous work and introduces a novel refactoring detection algorithm that relies on the Code Structure Tree (CST), a simple yet powerful representation of the source code that abstracts away the specificities of each programming language.
+Our approach leverages techniques proposed in our previous work and introduces a novel refactoring detection algorithm that relies on the Code Structure Tree (CST), a simple yet powerful representation of the source code that abstracts away the specificities of particular programming languages.
 %support other programming languages by implementing a CST generator module
 Despite its language-agnostic design, our evaluation shows that RefDiff's precision (96\%) and recall (80\%) are on par with state-of-the-art refactoring detection approaches specialized in the Java language.
-More important, our modular architecture enables one to seamless extend RefDiff to support other languages via a plugin system.
+Our modular architecture also enables one to seamless extend RefDiff to support other languages via a plugin system.
 As a proof of this, we implemented plugins to support two other popular programming languages: JavaScript and C.
-Our evaluation in these languages revealed that precision and recall ranges from 88\% to 91\%.
-With these results, we envision RefDiff as a viable alternative for breaking the barrier of language limitation in refactoring research and in practical applications of refactoring detection.
+Our evaluation in these languages reveals that precision and recall ranges from 88\% to 91\%.
+With these results, we envision RefDiff as a viable alternative for breaking the single-language barrier in refactoring research and in practical applications of refactoring detection.
 
 %RefDiff employs a combination of heuristics based on static analysis and code similarity to detect 13 well-known refactoring types.
 

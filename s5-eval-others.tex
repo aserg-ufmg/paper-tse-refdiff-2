@@ -84,7 +84,7 @@ The resulting list of repositories was manually inspected to discard the ones th
 \item Given the list of refactorings detected by RefDiff, we randomly selected 10 instances of each refactoring type to manually assess whether they correspond to actual refactorings (true positives), or incorrect reports (false positives).
 When applying the random selection, we enforced the constraint that we should not select two refactoring instances performed in the same commit.
 In this way, we avoid selecting similar refactorings which were performed in batch, e.g., multiple classes or functions moved together.
-To confirm each refactoring instance, one of the authors manually inspected the diff of the code changes in the corresponding commit.
+To confirm each refactoring operation, one of the authors manually inspected the diff of the code changes in the corresponding commit.
 \end{enumerate}
 
 After following the three steps, we compute precision as $P = \mathit{TP} / (\mathit{TP} + \mathit{FP})$, where $\mathit{TP}$ is the number of true positives and $\mathit{FP}$ is the number of false positives.
@@ -100,16 +100,16 @@ To compute RefDiff's recall when detecting refactorings in JavaScript and C, we 
 \begin{enumerate}  
 \item We used GitHub API to find refactorings documented in commits from the repositories selected for evaluating precision (Section~\ref{sec:eval:js:c:precision}). Such queries consist in searching for keywords denoting a particular type of refactoring in the commit message, as described in Table~\ref{TabSearchQueries}. For example, when looking for \emph{Rename Function} refactoring instances, we built a query that looks for commits which contain the keywords \textit{rename} and \textit{function} in their messages, among other combinations.
 
-\item Given the list of results of a query, we manually inspected each item to assess whether it really contains a refactoring. We started by analyzing the commit message. 
+\item Given the list of results of a query, one of the authors manually inspected each item to assess whether it really contains a refactoring. He started by analyzing the commit message. 
 In many cases, the keywords are found in the text, but they are not referring to a refactoring operation.
 For example, one of the messages was: \textit{``The routeToRegExp() function, introduced by 840b5f0, could not extract path params if the path contained question mark or hash.''}
 This message contains the keywords \textit{extract} and \textit{function}, but clearly does not describe an \emph{Extract Function} refactoring.
-In these situations, we discarded the commit with no further analysis.
-When the commit message described a refactoring, we checked the code diff to confirm it.
+In these situations, he discarded the commit with no further analysis.
+When the commit message described a refactoring, he checked the code diff to confirm it.
 Each confirmed refactoring was recorded in a normalized textual format compatible with the output of RefDiff.
 Inspecting the code diff is also necessary to locate the code elements involved in the operation.
-For example, the message \textit{``Extract commit phase passes into separate functions''} documents a \emph{Extract Function} refactoring, but don't specify the name of the extracted functions.
-We repeated this procedure until we found 10 instances of each refactoring type or when there were no more results to inspect. We found less than 10 instances when looking for \emph{Move and Rename File}, \emph{Move and Rename Function}, and \emph{Inline Function} for JavaScript. Additionally, although modern JavaScript contains classes, we did not find documented refactorings instances of \emph{Move and/or Rename Class}.
+For example, the message \textit{``Extract commit phase passes into separate functions''} documents a \emph{Extract Function} refactoring, but does not specify the name of the extracted functions.
+He repeated this procedure until he found 10 instances of each refactoring type or when there were no more results to inspect. We found less than 10 instances when looking for \emph{Move and Rename File}, \emph{Move and Rename Function}, and \emph{Inline Function} for JavaScript. Additionally, although modern JavaScript contains classes, we did not find documented refactorings instances of \emph{Move and/or Rename Class}.
 
 
 
@@ -153,7 +153,7 @@ Inline Function & inline, inline into, remove indirection, indirect functions, r
 \label{sec:eval:js:c:results}
 
 Table~\ref{TabResultJs} shows the precision and recall results for JavaScript. The overall precision is 91\%. There are three refactorings with precision of 80\%: \textit{Rename Function}, \textit{Move and Rename Function}, and \textit{Inline Function}. For the remaining refactoring types, RefDiff has a precision of 90\% (two refactoring types) or a precision of 100\% (five refactoring types). Table~\ref{TabResultJs} also shows the recall results, which reach 88\% when all refactoring types are considered together.
-\textit{Inline function} has the lowest recall (40\%); however, our oracle has only five instances of this operation. There are three refactoring types with precision of 100\%: \textit{Move File}, \textit{Move Function}, \textit{Move and Rename File}. For the other ones, recall ranges between 80\% and 90\%.
+\textit{Inline function} has the lowest recall (40\%); however, our oracle has only five instances of this operation. There are three refactoring types with recall of 100\%: \textit{Move File}, \textit{Move Function}, \textit{Move and Rename File}. For the other ones, recall ranges between 80\% and 90\%.
 
 
 
@@ -237,7 +237,7 @@ We did not find any instance of \textit{Move and Rename File}, thus we could not
 Table~\ref{TabResultC} also shows the recall results, which is 91\% overall.
 \textit{Extract Function} (70\%) and \textit{Move Function} (80\%) are the ones with lowest recall.
 For the remaining refactoring types, RefDiff has a recall of 90\% (three refactoring types) or a recall of 100\% (four refactoring types).
-It is worth noting that 5 of the 10 false positives we found in our evalution were due to a limitation of our implementation. Currently, the source code analysis plugin for C does not handle preprocessor directives and macros. Consequently, it may yield an incorrect CST due to parsing problems.
+%It is worth noting that 5 out of 10 false positives we found in our evalution were due to a limitation of our implementation. Currently, the source code analysis plugin for C does not handle preprocessor directives and macros. Consequently, it may yield an incorrect CST due to parsing problems.
 
 
 
