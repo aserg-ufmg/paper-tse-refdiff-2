@@ -7,6 +7,7 @@
 \usepackage[usenames]{color}
 \usepackage{blindtext}
 
+
 \definecolor{darkgray}{RGB}{90,90,90}
 \definecolor{lightgray}{RGB}{210,210,210}
 \newcommand\xbar[1]{#1 {\color{darkgray} \rule{\dimexpr #1pt * 16}{5.5pt}}{\color{lightgray} \rule{\dimexpr 16pt - (#1pt * 16)}{5.5pt}}}
@@ -412,7 +413,7 @@ frame=single}
 
 \author{Danilo~Silva, %~\IEEEmembership{Member,~IEEE,}
         João~Paulo~da~Silva, %~\IEEEmembership{Fellow,~OSA,}
-        Gustavo~Jansen, %~\IEEEmembership{Fellow,~OSA,}
+        Gustavo~Santos, %~\IEEEmembership{Fellow,~OSA,}
         Ricardo~Terra, %~\IEEEmembership{Fellow,~OSA,}
         and~Marco~Tulio~Valente,~\IEEEmembership{Member,~IEEE}% <-this % stops a space
 \IEEEcompsocitemizethanks{
@@ -693,7 +694,7 @@ With these results, we envision RefDiff as a viable alternative for breaking the
 \fi
 
 
-The authors would like to thank...
+Our research is supported by grants from FAPEMIG and CNPq.
 
 
 % Can use something like this to put references on a page
@@ -739,22 +740,40 @@ The authors would like to thank...
 %\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{mshell}}]{Michael Shell}
 % or if you just want to reserve a space for a photo:
 
-\begin{IEEEbiography}{Michael Shell}
-Biography text here.
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{img/danilofs.jpg}}]{Danilo Silva}
+is a Ph.D. candidate in the Computer Science Department at the Federal University of Minas Gerais (UFMG), where he also received a M.Sc. in Computer Science. His research interests include software architecture and modularity, software maintenance and evolution, and code refactoring. Contact him at \url{danilofs@dcc.ufmg.br}.
 \end{IEEEbiography}
 
-% if you will not have a photo at all:
-\begin{IEEEbiographynophoto}{John Doe}
-Biography text here.
-\end{IEEEbiographynophoto}
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{img/joaopaulo.jpg}}]{João Paulo Ribeiro da Silva}
+is a bachelor in Computer Science, majored at the Federal University of Campina Grande (UFCG). He is a developer and team lead at Quimbik, Inc., working on front and back-end software for web systems. His main interest areas are software architecture and modularity, software maintenance and evolution, and technology for web development. Contact him at \url{joao@jpribeiro.com.br}.
+\end{IEEEbiography}
+
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{img/gustavo.jpg}}]{Gustavo Santos}
+is an assistant professor in Software Engineering at the Federal University of Technology (UTFPR) in Dois Vizinhos, Brazil.
+He received his Ph.D. in Informatique from Université de Lille (France) in 2017 and stayed two years at University of São Paulo (USP) for post-doctoral research. 
+His research interests include software maintenance and software quality. Contact him at \url{gustavosantos@utfpr.edu.br} or visit \url{gustavojss.github.io}.
+\end{IEEEbiography}
+
+%\enlargethispage{-6in}
+
+%\newpage
+
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{img/terra.jpg}}]{Ricardo Terra}
+received his Ph.D. degree in Computer Science from Federal University of Minas Gerais, Brazil (2013) with a 1-year internship at the University of Waterloo, Canada. 
+Since 2014, he is an assistant professor in the Department of Computer Science at Federal University of Lavras, Brazil. 
+His research interests include software architecture maintainability and evolvability. Contact him at \url{terra@ufla.br}, 
+or visit \url{www.dcc.ufla.br/~terra}.
+\end{IEEEbiography}
+
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{img/mtov.jpg}}]{Marco Tulio Valente}
+is an associate professor in the Computer Science Department at the Federal University of Minas Gerais (UFMG), where he also heads the Applied Software Engineering Research Group (ASERG). His research interests include software architecture and modularity, software maintenance and evolution, and software quality analysis. Valente received a Ph.D. in Computer Science from the Federal University of Minas Gerais. He is a Researcher I-D of the Brazilian National Research Council (CNPq) and holds a Researcher from Minas Gerais State scholarship, from FAPEMIG. Contact him at \url{mtov@dcc.ufmg.br} or visit \url{www.dcc.ufmg.br/~mtov}.
+\end{IEEEbiography}
+
 
 % insert where needed to balance the two columns on the last page with
 % biographies
 %\newpage
 
-\begin{IEEEbiographynophoto}{Jane Doe}
-Biography text here.
-\end{IEEEbiographynophoto}
 
 % You can push biographies down or up by placing
 % a \vfill before or after them. The appropriate

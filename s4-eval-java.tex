@@ -1,6 +1,13 @@
 \section{Evaluation with Java Projects}
 \label{sec:eval:java}
 
+\begin{figure*}[htb]
+\centering
+\includegraphics[width=0.8\textwidth]{img/diff3.pdf}
+\caption{Illustrative diff of an \emph{Extract and Move Method} refactoring considered as true positive by the validators.}
+\label{FigDiff3}
+\end{figure*}
+
 In this section, we evaluate the precision and recall of our approach using a recently proposed dataset of refactorings performed in real-world Java open source projects. We also compare RefDiff's accuracy with RMiner---the current state-of-the-art tool for detecting refactorings in Java---and RefDiff~1.0, the previous version of our tool.
 First, we present our evaluation design (Section~\ref{sec:eval:java:design}) and then we present the results (Section~\ref{sec:eval:java:results}).
 
@@ -29,30 +36,6 @@ Specifically, it was constructed using a triangulation approach, based on an ini
 %\label{FigDiff2}
 %\end{figure*}
 
-After following this procedure, RefDiff 2.0 detected 264 new refactoring instances (i.e., not listed in the initial oracle), which were validated by two paper's authors, called here validators. In the case of 174 refactorings (66\%), the validators agreed on their classification, including 138 refactorings labelled as true positives by both validators and 36 labelled as false positives. After this initial and independent validation, the validators discussed together the remaining 90 cases (34\%), to reach an agreement. As a result, 80 refactorings were considered true positives and 10 refactorings were classified as false positives.
-%Figure~\ref{FigDiff2} shows a first example of true positive. RefDiff identified an \emph{Inline Method} refactoring, consisting on the substitution of the method named \codeinl{acquireNodeRelationshipCursor}, which was removed in the same commit, by invocations to methods \codeinl{get()} and \codeinl{init()}. We emphasize in this figure the changes that correspond to this refactoring. This indication of refactoring was not listed in the oracle. The validators individually analyzed this commit and both agreed that an \emph{Inline Method} was applied in this commit.
-Figure~\ref{FigDiff3} shows an example of a true positive, in which RefDiff identifies a \emph{Extract and Move Method} refactoring. Developers removed the invocation to the method \codeinl{readValue(String, Class)}, which was extracted and moved to the class \codeinl{Controls}. An invocation to this new method \codeinl{validateControlsString(String)} was replaced in the same line.
-%Similarly to the example in Figure~\ref{FigDiff2},
-Both validators agreed that \emph{Extract and Move Method} were applied in this commit.
-
-\begin{figure*}[htb]
-\centering
-\includegraphics[width=0.8\textwidth]{img/diff3.pdf}
-\caption{Illustrative diff of an \emph{Extract and Move Method} refactoring considered as true positive by the validators.}
-\label{FigDiff3}
-\end{figure*}
-
-%After the manual validation of the refactoring instances it was possible to identify some common causes of failure.
-%In particular, one common reason for \emph{Move Method} false positives was missed \emph{Move/Rename Class}, i.e., RefDiff did not detect that the entire class has been moved (or renamed), and incorrectly reported that several of its members were moved.
-%We mitigated this issue by introducing a specific heuristic for this case (see Section~\ref{AlgoGeneral}).
-%Moreover, the analysis of the incorrect reports allowed us to identify and fix a couple of bugs in our implementation.
-%After applying the aforementioned fixes to RefDiff, it was necessary to run it again and compare the results against the update oracle. This time, 51 new refactoring instances were found, which were  validated by one of the authors. 24 of them (47\%) were classified as true positive, whilst 27 of them (53\%) were classified as false positive.
-
-In total, after completing the manual validation, 218 new refactorings instances were classified as true positives and therefore included in the oracle.
-The expanded oracle includes 3,249 refactoring instances (7.19\% more than the initial one) and it is publicly available at RefDiff's GitHub repository.\footnote{\url{https://github.com/aserg-ufmg/RefDiff}}
-
-\subsection{Results}
-\label{sec:eval:java:results}
 
 \begin{table*}[htbp]
 \renewcommand{\arraystretch}{1.2}
@@ -80,6 +63,29 @@ Total & 3249 & & \xbar{0.793} & \xbar{0.802} & & \xbar{0.964} & \xbar{0.804} & &
 \bottomrule
 \end{tabular}
 \end{table*}
+
+
+After following this procedure, RefDiff 2.0 detected 264 new refactoring instances (i.e., not listed in the initial oracle), which were validated by two paper's authors, called here validators. In the case of 174 refactorings (66\%), the validators agreed on their classification, including 138 refactorings labelled as true positives by both validators and 36 labelled as false positives. After this initial and independent validation, the validators discussed together the remaining 90 cases (34\%), to reach an agreement. As a result, 80 refactorings were considered true positives and 10 refactorings were classified as false positives.
+%Figure~\ref{FigDiff2} shows a first example of true positive. RefDiff identified an \emph{Inline Method} refactoring, consisting on the substitution of the method named \codeinl{acquireNodeRelationshipCursor}, which was removed in the same commit, by invocations to methods \codeinl{get()} and \codeinl{init()}. We emphasize in this figure the changes that correspond to this refactoring. This indication of refactoring was not listed in the oracle. The validators individually analyzed this commit and both agreed that an \emph{Inline Method} was applied in this commit.
+Figure~\ref{FigDiff3} shows an example of a true positive, in which RefDiff identifies a \emph{Extract and Move Method} refactoring. Developers removed the invocation to the method \codeinl{readValue(String, Class)}, which was extracted and moved to the class \codeinl{Controls}. An invocation to this new method \codeinl{validateControlsString(String)} was replaced in the same line.
+%Similarly to the example in Figure~\ref{FigDiff2},
+Both validators agreed that \emph{Extract and Move Method} were applied in this commit.
+
+
+
+%After the manual validation of the refactoring instances it was possible to identify some common causes of failure.
+%In particular, one common reason for \emph{Move Method} false positives was missed \emph{Move/Rename Class}, i.e., RefDiff did not detect that the entire class has been moved (or renamed), and incorrectly reported that several of its members were moved.
+%We mitigated this issue by introducing a specific heuristic for this case (see Section~\ref{AlgoGeneral}).
+%Moreover, the analysis of the incorrect reports allowed us to identify and fix a couple of bugs in our implementation.
+%After applying the aforementioned fixes to RefDiff, it was necessary to run it again and compare the results against the update oracle. This time, 51 new refactoring instances were found, which were  validated by one of the authors. 24 of them (47\%) were classified as true positive, whilst 27 of them (53\%) were classified as false positive.
+
+In total, after completing the manual validation, 218 new refactorings instances were classified as true positives and therefore included in the oracle.
+The expanded oracle includes 3,249 refactoring instances (7.19\% more than the initial one) and it is publicly available at RefDiff's GitHub repository.\footnote{\url{https://github.com/aserg-ufmg/RefDiff}}
+
+\subsection{Results}
+\label{sec:eval:java:results}
+
+
 
 Table~\ref{TabResultJava} shows the precision and recall results for RefDiff~2.0 and RMiner using the oracle described in the previous section. The overall precision and recall of RefDiff~2.0 is 96.4\% and 80.4\%, respectively.
 Precision ranges from 87.1\% (\emph{Move Method}) to 100.0\% (\emph{Extract Superclass}), and it is above 90\% for 8 out of 10 refactoring types.
