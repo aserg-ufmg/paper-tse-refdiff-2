@@ -236,7 +236,7 @@ The rationale for postponing the resolution of the relationship type is discusse
 
 \item In \textsc{findNonMatchingRel}, we look for non-matching relationships.
 First, we iterate over the pairs of matched/unmatched nodes, i.e., $M_1 \times N^+$, to look for \textit{Extract Supertype}, \textit{Extract} and \textit{Extract and Move} relationships.
-Similarly, we also iterate over the pairs of unmatched/matched nodes ($N^- \times M_2$) to look for \textit{Inline} relationships.
+Similarly, we also iterate over the pairs of unmatched/matched nodes ($N^- \times M_2$) to search for \textit{Inline} relationships.
 The functions $findExtractSupertype$, $findExtract$, $findExtractMove$, and $findInline$ check the  preconditions for the corresponding relationship types, according to Table~\ref{TabRelationshipTypes}.
 After this last step, $R$ contains all matching and non-matching relationships between CST nodes of both revisions.
 \end{enumerate}
@@ -316,7 +316,7 @@ Inline & & $\rduses(n_1, n_2') \land \rdsimx(n_1, n_2) > 0.5$ \\
 
 
 
-Figure~\ref{FigRelationships1} shows the relationships we find after running RefDiff in the example system from Figure~\ref{FigDiff1}.
+Figure~\ref{FigRelationships1} shows the relationships we find after running RefDiff in the example from Figure~\ref{FigDiff1}.
 Each relationship is represented by an edge connecting nodes from the left and right CSTs.
 There are three relationships of the type \textit{Same}, involving the code elements whose identifiers do not change: the class \codeinl{Main} and the methods \codeinl{main} and \codeinl{sum}.
 Two of the relationships are of type \textit{Rename}, indicating that the class \codeinl{Calculator} is renamed to \codeinl{FpCalculator}, and the method \codeinl{min} is renamed to \codeinl{minimum}.
@@ -344,6 +344,18 @@ In fact, if we call $\mathit{findMatchRel}(n_5, n_{11})$ before $M$ contains $(n
 To address this issue, we only resolve the actual relationship types in steps~4 and~5, after all matching pairs are found (note that in steps~1, 2, and 3 we record the matching pairs in $M$, purposely ignoring the type of relationship).
 %Moreover, non-matching relationships, which also depends on the matchings found, are analyzed in the last step. 
 
+
+\begin{figure*}[htb]
+\renewcommand{\arraystretch}{1.3}
+\centering
+\footnotesize
+\input{img/sourceCodeTransformation2.tex}
+\caption{Transformation of the body of methods into a multiset of tokens}
+\label{FigSourceCodeTransformation}
+\end{figure*}
+
+
+
 Another issue which we may face when looking for relationships are conflicts, i.e., two or more matching relationships hold for the same code element (according to conditions from Table~\ref{TabRelationshipTypes}).
 For instance, in the example from Figure~\ref{FigRelationships1}, the conditions for \textit{Rename} yield true for the pair of methods \codeinl{min} and \codeinl{minimum} because their source code are similar and their parents match.
 However, this is also the case for the pair of methods \codeinl{min} and \codeinl{maximum}, whose bodies are also similar.
@@ -361,14 +373,7 @@ After a matching pair $(n_1, n_2)$ is added to $M$, no more matchings involving 
 \subsection{Code Similarity}
 \label{SecCodeSim}
 
-\begin{figure*}[htb]
-\renewcommand{\arraystretch}{1.3}
-\centering
-\footnotesize
-\input{img/sourceCodeTransformation2.tex}
-\caption{Transformation of the body of methods into a multiset of tokens}
-\label{FigSourceCodeTransformation}
-\end{figure*}
+
 
 A key element of our approach to find relationships, as previously mentioned, is computing the similarity between code elements (i.e., CST nodes).
 The first step to compute this similarity is to represent their source code as a multiset (or bag) of tokens.
@@ -449,7 +454,7 @@ The subtract operation between both multisets, which we denote by $m_1' \setminu
 m_1^-(t) = \max(0, m_1'(t) - m_1(t))
 \end{align}
 
-Besides computing the code removed from $e_1$, we need to measure if its contained within $e_2$. Thus, we employ a variation of the weighted Jaccard coefficient introduced previously (see Equation~\ref{WJaccard}), which is defined as:
+Besides computing the code removed from $e_1$, we need to measure if it is contained within $e_2$. Thus, we employ a variation of the weighted Jaccard coefficient introduced previously (see Equation~\ref{WJaccard}), which is defined as:
 \begin{align}
 \rdsimc(m_1, m_2) = \frac{\sum_{t \in U} \min(m_1(t), m_2(t)) \times \mathit{idf}(t)}
                         {\sum_{t \in U} m_1(t) \times \mathit{idf}(t)}
@@ -495,10 +500,10 @@ where $m_1$ is the multiset representing the source code of the body of $e_1$ an
 %\noindent\textbf{Ignoring parameters and \codeinl{return} keywords}\\
 When retrieving the tokenized source code of the body of a code element, some tokens are ignored to avoid that syntactical constructs necessary to its declaration
 introduce noise when computing the \textit{Extract} or \textit{Inline} similarity index.
-For example, let's take the refactoring operation \#1 depicted in Figure~\ref{FigDiff1}: \codeinl{print} is extracted from \codeinl{main}.
+For example, suppose we take the refactoring operation \#1 depicted in Figure~\ref{FigDiff1}: \codeinl{print} is extracted from \codeinl{main}.
 The body of the new method \codeinl{print} contains a single statement:
 \begin{lstlisting}
 System.out.printf("%.2f", res);
 \end{lstlisting}
 All the tokens within this method are present in \codeinl{main} before the extraction, except the identifier \codeinl{res}, which is a declared parameter of \codeinl{print}. In fact, in the original statement, a variable \codeinl{r} is used in place of \codeinl{res}. To be less susceptible to such differences, we omit all occurences of parameters in the tokenized source code of the body. Similarly, occurences of \codeinl{return} keywords are also ignored because they may be introduced when turning the extracted code into a method.
-It is worth noting that the filtering such tokens is of responsability of the source analysis module. Thus, specific rules may be implemented according to the peculiarities of the programming language.
+It is worth noting that discarding such tokens is of responsability of the source analysis module. Thus, specific rules may be implemented according to the peculiarities of the programming language.

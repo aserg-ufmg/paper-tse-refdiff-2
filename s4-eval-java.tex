@@ -8,7 +8,7 @@
 \label{FigDiff3}
 \end{figure*}
 
-In this section, we evaluate the precision and recall of our approach using a recently proposed dataset of refactorings performed in real-world Java open source projects. We also compare RefDiff's accuracy with RMiner---the current state-of-the-art tool for detecting refactorings in Java---and RefDiff~1.0, the previous version of our tool.
+In this section, we evaluate the precision and recall of our approach using a recently proposed dataset of refactorings performed in real-world Java open-source projects. We also compare RefDiff's accuracy with RMiner---the current state-of-the-art tool for detecting refactorings in Java---and RefDiff~1.0, the previous version of our tool.
 First, we present our evaluation design (Section~\ref{sec:eval:java:design}) and then we present the results (Section~\ref{sec:eval:java:results}).
 
 \subsection{Evaluation Design}
@@ -70,9 +70,6 @@ After following this procedure, RefDiff 2.0 detected 264 new refactoring instanc
 Figure~\ref{FigDiff3} shows an example of a true positive, in which RefDiff identifies a \emph{Extract and Move Method} refactoring. Developers removed the invocation to the method \codeinl{readValue(String, Class)}, which was extracted and moved to the class \codeinl{Controls}. An invocation to this new method \codeinl{validateControlsString(String)} was replaced in the same line.
 %Similarly to the example in Figure~\ref{FigDiff2},
 Both validators agreed that \emph{Extract and Move Method} were applied in this commit.
-
-
-
 %After the manual validation of the refactoring instances it was possible to identify some common causes of failure.
 %In particular, one common reason for \emph{Move Method} false positives was missed \emph{Move/Rename Class}, i.e., RefDiff did not detect that the entire class has been moved (or renamed), and incorrectly reported that several of its members were moved.
 %We mitigated this issue by introducing a specific heuristic for this case (see Section~\ref{AlgoGeneral}).
@@ -95,3 +92,22 @@ When we analyze individual refactoring types, RefDiff's precision is lower in al
 Thus, we conclude that both tools have very similar recall, but RMiner's precision is slightly higher.
 Nevertheless, we argue that RefDiff's precision of 96.4\% is satisfactory, specially when we consider that our approach is programming language neutral.
 For comparison purposes, we also show in Table~\ref{TabResultJava} the results that would be obtained with RefDiff~1.0 in this oracle. Note that overall precision is significantly improved (from 79.3\% to 96.4\%). Moreover, RefDiff~2.0 does not have anymore low precisions in specific cases, such as \emph{Move Method}.
+
+
+
+\subsection{Threats to Validity}
+\label{SecThreatsJava}
+
+There are at least two threats to the validity of the evaluation with Java projects.
+The first one is the subjectivity inherent to the manual classification of the reported refactorings as true/false positives, which directly impact the computed precision.
+Different validators may have a different interpretation of the code change under analysis, which is demonstrated by the fact that in 34\% of the cases the validators initially disagreed.
+We mitigated this threat by having each refactoring assessed by two validators independently.
+Second, as discussed in Section~\ref{sec:eval:java:design}, our oracle can not be granted as complete, i.e., there might exist refactorings in the analyzed revisions that are not detected by neither RMiner nor RefDiff.
+Thus, the actual recall might be lower than the computed recall.
+Unfortunately, it is not feasible to assure the completeness of an oracle at this scale with manual inspection.
+A single commit usually contains hundreds of changed lines of code, making such task extremely time consuming and error prone.
+Neverthless, the computed recall serves the purpose of comparison between tools, and it should also be a fair approximation of actual recall, as our oracle is based on refactorings found by three tools: RMiner, RefDiff~1.0, and RefDiff~2.0.
+
+%We cannot claim that the precision and recall of our approach would be the same for different projects, with distinct characteristics, and with actual refactorings applied by developers. However, such setup was necessary to compute recall, as discussed in Section~\ref{SecOracleConstruction}. Besides, the results we achieved in the calibration process (precision of 85.7\% and recall of 94.1\%), in which we used actual commits from relevant Java repositories, suggest that RefDiff's precision and recall are acceptable in real scenarios. Nevertheless, we plan to extend this study by assessing the precision of RefDiff in a large corpus of commits from open-source repositories.
+%Neverthless, our evaluation includes relevant Java systems of different domains, with up to 374,000 lines of code.
+%, and we have no reasons to  believe that precision and recall will be drastically inferior for other systems.

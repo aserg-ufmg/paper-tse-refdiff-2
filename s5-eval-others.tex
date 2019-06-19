@@ -34,7 +34,7 @@ Chart.js & Simple HTML5 Charts using the canvas tag. & 2,739 \\
 linux & Linux kernel source tree. & 839,761 \\
 netdata & Real-time performance monitoring, done right! & 8,338 \\
 redis & Redis is an in-memory database that persists on disk. & 8,158 \\
-git & Git is a free and open source distributed version control system. & 55,723 \\
+git & Git is a free and open-source distributed version control system. & 55,723 \\
 ijkplayer & Android/iOS video player based on FFmpeg n3.4, with MediaCodec, VideoToolbox support. & 2,584 \\
 php-src & The PHP Interpreter. & 112,847 \\
 wrk & Modern HTTP benchmarking tool. & 76 \\
@@ -45,7 +45,7 @@ jq & Command-line JSON processor. & 1,287 \\
 FFmpeg & A complete, cross-platform solution to record, convert and stream audio and video. & 93,898 \\
 tmux & A terminal multiplexer: it enables a number of terminals to controlled from a single screen.  & 7,618 \\
 nuklear & A single-header ANSI C gui library. & 1,646 \\
-obs-studio & Free and open source software for live streaming and screen recording. & 6,727 \\
+obs-studio & Free and open-source software for live streaming and screen recording. & 6,727 \\
 libuv & Cross-platform asynchronous I/O. & 4,319 \\
 swoole-src & Coroutine-based concurrency library for PHP (like Golang). & 9,938 \\
 curl & A command line tool and library for transferring data with URL syntax. & 24,339 \\
@@ -316,12 +316,16 @@ Total & 80 & \xbar{0.88} & & 90 & \xbar{0.91} \\
 
 
 
-%\subsection{Limitations}
-%\label{sec:eval:js:c:limitations}
+\subsection{Threats to Validity}
+\label{SecThreatsJsC}
 
-
-%Unsupported refactoring types
-
-%Call graph
-
-
+One threat to validity of the evaluation with JavaScript and C projects is its smaller scale.
+For example, we computed precision for JavaScript using 87 refactorings, and  recall using 65 refactorings, while the evaluation in Java used an oracle with 3,249 refactorings.
+Unlike in the case of Java, we did not find in the literature a dataset suitable to build an oracle for JavaScript and C.
+Besides, we did not find competing tools that could be used to build an oracle by triangulation.
+%Thus, due to time constraints, we reduced the scale of the evaluation.
+%However, we should note that the refactoring detection algorithm is the same  are the same 
+In fact, the evaluation with JavaScript and C is a complement to the evaluation with Java aiming to show that RefDiff 2.0 provides similar results when used to detect refactorings in other programming languages.
+%However, we argue that the evaluation with JavaScript and C is a complement the evaluation with Java that assess whether its results extends to other programming languages. 
+%We have no reasons to believe that precision and recall for different programming languages would be dramatically different, because the core algorithm and heuristics are the same.
+Last, we should also note that, similarly to the evaluation with Java projects, the subjectivity inherent to the manual classification of the reported refactorings is also a threat to validity.

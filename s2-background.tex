@@ -59,7 +59,7 @@ Shingles are representations for strings with the following property: if a strin
 In a second phase, Refactoring Crawler applies specific strategies for detecting each refactoring type, and computes a more costly metric that determines the similarity of references between code entities in two versions of the system. For example, two methods are similar if the sets of methods that call them are similar, and the sets of methods they call are also similar.
 The strategies to detect refactorings are repeated in a loop until no new refactorings are found. Therefore, the detection of a refactoring, such as a rename, may change the reference graph and enable the detection of new refactorings.
 
-The authors evaluated Refactoring Crawler comparing pairs of releases of three open source software components: Eclipse UI, Struts, and JHotDraw. Such components were chosen because they provided detailed release notes describing API changes. The authors relied on such information and on manual inspection to build an oracle
+The authors evaluated Refactoring Crawler comparing pairs of releases of three open-source software components: Eclipse UI, Struts, and JHotDraw. Such components were chosen because they provided detailed release notes describing API changes. The authors relied on such information and on manual inspection to build an oracle
 %of known refactorings in those releases
 containing 131 refactorings.
 The reported results are: Eclipse UI (90\% precision and 86\% recall), Struts (100\% precision and 86\% recall), and JHotDraw (100\% precision and 100\% recall).
