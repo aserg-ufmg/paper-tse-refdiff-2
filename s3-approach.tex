@@ -378,8 +378,11 @@ After a matching pair $(n_1, n_2)$ is added to $M$, no more matchings involving 
 A key element of our approach to find relationships, as previously mentioned, is computing the similarity between code elements (i.e., CST nodes).
 The first step to compute this similarity is to represent their source code as a multiset (or bag) of tokens.
 A multiset is a generalization of the concept of a set, but it allows multiple instances of the same element.
-The multiplicity of an element is the number of occurrences of that element within the multiset. Formally, a multiset can be defined in terms of a multiplicity function $m: U \to \mathbb{N}$, where $U$ is the set of all possible elements. In other words, $m(t)$ is the multiplicity of the element $t$ in the multiset. Note that the multiplicity of an element that is not in the multiset is zero.
+The multiplicity of an element is the number of occurrences of that element within the multiset.
+This representation provides two advantages for our approach.
+First, it makes the CST simpler and less coupled to the syntax of programming languages, because we do not need to represent each statement (or AST node) from the source code. Second, we can apply operations to the bag of tokens, such as subtraction, which is important to detect \emph{Extract} relationships, as we will discuss in Section~\ref{SecSimX}.
 
+Formally, a multiset can be defined in terms of a multiplicity function $m: U \to \mathbb{N}$, where $U$ is the set of all possible elements. In other words, $m(t)$ is the multiplicity of the element $t$ in the multiset. Note that the multiplicity of an element that is not in the multiset is zero.
 For example, Figure~\ref{FigSourceCodeTransformation} depicts the transformation of the source code of three methods (\codeinl{sum}, \codeinl{min}, and \codeinl{power}), of the class \codeinl{Calculator}, into multisets of tokens. In this figure, the multiplicity function $m$ for each method is represented in a tabular form. For example, the multiplicity of the token \codeinl{y} in method \codeinl{min} is two (i.e., $m_{\mathtt{min}}(\mathtt{y}) = 2$), whilst the multiplicity of the token \codeinl{if} in method \codeinl{power} is zero (i.e., $m_{\mathtt{power}}(\mathtt{if}) = 0$).
 
 After extracting a multiset of tokens, we also compute a weight for each token
