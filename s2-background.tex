@@ -1,16 +1,21 @@
 \section{Background}
 \label{SecBackground}
 
-Empirical studies on refactoring rely on means to identify refactoring activity. Thus,  different techniques have been proposed and employed for this task.
+Empirical studies on refactoring rely on means to identify refactoring activity. Thus, different techniques have been proposed and employed for this task.
 For example, Murphy-Hill~et~al.~\cite{MurphyHill2012} collected refactoring usage data using a plug-in that monitors user actions in the Eclipse IDE, including calls to refactoring commands.
-Negara~et~al.~\cite{negara2013} also used the strategy of instrumenting the IDE to infer refactorings from fine-grained code edits.
+%Negara~et~al.~\cite{negara2013} also used the strategy of instrumenting the IDE to infer refactorings from fine-grained code edits.
+Negara~et~al.~\cite{negara2013} describe a tool, called CodingTracker, to infer refactorings from fine-grained code edits. They use this tool to study refactorings performed by 23 developers working in their IDEs during a total of 1,520 hours. The tool achieved a precision of 99.3\% when evaluated with the automated Eclipse refactorings performed by the study participants.
+On a sample of both manual and automated refactorings, CodingTracker achieved a precision of 93\% and a recall of 100\%.
+However, CodingTracker requires the installation of a refactoring inference plugin in IDEs.
+
 Other studies use metadata from version control systems to identify refactoring changes. For example, Ratzinger~et~al.~\cite{ratzinger2008relation} search for a predefined set of terms in commit messages to classify them as refactoring changes. In specific scenarios, a branch may be created exclusively to refactor the code, as reported by Kim et al.~\cite{kim-tse-2014}.
 Another strategy is employed by Soares et al.~\cite{soares2010making}. They propose an approach that identifies behavior-preserving changes by automatically generating and running test-cases. While their approach is intended to guarantee the correct behavior of a system after refactoring, it may also be employed to classify commits as behavior-preserving.
 Moreover, many existing approaches are based on static analysis.
 This is the case of the approach proposed by Demeyer et al.~\cite{demeyer2000finding}, which finds refactored elements by observing changes in code metrics.
 
-Static analysis is also frequently used to find differences in the source code~\cite{dig2006automated, weissgerber2006identifying, tsantalis_empiricalstudy,prete2010template,Kim:2010:RefFinder,msr2017,tsantalis2018rminer}.
-Approaches based on comparing source code differences have the advantage of beeing able to identify each refactoring operation. As RefDiff is one of these approaches, it can be directly compared with others within this category. In the next sections, we discuss RefDiff~1.0 and three other approaches.
+Static analysis is also frequently used to find differences in the source code by comparing two revisions~\cite{dig2006automated, weissgerber2006identifying, tsantalis_empiricalstudy,prete2010template,Kim:2010:RefFinder,msr2017,tsantalis2018rminer}.
+Approaches based on comparing source code differences have the advantage of beeing able to identify refactoring operations applied in version histories.
+As RefDiff is one of these approaches, it can be directly compared with others within this category. In the next sections, we discuss RefDiff~1.0 and three other approaches.
 
 \subsection{RefDiff~1.0}
 
@@ -33,7 +38,7 @@ In a second study that mined refactorings in 285 GitHub hosted Java repositories
 
 In a recent study, Tsantalis~et~al.~\cite{tsantalis2018rminer} proposed a major evolution of its tool, now named as RMiner.
 In its current version, RMiner relies on an AST-based statement matching algorithm and a set of detection rules that cover 15 representative refactoring types. 
-Its statement matching algorithm employes two techniques to be resilient to code restructuring during refactoring: abstraction, which deals with changes in statements’ AST type due to refactorings, and argumentization, which deals with changes in sub-expressions within statements due to parameterization.
+Its statement matching algorithm employes two techniques to be resilient to code restructuring during refactoring: abstraction, which deals with changes in statements' AST type due to refactorings, and argumentization, which deals with changes in sub-expressions within statements due to parameterization.
 To evaluate RMiner, the authors created a dataset with 3,188 real refactorings instances from 185 open-source projects. Using this oracle, the authors found that RMiner has a precision of 98\% and recall of 87\%, which was the best result so far, surpassing RefDiff 1.0, the previous state-of-the-art, which achieved precision of 75.7\% and recall of 85.8\% in this dataset.
 
 
@@ -79,3 +84,9 @@ In the first one, they used code examples from the Fowler's catalog to create in
 In the second study, the authors used three open-source projects: Carol, jEdit, and Columba. In this case, Ref-Finder was executed in randomly selected pairs of versions. From the 774 refactoring instances found, the authors manually inspected a sample of 344 instances and found that 254 were correct (73.8\% precision).
 %However, in a study by Soares~et~al.~\cite{Soares:2013} using a set of randomly select revisions of JHotDraw and Apache Common Collections containing 81 refactoring instances in total, Ref-Finder achieved 35\% of precision and 24\% of recall.
 %Moreover, in our previous study~\cite{msr2017}, it also achieved 26.4\% of precision and 64.2\% of recall.
+
+It is worth noting that Ref-Finder and Refactoring Crawler require a full build of the program under analysis.
+Therefore, their usage is not recommended when mining refactorings from version histories in the large.
+In this case, it might be a challenge to build each release, due to missing external dependencies, for example.
+For that reason, our evaluation (Section~\ref{sec:eval:java}) focus on comparing RefDiff with RMiner.
+

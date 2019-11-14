@@ -67,7 +67,7 @@ Moreover, along with each node of the CST, we store the following information:
     
     \item[Namespace] \hfill \\
     An optional prefix that, along with the identifier, globally identifies the code element. 
-    This information only applies to root nodes and corresponds to the package or folder that the element is contained. For example, the namespace of the class \codeinl{Calculator} from Figure~\ref{FigJavaToCst} is \codeinl{my.calc.}.
+    This information only applies to top-level nodes and corresponds to the package or folder that the element is contained. For example, the namespace of the class \codeinl{Calculator} from Figure~\ref{FigJavaToCst} is \codeinl{my.calc.}.
     
     \item[Node type] \hfill \\
     A string that identifies the node type in the target language (class, function, method, etc.).
@@ -205,7 +205,7 @@ Additionally, we also define $M \gets \emptyset$ as the set of pairs of matching
 Then, we execute four subroutines:
 \begin{enumerate}
 
-\item In \textsc{findMatchingsById}, we recursively look for matching nodes that have the same identifier and parent, i.e., we assume that code elements with the same identifier and parent are the same.
+\item In \textsc{findMatchingsById}, we recursively look for matching nodes that have the same identifier and parent, i.e., we assume that code elements with the same identifier and parent are the same. In the case of top-level nodes, which do not have parents, their namespace should be the same.
 Such assumption allows us to match many code elements at this step, reducing the number of possibilities that need to be checked in the next steps.
 The procedure consists of a loop that pairs the children of the nodes received as arguments and calls the procedure \textsc{addMatch} whenever a matching is found (line~13).
 On its turn, \textsc{addMatch} (lines 46-51) adds a pair of matching nodes to $M$ and calls \textsc{findMatchingsById} again to look for matchings on their children, completing the recursion.
@@ -360,8 +360,8 @@ Another issue which we may face when looking for relationships are conflicts, i.
 For instance, in the example from Figure~\ref{FigRelationships1}, the conditions for \textit{Rename} yield true for the pair of methods \codeinl{min} and \codeinl{minimum} because their source code are similar and their parents match.
 However, this is also the case for the pair of methods \codeinl{min} and \codeinl{maximum}, whose bodies are also similar.
 We cannot match the same node twice, thus, we must decide upon which relationship we will accept and discard the other one.
-This issue is addressed in the \textsc{findMatchingsBySim} procedure by using the $\rdrank$ function to sort the potential matching pairs, enforcing that we take first the most likely matches.
-The $\rdrank$ function relies on a similarity metric, which we discuss in details in Section~\ref{SecCodeSim}.
+This issue is addressed in procedures \textsc{findMatchingsBySim} and \textsc{findMatchingsByChildr} by using the $\rdsortbysim$ function to sort the potential matching pairs, enforcing that we take first the most likely matches.
+The $\rdsortbysim$ function relies on a similarity metric, which we discuss in details in Section~\ref{SecCodeSim}.
 After a matching pair $(n_1, n_2)$ is added to $M$, no more matchings involving $n_1$ or $n_2$ are accepted, because \textsc{addMatch} procedure checks that $n_1 \in N^- \land n_2 \in N^+$ (line~47).
 
 
@@ -499,6 +499,7 @@ where $m_1$ is the multiset representing the source code of the body of $e_1$ an
 
 
 \subsubsection{Ignoring parameters and return keywords}
+\label{SecIgnoringReturn}
 
 %\noindent\textbf{Ignoring parameters and \codeinl{return} keywords}\\
 When retrieving the tokenized source code of the body of a code element, some tokens are ignored to avoid that syntactical constructs necessary to its declaration
@@ -510,3 +511,28 @@ System.out.printf("%.2f", res);
 \end{lstlisting}
 All the tokens within this method are present in \codeinl{main} before the extraction, except the identifier \codeinl{res}, which is a declared parameter of \codeinl{print}. In fact, in the original statement, a variable \codeinl{r} is used in place of \codeinl{res}. To be less susceptible to such differences, we omit all occurences of parameters in the tokenized source code of the body. Similarly, occurences of \codeinl{return} keywords are also ignored because they may be introduced when turning the extracted code into a method.
 It is worth noting that discarding such tokens is of responsability of the source analysis module. Thus, specific rules may be implemented according to the peculiarities of the programming language.
+
+\subsection{Implementation details}
+
+RefDiff implementation consists of a core module and language plugins:
+
+\begin{itemize}
+\item \textbf{\texttt{refdiff-core}}: implements our core algorithm and contains common data types to represent CSTs and interfaces to implement source code analysis (i.e., generation of CSTs) for each programming language. Currently, this module contains 3,103 lines of code, implemented in Java.
+
+\item \textbf{\texttt{refdiff-java}}: language plugin for Java, which relies on the Eclipse JDT library for parsing and analyzing Java code.\footnote{\url{https://www.eclipse.org/jdt/}}
+This module contains 1,137 lines of code.
+\item \textbf{\texttt{refdiff-c}}: language plugin for C, using the Eclipse CDT library.\footnote{\url{https://www.eclipse.org/cdt/}}
+This module contains 615 lines of code.
+\item \textbf{\texttt{refdiff-js}}: language plugin for JavaScript, using the Babel parser\footnote{\url{https://babeljs.io/docs/en/babel-parser}}
+and with 689 lines of code.
+\end{itemize}
+To add support to a new programming language, one must implement the  \codeinl{LanguagePlugin} interface, which defines two methods: \codeinl{parse}, which builds the CST given a set of source files, and \codeinl{getAllowedFilesFilter}, which returns an object with a list of allowed file extensions and an optional list of ignored file name suffixes. For example, \textbf{\texttt{refdiff-js}} ignores file names that end with \texttt{.min.js}, which are usually generated code.
+
+When compared to existing refactoring detection approaches, RefDiff's design has the advantage of being loosed coupled to the syntax of Java (and of any other programming language).
+For example, RMiner, which is a Java-based approach, relies on a statement matching algorithm and applies two techniques to enable matching of statements that are not textually identical: Abstraction and Syntax-aware replacements of AST nodes~\cite{tsantalis2018rminer}.
+Both techniques manipulate syntactic constructs of the Java language,
+such as return statements, variable declarations, assignments, method invocations, conditional statements, class instantiations, types, literals, operators, and others. Thus, when adapting these techniques to other programming language, tool builders should carefully consider its particular syntactic constructs. On the other hand, RefDiff’s similarity comparison is based on tokenized code. Therefore, it does not depend on the AST nodes of any given language. 
+As another example, Java code is structured with classes, which contains methods and attributes, and RMiner detection rules are tightly based on this structure. In contrast, JavaScript code contains functions inside functions with arbitrary levels of nesting. RefDiff is able to deal with both languages because CSTs do not assume any particular hierarchical structure between different types of nodes.
+
+In summary, we do not claim that existing approaches cannot not be extended to other languages, but that would require a non-trivial effort.
+By making fewer assumptions about the syntax of the target language we facilitate multi-language support. Note that the implemented language plugins have small code bases (between 615--1137 lines of code).

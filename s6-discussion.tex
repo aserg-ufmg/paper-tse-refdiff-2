@@ -1,0 +1,36 @@
+\section{Challenges and limitations}
+
+%In order to support multiple languages, RefDiff distinguish itself from other approaches in at least two main aspects.
+%First, our algorithm relies on the CST and on a set of generalized heuristics to abstract away particularities of programming languages.
+%Second, our code similarity function is based on tokenized source code and TF-IDF.
+%These are key design decision to make RefDiff programming language-agnostic, but they also impose an important limitation.
+
+\textbf{Low-level refactorings:} RefDiff does not detect local refactorings, such as rename, extract or inline a local variable, because the syntactical structure of the source code within a CST node is not represented.
+While it is theoretically possible to extend the CST to include finer-grained code elements such as statements, local variables, and others, this would also make it harder to port RefDiff to other programming languages.
+%For example, RMiner, which is a Java-based approach, heavily relies on a statement matching algorithm.
+%However, not every programming language is based on statements. In fact, functional programming languages such as Haskell relies on expressions rather than statements.
+%In essence, by making fewer assumptions about the syntax of the target language we facilitate multi-language support at the price of missing low-level refactorings.
+
+%For example, most of RMiner's heuristics relies on a statement matching algorithm.
+%However, not every programming language is statement-based. In fact, functional programming languages such as Haskell relies on expressions rather than statements.
+%In summary, RefDiff makes fewer assumptions about the syntax of the target language by relying on the CST and tokenized code, which enables its multi-language capability.
+
+
+%The CST does not assume a particular hierarchical structure between different types of nodes.
+%For instance, it is able to represent methods inside classes, or functions inside functions with arbitrary levels of nesting (e.g., JavaScript).
+
+\noindent\textbf{Generating call graphs:} In our modular architecture, the generation of the CST, which includes information from a call graph and a type hierarchy graph, is delegated to a language-specific plugin.
+For languages such as Java, there are reliable parsers and static analyzers that aid in this task (e.g., Eclipse JDT).
+However, we acknowledge that generating precise call graphs for untyped languages, such as JavaScript, might be a challenging problem.
+Nevertheless, we provided evidences that our approach works well even when the information encoded in the CST is not completely precise.
+For example, in our JavaScript implementation---which contains only 689 lines of code in total---we used a simple strategy in which we assume a node $n_1$ uses $n_2$ if $n_1$ contains a function call with the same identifier as $n_2$ and both are defined in the same file.
+However, to detect a \emph{Extract} relationship between $n_1$ and $n_2$, we need two other conditions: (i) $n_2$ should be a new method and (ii) the body of $n_2$ should be similar to the code removed from $n_1$ between revisions.
+In other words, an incorrect edge in the call graph only leads to an incorrect \emph{Extract} relationship in the unlikely scenario in which a function $n_2$ is introduced, the content of such function is similar to code removed from $n_1$ and $n_1$ calls a function with the same identifier of $n_2$ after the change, but that function is not actually $n_2$.
+A similar reasoning applies to \emph{Inline} relationships, which also depends on information from call graphs.
+In summary, although generating precise call graphs is non trivial for untyped languages, we argue that it is not needed in practice to achieve acceptable  precision, specially in the light of the results of our evaluation using JavaScript systems (91\% of precision).
+
+\noindent\textbf{JavaScript class syntax:} Our JavaScript implementation only considers classes defined with the new ES6 syntax, i.e., classes emulated by  functions definitions and prototype-based inheritance are just treated like regular functions when generating the CST.
+
+\noindent\textbf{Field-related refactorings:} The current implementation of RefDiff 2.0 does not detect \emph{Move/Pull Up/Push Down Field}, since they are less popular operations~\cite{fse2016-why-we-refactor}. However, there is no fundamental issue that prevents supporting these refactorings in the future, as long as we extend the CST to include field information.
+%We plan to add support for more refactoring types in future work.
+

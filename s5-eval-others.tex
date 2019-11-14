@@ -60,7 +60,7 @@ Besides the Java evaluation, we also evaluated precision and recall of RefDiff i
 Therefore, we had to adopt a different strategy. 
 %We also evaluate RefDiff with refactorings performed in two important but very different programming languages: JavaScript (a widely popular dynamic programming language, used mostly to build web applications) and C (a procedural programming language, used mostly to implement system software).
 %In the literature, we did not find a dataset with detailed information about real refactorings performed in these languages. Therefore, 
-To evaluate precision, we manually validated the refactorings detected by RefDiff in a set of GitHub repositories, in both languages (Section~\ref{sec:eval:js:c:precision}). Then, to evaluate recall, we created an oracle by searching for documented refactoring operations in commit messages of the same set of repositories (Section~\ref{sec:eval:js:c:recall}).
+To evaluate precision, we manually validated the refactorings detected by RefDiff in a set of GitHub repositories, in both languages (Section~\ref{sec:eval:js:c:precision}). Then, to evaluate recall, we searched for documented refactoring operations in commit messages of the same set of repositories (Section~\ref{sec:eval:js:c:recall}).
 After that, in Section~\ref{sec:eval:js:c:results}, we report the precision and recall achieved by RefDiff.  We are not aware of any other tool for detecting refactorings in these languages. Therefore, in this second evaluation, it was not possible to compare RefDiff's results with competitor tools.
 
 %\subsection{Evaluation Design}
@@ -153,7 +153,7 @@ Inline Function & inline, inline into, remove indirection, indirect functions, r
 \label{sec:eval:js:c:results}
 
 Table~\ref{TabResultJs} shows the precision and recall results for JavaScript. The overall precision is 91\%. There are three refactorings with precision of 80\%: \textit{Rename Function}, \textit{Move and Rename Function}, and \textit{Inline Function}. For the remaining refactoring types, RefDiff has a precision of 90\% (two refactoring types) or a precision of 100\% (five refactoring types). Table~\ref{TabResultJs} also shows the recall results, which reach 88\% when all refactoring types are considered together.
-\textit{Inline function} has the lowest recall (40\%); however, our oracle has only five instances of this operation. There are three refactoring types with recall of 100\%: \textit{Move File}, \textit{Move Function}, \textit{Move and Rename File}. For the other ones, recall ranges between 80\% and 90\%.
+\textit{Inline function} has the lowest recall (40\%); however, our dataset has only five instances of this operation. There are three refactoring types with recall of 100\%: \textit{Move File}, \textit{Move Function}, \textit{Move and Rename File}. For the other ones, recall ranges between 80\% and 90\%.
 
 
 
@@ -321,8 +321,9 @@ Total & 80 & \xbar{0.88} & & 90 & \xbar{0.91} \\
 
 One threat to validity of the evaluation with JavaScript and C projects is its smaller scale.
 For example, we computed precision for JavaScript using 87 refactorings, and  recall using 65 refactorings, while the evaluation in Java used an oracle with 3,249 refactorings.
-Unlike in the case of Java, we did not find in the literature a dataset suitable to build an oracle for JavaScript and C.
-Besides, we did not find competing tools that could be used to build an oracle by triangulation.
+Particularly, we restricted the analysis to 10 instances per refactoring type. First, we acknowledge this limit does not express the frequency of each refactoring in practice.  Second, as a result of this decision, our evaluation dataset for JavaScript and C is not complete with respect to true positives.
+%Unlike in the case of Java, we did not find in the literature a dataset suitable to build an oracle for JavaScript and C.
+%Besides, we did not find competing tools that could be used to build an oracle by triangulation.
 %Thus, due to time constraints, we reduced the scale of the evaluation.
 %However, we should note that the refactoring detection algorithm is the same  are the same 
 In fact, the evaluation with JavaScript and C is a complement to the evaluation with Java aiming to show that RefDiff 2.0 provides similar results when used to detect refactorings in other programming languages.
