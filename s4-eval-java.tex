@@ -17,7 +17,7 @@
 \centering
 \begin{tabular}{@{}lrlrrrlllrrrll@{}}
 \toprule
- & & & \multicolumn{2}{c}{RefDiff 1.0} & & \multicolumn{2}{c}{RefDiff 2.0} & & \multicolumn{2}{c}{RMiner}\\
+ & & & \multicolumn{2}{c}{RefDiff 1.0} & & \multicolumn{2}{c}{RefDiff 2.0} & & \multicolumn{2}{c}{RMiner 1.0}\\
 \cmidrule{4-5} \cmidrule{7-8} \cmidrule{10-11}
 Refactoring Type & \# & & Precision & Recall & & Precision & Recall & & Precision & Recall \\
 \midrule
@@ -38,16 +38,16 @@ Total & 3248 & & \xbar{0.792} & \xbar{0.802} & & \xbar{0.964} & \xbar{0.804} & &
 \end{table*}
 
 
-In this section, we evaluate the precision and recall of our approach using a recently proposed dataset of refactorings performed in real-world Java open-source projects. We also compare RefDiff's accuracy with RMiner---the current state-of-the-art tool for detecting refactorings in Java---and RefDiff~1.0, the previous version of our tool.
+In this section, we evaluate the precision and recall of our approach using a recently proposed dataset of refactorings performed in real-world Java open-source projects. We also compare its precision and recall with RMiner---the current state-of-the-art tool for detecting refactorings in Java---and RefDiff~1.0, the previous version of our tool.
 First, we present our evaluation design (Section~\ref{sec:eval:java:design}) and then we present the results (Section~\ref{sec:eval:java:results}).
 
 \subsection{Evaluation Design}
 \label{sec:eval:java:design}
 
-To evaluate the precision and recall of RefDiff in Java we initially use an oracle proposed by Tsantalis et al.~\cite{tsantalis2018rminer}.
+To evaluate the precision and recall of RefDiff~2.0 in Java we initially use an oracle proposed by Tsantalis et al.~\cite{tsantalis2018rminer}.
 This oracle includes 3,188 manually-validated refactoring instances, detected in 538 commits from 185 open-source projects, and covering 15 refactoring types.
 It is important to emphasize that most commits contain non-refactoring changes interleaved with refactorings, which is the most challenging scenario for refactoring detection tools.
-In our evaluation, we also compare RefDiff's precision and recall against RMiner.
+In our evaluation, we also compare RefDiff's precision and recall against RMiner (version~1.0).
 For the purpose of the comparison, we restricted the oracle to 11 refactoring types supported by both tools.
 Specifically, we excluded \emph{Change Package}, \emph{Move Field}, \emph{Push Down Field} and \emph{Pull Up Field} from the analysis as they are not supported by RefDiff.
 Moreover, \emph{Convert Type} and \emph{Change Signature}, although supported by RefDiff, are not evaluated because they are not covered by the oracle.
@@ -58,7 +58,7 @@ These instances are used to detect false positives reported by RefDiff, as descr
 
 First, we run RefDiff on each commit of the oracle. For each detected refactoring $r$ we checked whether $r$ is in the oracle, which may yield three outcomes: (i) if $r$ is a confirmed refactoring from the oracle, then it is a true positive; (ii) if $r$ is a false refactoring from the oracle, then it is a false positive; (iii) otherwise, $r$ was inspected by two authors of this paper to assess whether it is a false positive or a true positive not covered by the oracle.
 This extra manual validation is needed because the initial oracle must not be granted as complete, i.e., including all refactorings performed in the set of analysed commits.
-Specifically, it was constructed using a triangulation approach, based on an initial list of refactorings produced by RMiner and RefDiff~1.0. For this reason, it might miss true refactorings only detected by RefDiff~2.0. %the improved implementation of RefDiff, described in this paper.
+Specifically, it was constructed using a triangulation approach, based on an initial list of refactorings produced by RMiner~1.0 and RefDiff~1.0. For this reason, it might miss true refactorings only detected by RefDiff~2.0. %the improved implementation of RefDiff, described in this paper.
 
 %\begin{figure*}[!t]
 %\centering
@@ -92,7 +92,7 @@ The expanded oracle includes 3,248 refactoring instances (7.19\% more than the i
 
 
 
-Table~\ref{TabResultJava} shows the precision and recall results for RefDiff~2.0 and RMiner using the oracle described in the previous section. The overall precision and recall of RefDiff~2.0 is 96.4\% and 80.4\%, respectively.
+Table~\ref{TabResultJava} shows the precision and recall results for RefDiff~2.0 and RMiner~1.0 using the oracle described in the previous section. The overall precision and recall of RefDiff~2.0 is 96.4\% and 80.4\%, respectively.
 Precision ranges from 87.1\% (\emph{Move Method}) to 100.0\% (\emph{Extract Superclass}), and it is above 90\% for 8 out of 10 refactoring types.
 Recall ranges from 66.3\% (\emph{Extract Method}) to 97.0\% (\emph{Move Class}), and it is above 80\% for 6 out of 10 refactoring types.
 
@@ -119,9 +119,9 @@ We attribute this fact to the very low thresholds set for these refactoring type
 
 \end{itemize}
 
-\subsubsection{Comparison with RMiner}
+\subsubsection{Comparison with RMiner 1.0}
 
-Table~\ref{TabResultJava} also shows the results of RMiner, which achieves 98.8\% of overall precision (ranging from 95.5\% to 100.0\%) and 81.3\% of overall recall (ranging from 64.1\% to 97.1\%).
+Table~\ref{TabResultJava} also shows the results of RMiner~1.0, which achieves 98.8\% of overall precision (ranging from 95.5\% to 100.0\%) and 81.3\% of overall recall (ranging from 64.1\% to 97.1\%).
 When we analyze individual refactoring types, RefDiff's precision is lower in all but one refactoring type (\emph{Extract Superclass}). However, recall is higher in 6 refactoring types.
 In summary, both tools have very similar total recall, but RMiner's precision is slightly higher.
 We can list at least three differences between RefDiff and RMiner that might explain the differences in the results.
@@ -160,20 +160,22 @@ Despite the aforementioned differences, we emphasize that RefDiff and RMiner hav
 \subsection{Execution time}
 \label{SecRefDiffExecTime}
 
-\begin{figure}[htb]
-\centering
-\includegraphics[width=1.0\linewidth]{img/vioplot-exec-time.pdf}
-\caption{Violin plot of execution time per commit in log-10 scale}
-\label{FigVioplotExecTime}
-\end{figure}
-Besides comparing precision and recall, we also compared the execution time of both RefDiff and RMiner.
-For this purpose, we ran both tools using the same computer (an Intel Core i5-750 with 8GB of RAM) and measured the time spent in the analysis of each of the 538 commits from our oracle.
+
+Besides comparing precision and recall, we also compared the execution time of both RefDiff~2.0 and RMiner~1.0.
+For this purpose, we ran both tools using the same computer (an Intel Core i5-750 with 8GB of RAM and a 7200 RPM HDD) and measured the time spent in the analysis of each of the 538 commits from our oracle.\footnote{We repeated the experiment three times and discarded the times collected in the first run, which was considered as a warm up.}
 Figure~\ref{FigVioplotExecTime} shows a violin plot of the execution time per commit for both tools, using a log-10 scale.
 We can note that the median is lower for RMiner (109 ms vs. 157 ms), but RefDiff has less variation in the execution times. For example, the maximum execution time for RMiner was 85s, at commit~ab98bca from  \textit{java-algorithms-implementation}, whilst RefDiff spent 10s at maximum, in commit~4baf0a4 from \textit{aws-sdk-java}.
 Nevertheless, both tools analyze the majority of the commits in less than one second and are viable for practical use.
 It is worth noting that we executed both RefDiff and RMiner using their file-based API, which  reads a list of files directly from disk.
 This means that the time to clone or checkout revisions from git repositories is not included in our measurements.
 However, we do not expect significant differences between both tools when using their git-based API, which includes services from mining refactorings directly from git repositories. The reason is that both tools retrieve only the necessary files using the \textit{jgit} library, therefore avoiding checking out the entire project on disk.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=1.0\linewidth]{img/vioplot-exec-time.pdf}
+\caption{Violin plot of execution time per commit in log-10 scale}
+\label{FigVioplotExecTime}
+\end{figure}
 
 \subsection{Threats to Validity}
 \label{SecThreatsJava}
@@ -182,11 +184,11 @@ There are at least two threats to the validity of the evaluation with Java proje
 The first one is the subjectivity inherent to the manual classification of the reported refactorings as true/false positives, which directly impact the computed precision.
 Different validators may have a different interpretation of the code change under analysis, which is demonstrated by the fact that in 34\% of the cases the validators initially disagreed.
 We mitigated this threat by having each refactoring assessed by two validators independently.
-Second, as discussed in Section~\ref{sec:eval:java:design}, our oracle can not be granted as complete, i.e., there might exist refactorings in the analyzed revisions that are not detected by neither RMiner nor RefDiff.
+Second, as discussed in Section~\ref{sec:eval:java:design}, our oracle can not be granted as complete, i.e., there might exist refactorings in the analyzed revisions that are not detected by any of the tools.
 Thus, the actual recall might be lower than the computed recall.
 Unfortunately, it is not feasible to assure the completeness of an oracle at this scale with manual inspection.
 A single commit usually contains hundreds of changed lines of code, making such task extremely time consuming and error prone.
-Nevertheless, the computed recall serves the purpose of comparison between tools, and it should also be a fair approximation of actual recall, as our oracle is based on refactorings found by three tools: RMiner, RefDiff~1.0, and RefDiff~2.0.
+Nevertheless, the computed recall serves the purpose of comparison between tools, and it should also be a fair approximation of actual recall, as our oracle is based on refactorings found by three tools: RMiner~1.0, RefDiff~1.0, and RefDiff~2.0.
 
 %We cannot claim that the precision and recall of our approach would be the same for different projects, with distinct characteristics, and with actual refactorings applied by developers. However, such setup was necessary to compute recall, as discussed in Section~\ref{SecOracleConstruction}. Besides, the results we achieved in the calibration process (precision of 85.7\% and recall of 94.1\%), in which we used actual commits from relevant Java repositories, suggest that RefDiff's precision and recall are acceptable in real scenarios. Nevertheless, we plan to extend this study by assessing the precision of RefDiff in a large corpus of commits from open-source repositories.
 %Neverthless, our evaluation includes relevant Java systems of different domains, with up to 374,000 lines of code.

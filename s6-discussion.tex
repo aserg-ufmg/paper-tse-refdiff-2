@@ -1,4 +1,5 @@
 \section{Challenges and limitations}
+\label{sec:challenges}
 
 %In order to support multiple languages, RefDiff distinguish itself from other approaches in at least two main aspects.
 %First, our algorithm relies on the CST and on a set of generalized heuristics to abstract away particularities of programming languages.
@@ -31,6 +32,11 @@ In summary, although generating precise call graphs is non trivial for untyped l
 
 \noindent\textbf{JavaScript class syntax:} Our JavaScript implementation only considers classes defined with the new ES6 syntax, i.e., classes emulated by  functions definitions and prototype-based inheritance are just treated like regular functions when generating the CST.
 
-\noindent\textbf{Field-related refactorings:} The current implementation of RefDiff 2.0 does not detect \emph{Move/Pull Up/Push Down Field}, since they are less popular operations~\cite{fse2016-why-we-refactor}. However, there is no fundamental issue that prevents supporting these refactorings in the future, as long as we extend the CST to include field information.
-%We plan to add support for more refactoring types in future work.
+\noindent\textbf{Field-related refactorings:}
+%The current implementation of RefDiff 2.0 does not detect \emph{Move/Pull Up/Push Down Field}, since they are less popular operations~\cite{fse2016-why-we-refactor}.
+%However, there is no fundamental issue that prevents supporting these refactorings in the future, as long as we extend the CST to include field information.
+As our refactoring detection algorithm is centered around code similarity and fields do not have a body, we did not implement the detection of \emph{Move/Pull Up/Push Down Field} in RefDiff 2.0.
+Unrestricted detection of \emph{Move Field} based solely on fields' types and names is prone to find many false positives.
+However, we plan to add support for field-related refactorings in future work by using stricter detection rules, similarly to RMiner (e.g., requiring a dependency between their source/destination classes).
 
+%Without resorting to code similarity, we need other means to avoid detecting many false positives. In RefDiff 1.0 we tried to solve that problem by using the statements that used the field in our similarity index. However, such strategy did not yield good results in practice.

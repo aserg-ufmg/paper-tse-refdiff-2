@@ -36,8 +36,8 @@ Refactoring Miner was employed and evaluated in empirical studies on refactoring
 In the first study, using the version histories of JUnit, HTTPCore, and HTTPClient, Tsantalis~et~al.~\cite{tsantalis_empiricalstudy} reported 8 false positives for the \emph{Extract Method} refactoring (96.4\% precision) and 4 false positives for the \emph{Rename Class} refactoring (97.6\% precision). No false positives were reported for the remaining refactorings.
 In a second study that mined refactorings in 285 GitHub hosted Java repositories~\cite{fse2016-why-we-refactor}, we found found 1,030 false positives out of 2,441 refactorings (63\% precision). However, we also evaluated Refactoring Miner using as a benchmark the dataset reported by Chaparro~et~al.~\cite{Chaparro:2014}, in which it achieved 93\% precision and 98\% recall.
 
-In a recent study, Tsantalis~et~al.~\cite{tsantalis2018rminer} proposed a major evolution of its tool, now named as RMiner.
-In its current version, RMiner relies on an AST-based statement matching algorithm and a set of detection rules that cover 15 representative refactoring types. 
+In a recent study, Tsantalis~et~al.~\cite{tsantalis2018rminer} proposed a major evolution of its tool, now named as RMiner (version 1.0).
+RMiner relies on an AST-based statement matching algorithm and a set of detection rules that cover 15 representative refactoring types. 
 Its statement matching algorithm employes two techniques to be resilient to code restructuring during refactoring: abstraction, which deals with changes in statements' AST type due to refactorings, and argumentization, which deals with changes in sub-expressions within statements due to parameterization.
 To evaluate RMiner, the authors created a dataset with 3,188 real refactorings instances from 185 open-source projects. Using this oracle, the authors found that RMiner has a precision of 98\% and recall of 87\%, which was the best result so far, surpassing RefDiff 1.0, the previous state-of-the-art, which achieved precision of 75.7\% and recall of 85.8\% in this dataset.
 
