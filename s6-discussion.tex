@@ -37,6 +37,6 @@ In summary, although generating precise call graphs is non trivial for untyped l
 %However, there is no fundamental issue that prevents supporting these refactorings in the future, as long as we extend the CST to include field information.
 As our refactoring detection algorithm is centered around code similarity and fields do not have a body, we did not implement the detection of \emph{Move/Pull Up/Push Down Field} in RefDiff 2.0.
 Unrestricted detection of \emph{Move Field} based solely on fields' types and names is prone to find many false positives.
-However, we plan to add support for field-related refactorings in future work by using stricter detection rules, similarly to RMiner (e.g., requiring a dependency between their source/destination classes).
+However, we plan to add support for field-related refactorings in future work by using stricter detection rules, similarly to RMiner (e.g., requiring a dependency between their source and destination classes).
 
 %Without resorting to code similarity, we need other means to avoid detecting many false positives. In RefDiff 1.0 we tried to solve that problem by using the statements that used the field in our similarity index. However, such strategy did not yield good results in practice.

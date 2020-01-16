@@ -12,7 +12,7 @@ In the next sections, we describe in details each phase of our approach.
 
 \begin{figure*}[htb]
 \centering
-\includegraphics[width=0.9\textwidth]{img/diff1.pdf}
+\includegraphics[width=0.9\textwidth]{img-diff1.pdf}
 \caption{Illustrative diff between two revisions of a system annotated with refactoring operations}
 \label{FigDiff1}
 \end{figure*}
@@ -47,7 +47,7 @@ JavaScript & file, class, and function \\
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=1.0\linewidth]{img/cstDiff1.pdf}
+\includegraphics[width=1.0\linewidth]{img-cstDiff1.pdf}
 \caption{CST of both revisions of the example system from Figure~\ref{FigDiff1}}
 \label{FigJavaToCst}
 \end{figure}
@@ -328,7 +328,7 @@ In this example, as every node on the left side is matched, there are no deleted
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=1.0\linewidth]{img/relationshipDiff1.pdf}
+\includegraphics[width=1.0\linewidth]{img-relationshipDiff1.pdf}
 \caption{Relationships found in the example from Figure~\ref{FigDiff1}}
 \label{FigRelationships1}
 \end{figure}
@@ -350,7 +350,76 @@ To address this issue, we only resolve the actual relationship types in steps~4 
 \renewcommand{\arraystretch}{1.3}
 \centering
 \footnotesize
-\input{img/sourceCodeTransformation2.tex}
+\begin{tabular}{@{}llll@{}}
+\begin{tabular}{p{6.5cm}}
+\multicolumn{1}{c}{\textbf{Source code of a class}} \\
+\begin{lstlisting}
+public class Calculator {
+
+  public int sum(int x, int y) {
+    return x + y;
+  }
+
+  public int min(int x, int y) {
+    if (x < y) return x;
+    else return y;
+  }
+
+  public double power(int b, int e) {
+    return Math.pow(b, e);
+  }
+}
+\end{lstlisting}\\
+
+\end{tabular}
+& {\Large $\Rightarrow$} &
+\begin{tabular}{|l|r|r|r|}
+\multicolumn{4}{c}{\textbf{Multiset of tokens for each method}} \\
+\hline
+Token $t$ & $m_{\mathtt{sum}}(t)$ & $m_{\mathtt{min}}(t)$ & $m_{\mathtt{power}}(t)$\\
+\hline
+\codeinl{return} & 1 & 2 & 1 \\
+\codeinl{x}      & 1 & 2 & 0 \\
+\codeinl{+}      & 1 & 0 & 0 \\
+\codeinl{y}      & 1 & 2 & 0 \\
+\codeinl{;}      & 1 & 2 & 1 \\
+\codeinl{if}     & 0 & 1 & 0 \\
+\codeinl{(}      & 0 & 1 & 1 \\
+\codeinl{<}      & 0 & 1 & 0 \\
+\codeinl{)}      & 0 & 1 & 1 \\
+\codeinl{else}   & 0 & 1 & 0 \\
+\codeinl{Math}   & 0 & 0 & 1 \\
+\codeinl{.}      & 0 & 0 & 1 \\
+\codeinl{pow}    & 0 & 0 & 1 \\
+\codeinl{b}      & 0 & 0 & 1 \\
+\codeinl{,}      & 0 & 0 & 1 \\
+\codeinl{e}      & 0 & 0 & 1 \\
+\hline
+\end{tabular} &
+\begin{tabular}{|r|}
+\multicolumn{1}{c}{} \\
+\hline
+$n_t$\\
+\hline
+3 \\
+2 \\
+1 \\
+2 \\
+3 \\
+1 \\
+2 \\
+1 \\
+2 \\
+1 \\
+1 \\
+1 \\
+1 \\
+1 \\
+1 \\
+1 \\
+\hline
+\end{tabular}
+\end{tabular}
 \caption{Transformation of the body of methods into a multiset of tokens}
 \label{FigSourceCodeTransformation}
 \end{figure*}
