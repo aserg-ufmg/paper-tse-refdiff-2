@@ -178,25 +178,9 @@ There are four non-matching relationships: \textit{Extract Supertype}, \textit{E
 \\
 \EndProcedure
 \end{algorithmic}
-%\vspace{1em}
-%{
-%\footnotesize
-%\renewcommand{\arraystretch}{1.3}
-%\begin{tabular}{@{}ll@{}}
-%\midrule
-%\multicolumn{2}{c}{\textbf{Definitions}}\\
-%$\rdchildren(n)$ & set of children of $n$ in the CST\\
-%$\rdsortbysim(S)$ & elements of $S$ sorted by $\rdsim$ function descending\\
-%\midrule
-%\end{tabular}
-%}
 \caption{Algorithm to find relationships}
 \label{AlgoGeneral}
 \end{figure}
-
-
-
-
 
 
 Our approach employs the algorithm described in Figure~\ref{AlgoGeneral} to find the relationships (i.e., to compute the set $R$).
@@ -218,7 +202,6 @@ The goal is to find \textit{Change Signature}, \textit{Pull Up}, \textit{Push Do
 The procedure iterates over the unmatched pairs of nodes sorted by similarity in descending order.
 We use the notation $N^-$ to denote the set of unmatched nodes from $t_1$ (presumably deleted) and $N^+$ to denote the set of unmatched nodes from $t_2$ (presumably added).
 For each pair $(n_1, n_2)$, the procedure checks if it meets the conditions (specified in the second column of Table~\ref{TabRelationshipTypes}) for any matching relationship by calling $\mathit{findMatchRel}(n_1, n_2)$.
-%Then, it repeatedly takes a pair $(n_1, n_2)$ from $M'$, sorting by the $\rdrank$ function, and checks if it meets the conditions (specified in the second column of Table~\ref{TabRelationshipTypes}) for any matching relationship by calling $\mathit{findMatchRel}(n_1, n_2)$.
 This function returns a singleton containing a matching relationship or an empty set if none of the conditions are met.
 Last, the \textsc{addMatch} subroutine is called in the case of a matching (line~24).
 The conditions to find those relationships and the $\rdsortbysim$ function rely on a code similarity metric, which is described in details in Section~\ref{SecCodeSim}.
@@ -312,11 +295,6 @@ Inline & & $\rduses(n_1, n_2') \land \rdsimx(n_1, n_2) > 0.5$ \\
 \end{table*}
 
 
-
-
-
-
-
 Figure~\ref{FigRelationships1} shows the relationships we find after running RefDiff in the example from Figure~\ref{FigDiff1}.
 Each relationship is represented by an edge connecting nodes from the left and right CSTs.
 There are three relationships of the type \textit{Same}, involving the code elements whose identifiers do not change: the class \codeinl{Main} and the methods \codeinl{main} and \codeinl{sum}.
@@ -343,7 +321,7 @@ The conditions for this relationship includes the clause $\rdparent(n_5)' = \rdp
 This clause only yields true after the matching pair $(n_3, n_9)$ is added to $M$, i.e., after we find out that \codeinl{Calculator} is renamed to \codeinl{FpCalculator}.
 In fact, if we call $\mathit{findMatchRel}(n_5, n_{11})$ before $M$ contains $(n_3, n_9)$, we would incorrectly classify it as a \textit{Move and Rename} relationship.
 To address this issue, we only resolve the actual relationship types in steps~4 and~5, after all matching pairs are found (note that in steps~1, 2, and 3 we record the matching pairs in $M$, purposely ignoring the type of relationship).
-%Moreover, non-matching relationships, which also depends on the matchings found, are analyzed in the last step. 
+
 
 
 \begin{figure*}[htb]
@@ -435,15 +413,8 @@ The $\rdsortbysim$ function relies on a similarity metric, which we discuss in d
 After a matching pair $(n_1, n_2)$ is added to $M$, no more matchings involving $n_1$ or $n_2$ are accepted, because \textsc{addMatch} procedure checks that $n_1 \in N^- \land n_2 \in N^+$ (line~47).
 
 
-
-
-
-
-
 \subsection{Code Similarity}
 \label{SecCodeSim}
-
-
 
 A key element of our approach to find relationships, as previously mentioned, is computing the similarity between code elements (i.e., CST nodes).
 The first step to compute this similarity is to represent their source code as a multiset (or bag) of tokens.
@@ -518,7 +489,6 @@ Therefore, the source code of the body of $e_2$ should be similar to the source 
 Additionally, not all code removed from $e_1$ may have been moved to $e_2$, i.e., some parts of the code may have been extracted to other locations or simply deleted.
 To be less susceptible to this issue, our similarity index for \textit{Extract} relationships rely on the following assumption: the code from the body of $e_2$ should be mostly contained in the code removed from $e_1$.
 
-%However, we face two issues when directly comparing the code removed from $e_1$ with the body of $e_2$. First, not all code removed from $e_1$ may have been moved to $e_2$, i.e., some parts of the code may have been extracted to other locations or simply deleted. Second, $e_2$ may contain additional code, introduced after the extraction. In fact, one of the common reasons to extract a method/function is to facilitate the addition of new code~\cite{fse2016-why-we-refactor}. Thus, to be less susceptible to those issues, our similarity index for \textit{Extract} relationships relies on two heuristics: (i) the code from the body of $e_2$ should be mostly contained in the code removed from $e_1$, or (ii) the code removed from $e_1$ should be mostly contained in the body of $e_2$.
 
 Thus, to compute the extract similarity, first we need to compute the code removed from $e_1$. As we represent the source code as multisets of tokens, we are able to use the subtract operation to achieve this goal.
 Let $m_1$ be the multiset of tokens of $e_1$ before the change and $m_1'$ be the multiset of tokens of $e_1$ after the change.
@@ -549,10 +519,6 @@ when $m_2$ is a subset of $m_1^-$, addressing the previously described heuristic
 %that the code from the body of $e_2$ should be mostly contained in the code removed from $e_1$.
 
 
-
-%When building the multiset of tokens representing the source code of the body of a code element, we ignore any occurrence of identifiers that are parameters. 
-
-
 \subsubsection{Inline similarity}
 \label{SecSimI}
 
@@ -563,9 +529,6 @@ If a code element $e_1$ is inlined into a code element $e_2$, we expect that the
 \rdsimi(e_1, e_2) = \rdsimc(m_1, m_2^+)
 \end{align}
 where $m_1$ is the multiset representing the source code of the body of $e_1$ and $m_2^+$ is the multiset representing the code added to $e_2$ ($m_2' \setminus m_2$). Such similarity index is at maximum (1.0) when $m_1$ is a subset of the added code ($m_2^+$).
-
-
-
 
 
 \subsubsection{Ignoring parameters and return keywords}

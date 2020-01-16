@@ -156,55 +156,6 @@ Table~\ref{TabResultJs} shows the precision and recall results for JavaScript. T
 \textit{Inline function} has the lowest recall (40\%); however, our dataset has only five instances of this operation. There are three refactoring types with recall of 100\%: \textit{Move File}, \textit{Move Function}, \textit{Move and Rename File}. For the other ones, recall ranges between 80\% and 90\%.
 
 
-
-%\begin{table}[htbp]
-%\renewcommand{\arraystretch}{1.2}
-%\caption{JavaScript precision results}
-%\label{TabResultJsPrecison}
-%\centering
-%\begin{tabular}{@{}lrrl@{}}
-%\toprule
-%Refactoring Type & TP & FP & Precision\\
-%\midrule
-%Move File & 10 & 0 & \xbar{1.00} \\
-%Move Class & 2 & 0 & \xbar{1.00} \\
-%Move Function & 9 & 1 & \xbar{0.90} \\
-%Rename File & 10 & 0 & \xbar{1.00} \\
-%Rename Class & 5 & 0 & \xbar{1.00} \\
-%Rename Function & 8 & 2 & \xbar{0.80} \\
-%Move and Rename File & 10 & 0 & \xbar{1.00} \\
-%Move and Rename Function & 8 & 2 & \xbar{0.80} \\
-%Extract Function & 9 & 1 & \xbar{0.90} \\
-%Inline Function & 8 & 2 & \xbar{0.80} \\
-%\addlinespace
-%Total & 79 & 8 & \xbar{0.91} \\
-%\bottomrule
-%\end{tabular}
-%\end{table}
-
-%\begin{table}[htbp]
-%\renewcommand{\arraystretch}{1.2}
-%\caption{JavaScript recall results}
-%\label{TabResultJsRecall}
-%\centering
-%\begin{tabular}{@{}lrrl@{}}
-%\toprule
-%Refactoring Type & TP & FN & Recall\\
-%\midrule
-%Move File & 10 & 0 & \xbar{1.00} \\
-%Move Function & 10 & 0 & \xbar{1.00} \\
-%Rename File & 8 & 2 & \xbar{0.80} \\
-%Rename Function & 9 & 1 & \xbar{0.90} \\
-%Move and Rename File & 3 & 0 & \xbar{1.00} \\
-%Move and Rename Function & 6 & 1 & \xbar{0.86} \\
-%Extract Function & 9 & 1 & \xbar{0.90} \\
-%Inline Function & 2 & 3 & \xbar{0.40} \\
-%\addlinespace
-%Total & 57 & 8 & \xbar{0.88} \\
-%\bottomrule
-%\end{tabular}
-%\end{table}
-
 \begin{table}[htbp]
 \renewcommand{\arraystretch}{1.2}
 \caption{JavaScript precision and recall results}
@@ -237,58 +188,8 @@ We did not find any instance of \textit{Move and Rename File}, thus we could not
 Table~\ref{TabResultC} also shows the recall results, which is 91\% overall.
 \textit{Extract Function} (70\%) and \textit{Move Function} (80\%) are the ones with lowest recall.
 For the remaining refactoring types, RefDiff has a recall of 90\% (three refactoring types) or a recall of 100\% (four refactoring types).
-%It is worth noting that 5 out of 10 false positives we found in our evalution were due to a limitation of our implementation. Currently, the source code analysis plugin for C does not handle preprocessor directives and macros. Consequently, it may yield an incorrect CST due to parsing problems.
 
 
-
-
-%\begin{table}[htbp]
-%\renewcommand{\arraystretch}{1.2}
-%\caption{C precision results}
-%\label{TabResultCPrecison}
-%\centering
-%\begin{tabular}{@{}lrrl@{}}
-%\toprule
-%Refactoring Type & TP & FP & Precision\\
-%\midrule
-%Move File & 10 & 0 & \xbar{1.00} \\
-%Move Function & 8 & 2 & \xbar{0.80} \\
-%Rename File & 10 & 0 & \xbar{1.00} \\
-%Rename Function & 9 & 1 & \xbar{0.90} \\
-%Move and Rename Function & 8 & 2 & \xbar{0.80} \\
-%Change Signature & 10 & 0 & \xbar{1.00} \\
-%Extract Function & 10 & 0 & \xbar{1.00} \\
-%Inline Function & 5 & 5 & \xbar{0.50} \\
-%\addlinespace
-%Total & 70 & 10 & \xbar{0.88} \\
-%\bottomrule
-%\end{tabular}
-%\end{table}
-
-
-%\begin{table}[htbp]
-%\renewcommand{\arraystretch}{1.2}
-%\caption{C recall results}
-%\label{TabResultCRecall}
-%\centering
-%\begin{tabular}{@{}lrrl@{}}
-%\toprule
-%Refactoring Type & TP & FN & Recall\\
-%\midrule
-%Change Signature & 9 & 1 & \xbar{0.90} \\
-%Extract Function & 7 & 3 & \xbar{0.70} \\
-%Inline Function & 9 & 1 & \xbar{0.90} \\
-%Move File & 10 & 0 & \xbar{1.00} \\
-%Move Function & 8 & 2 & \xbar{0.80} \\
-%Move and Rename File & 10 & 0 & \xbar{1.00} \\
-%Move and Rename Function & 9 & 1 & \xbar{0.90} \\
-%Rename File & 10 & 0 & \xbar{1.00} \\
-%Rename Function & 10 & 0 & \xbar{1.00} \\
-%\addlinespace
-%Total & 82 & 8 & \xbar{0.91} \\
-%\bottomrule
-%\end{tabular}
-%\end{table}
 
 \begin{table}[htbp]
 \renewcommand{\arraystretch}{1.2}

@@ -60,16 +60,6 @@ First, we run RefDiff on each commit of the oracle. For each detected refactorin
 This extra manual validation is needed because the initial oracle must not be granted as complete, i.e., including all refactorings performed in the set of analysed commits.
 Specifically, it was constructed using a triangulation approach, based on an initial list of refactorings produced by RMiner~1.0 and RefDiff~1.0. For this reason, it might miss true refactorings only detected by RefDiff~2.0. %the improved implementation of RefDiff, described in this paper.
 
-%\begin{figure*}[!t]
-%\centering
-%\includegraphics[width=0.8\textwidth]{img-diff2.pdf}
-%\caption{Illustrative diff of an \emph{Inline Method} refactoring considered as true positive by the validators.}
-%\label{FigDiff2}
-%\end{figure*}
-
-
-
-
 
 After following this procedure, RefDiff 2.0 detected 263 new refactoring instances (i.e., not listed in the initial oracle), which were validated by two paper's authors, called here validators. In the case of 175 refactorings (66\%), the validators agreed on their classification, including 138 refactorings labelled as true positives by both validators and 37 labelled as false positives. After this initial and independent validation, the validators discussed together the remaining 88 cases (34\%), to reach an agreement. As a result, 79 refactorings were considered true positives and 9 refactorings were classified as false positives.
 %Figure~\ref{FigDiff2} shows a first example of true positive. RefDiff identified an \emph{Inline Method} refactoring, consisting on the substitution of the method named \codeinl{acquireNodeRelationshipCursor}, which was removed in the same commit, by invocations to methods \codeinl{get()} and \codeinl{init()}. We emphasize in this figure the changes that correspond to this refactoring. This indication of refactoring was not listed in the oracle. The validators individually analyzed this commit and both agreed that an \emph{Inline Method} was applied in this commit.
@@ -79,10 +69,6 @@ In this case, a developer extracted method \codeinl{createPrepareRpcOptions} fro
 %Similarly to the example in Figure~\ref{FigDiff2},
 %Both validators agreed that \emph{Extract and Move Method} were applied in this commit.
 %After the manual validation of the refactoring instances it was possible to identify some common causes of failure.
-%In particular, one common reason for \emph{Move Method} false positives was missed \emph{Move/Rename Class}, i.e., RefDiff did not detect that the entire class has been moved (or renamed), and incorrectly reported that several of its members were moved.
-%We mitigated this issue by introducing a specific heuristic for this case (see Section~\ref{AlgoGeneral}).
-%Moreover, the analysis of the incorrect reports allowed us to identify and fix a couple of bugs in our implementation.
-%After applying the aforementioned fixes to RefDiff, it was necessary to run it again and compare the results against the update oracle. This time, 51 new refactoring instances were found, which were  validated by one of the authors. 24 of them (47\%) were classified as true positive, whilst 27 of them (53\%) were classified as false positive.
 
 In total, after completing the manual validation, 217 new refactorings instances were classified as true positives and therefore included in the oracle.
 The expanded oracle includes 3,248 refactoring instances (7.19\% more than the initial one) and it is publicly available at RefDiff's GitHub repository.\footnote{\url{https://github.com/aserg-ufmg/RefDiff}}
@@ -155,8 +141,6 @@ Despite the aforementioned differences, we emphasize that RefDiff and RMiner hav
 \end{itemize}
 
 
-%Nevertheless, we argue that RefDiff's precision of 96.4\% is satisfactory, specially when we consider that our approach is programming language neutral.
-
 \subsection{Execution time}
 \label{SecRefDiffExecTime}
 
@@ -190,6 +174,3 @@ Unfortunately, it is not feasible to assure the completeness of an oracle at thi
 A single commit usually contains hundreds of changed lines of code, making such task extremely time consuming and error prone.
 Nevertheless, the computed recall serves the purpose of comparison between tools, and it should also be a fair approximation of actual recall, as our oracle is based on refactorings found by three tools: RMiner~1.0, RefDiff~1.0, and RefDiff~2.0.
 
-%We cannot claim that the precision and recall of our approach would be the same for different projects, with distinct characteristics, and with actual refactorings applied by developers. However, such setup was necessary to compute recall, as discussed in Section~\ref{SecOracleConstruction}. Besides, the results we achieved in the calibration process (precision of 85.7\% and recall of 94.1\%), in which we used actual commits from relevant Java repositories, suggest that RefDiff's precision and recall are acceptable in real scenarios. Nevertheless, we plan to extend this study by assessing the precision of RefDiff in a large corpus of commits from open-source repositories.
-%Neverthless, our evaluation includes relevant Java systems of different domains, with up to 374,000 lines of code.
-%, and we have no reasons to  believe that precision and recall will be drastically inferior for other systems.
